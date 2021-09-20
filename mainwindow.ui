@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>217</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>KiraWavTar</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>要进行的操作：</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="combineWAVRadioButton">
+        <property name="text">
+         <string>合并波形文件</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+        <attribute name="buttonGroup">
+         <string notr="true">modeButtonGroup</string>
+        </attribute>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="extarctWAVRadioButton">
+        <property name="text">
+         <string>拆分波形文件</string>
+        </property>
+        <attribute name="buttonGroup">
+         <string notr="true">modeButtonGroup</string>
+        </attribute>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QStackedWidget" name="optionStackedWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="combineOptionPage">
+       <layout class="QGridLayout" name="gridLayout" columnstretch="0,1">
+        <property name="verticalSpacing">
+         <number>11</number>
+        </property>
+        <item row="2" column="1">
+         <widget class="FileNameEditWithSaveBrowse" name="combineResultPathWidget" native="true"/>
+        </item>
+        <item row="3" column="0" colspan="2">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>标记信息将会和合并结果保存到同一位置 (.kirawavtar-desc.json)。</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>保存合并结果到：</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>WAV文件所在文件夹：</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="DirNameEditWithBrowse" name="combineDirPathWidget" native="true"/>
+        </item>
+        <item row="4" column="0" colspan="2">
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="1">
+         <widget class="QCheckBox" name="subdirCheckBox">
+          <property name="toolTip">
+           <string>该选项让程序检查子文件夹（以及他们的子文件夹），并合并这些文件夹中的WAV文件。这些文件夹的结构会写入记录信息中，以备拆分时恢复。</string>
+          </property>
+          <property name="text">
+           <string>也处理子文件夹</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="extractOptionPage">
+       <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,1,0">
+        <property name="verticalSpacing">
+         <number>11</number>
+        </property>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>要拆分的WAV文件：</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>保存结果到：</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1" colspan="2">
+         <widget class="DirNameEditWithBrowse" name="extractResultPathWidget" native="true"/>
+        </item>
+        <item row="3" column="0" colspan="3">
+         <spacer name="verticalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>753</width>
+            <height>189</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="0" column="1" colspan="2">
+         <widget class="FileNameEditWithBrowse" name="extractSrcPathWidget" native="true"/>
+        </item>
+        <item row="1" column="0" colspan="3">
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>我们会自动把同名的“.kirawavtar-desc.json”作为标记文件。</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QPushButton" name="resetButton">
+        <property name="text">
+         <string>重置</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="runButton">
+        <property name="text">
+         <string>执行</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>DirNameEditWithBrowse</class>
+   <extends>QWidget</extends>
+   <header>dirnameeditwithbrowse.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>FileNameEditWithBrowse</class>
+   <extends>QWidget</extends>
+   <header>filenameeditwithbrowse.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>FileNameEditWithSaveBrowse</class>
+   <extends>QWidget</extends>
+   <header>filenameeditwithbrowse.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+ <buttongroups>
+  <buttongroup name="modeButtonGroup"/>
+ </buttongroups>
+</ui>
