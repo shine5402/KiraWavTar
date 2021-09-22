@@ -14,7 +14,8 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     wavcombine.cpp \
-    wavextract.cpp
+    wavextract.cpp \
+    wavtar_utils.cpp
 
 HEADERS += \
     dirnameeditwithbrowse.h \
@@ -22,7 +23,8 @@ HEADERS += \
     kfr_adapt.h \
     mainwindow.h \
     wavcombine.h \
-    wavextract.h
+    wavextract.h \
+    wavtar_utils.h
 
 FORMS += \
     filenameeditwithbrowse.ui \

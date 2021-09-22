@@ -6,6 +6,10 @@
 #include <kfr/all.hpp>
 #include <algorithm>
 #include <QDir>
+#include "wavtar_utils.h"
+
+using namespace wavtar_defines;
+using namespace wavtar_utils;
 
 namespace WAVExtact {
 
@@ -35,7 +39,13 @@ namespace WAVExtact {
             return;
         auto descFileRawData = descFileDevice.readAll();
         auto descJsonDoc = QJsonDocument::fromJson(descFileRawData);
-        auto descArray = descJsonDoc.array();
+        auto descJsonRoot = descJsonDoc.object();
+        auto descFileVersion = descJsonRoot.value("version").toInt();
+
+        if (descFileVersion != desc_file_version)
+            return;
+
+        auto descArray = descJsonRoot.value("description").toArray();
 
         for (const auto& currentDescVal : descArray){
             auto currentDesc = currentDescVal.toObject();
@@ -48,7 +58,7 @@ namespace WAVExtact {
             //makes folder if current subdir not exist
             QFileInfo {dstDir.absoluteFilePath(fileName)}.absoluteDir().mkpath(".");
 
-            auto writer = kfr::audio_writer_wav<float>(kfr::open_file_for_writing(dstDir.absoluteFilePath(fileName).toStdWString()), {1, kfr::audio_sample_type::i16, 44100, false});
+            auto writer = kfr::audio_writer_wav<float>(kfr::open_file_for_writing(dstDir.absoluteFilePath(fileName).toStdWString()), output_format);
             writer.write(currentSegmentData);
         }
     }
