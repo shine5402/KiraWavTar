@@ -23,7 +23,7 @@ namespace WAVExtact {
             dstDir.mkpath(".");
         }
 
-        kfr::audio_reader_wav<float> reader(kfr::open_file_for_reading(srcWAVFileName.toStdWString()));
+        kfr::audio_reader_wav<sample_process_t> reader(kfr::open_file_for_reading(srcWAVFileName.toStdWString()));
         auto srcData = reader.read_channels().at(0);
         //TODO:Need more check here
 
@@ -54,11 +54,11 @@ namespace WAVExtact {
             auto begin_sample_index = currentDesc.value("begin_sample_index").toInt();
             auto duration = currentDesc.value("duration").toInt();
 
-            auto currentSegmentData = kfr::univector<float>(srcData.begin() + begin_sample_index, srcData.begin() + begin_sample_index + duration);
+            auto currentSegmentData = kfr::univector<sample_process_t>(srcData.begin() + begin_sample_index, srcData.begin() + begin_sample_index + duration);
             //makes folder if current subdir not exist
             QFileInfo {dstDir.absoluteFilePath(fileName)}.absoluteDir().mkpath(".");
 
-            auto writer = kfr::audio_writer_wav<float>(kfr::open_file_for_writing(dstDir.absoluteFilePath(fileName).toStdWString()), output_format);
+            auto writer = kfr::audio_writer_wav<sample_process_t>(kfr::open_file_for_writing(dstDir.absoluteFilePath(fileName).toStdWString()), output_format);
             writer.write(currentSegmentData);
         }
     }
