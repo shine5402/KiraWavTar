@@ -8,6 +8,8 @@
 
 DirNameEditWithBrowse::DirNameEditWithBrowse(QWidget *parent) : QWidget(parent)
 {
+    setAcceptDrops(true);
+
     auto layout = new QHBoxLayout(this);
     layout->setMargin(0);
 
@@ -78,5 +80,6 @@ void DirNameEditWithBrowse::dropEvent(QDropEvent* event)
             result = fileInfo.absoluteFilePath();
         else
             result = fileInfo.absoluteDir().absolutePath();
+        dirNameEdit->setText(result);
     }
 }

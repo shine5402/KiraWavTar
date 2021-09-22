@@ -2,7 +2,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG += c++11
+CONFIG += c++17
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -12,12 +12,17 @@ SOURCES += \
     dirnameeditwithbrowse.cpp \
     filenameeditwithbrowse.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    wavcombine.cpp \
+    wavextract.cpp
 
 HEADERS += \
     dirnameeditwithbrowse.h \
     filenameeditwithbrowse.h \
-    mainwindow.h
+    kfr_adapt.h \
+    mainwindow.h \
+    wavcombine.h \
+    wavextract.h
 
 FORMS += \
     filenameeditwithbrowse.ui \
@@ -27,3 +32,5 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+include(external-libs.pri)
