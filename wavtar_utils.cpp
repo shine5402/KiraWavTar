@@ -11,7 +11,7 @@ namespace wavtar_utils {
         while (!dirNameStack.isEmpty()){
             auto currentDirName = dirNameStack.pop();
             QDir currentDir{currentDirName};
-            //TODO:use fplus here
+
             auto wavEntryList = currentDir.entryList({"*.wav"}, QDir::Files | QDir::NoDotAndDotDot);
             for (const auto& entry : std::as_const(wavEntryList)){
                result.append(currentDir.filePath(entry));

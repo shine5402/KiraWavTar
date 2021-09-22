@@ -5,6 +5,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include "wavtar_utils.h"
+#include "kfr_adapt.h"
 
 using namespace wavtar_defines;
 using namespace wavtar_utils;
@@ -74,7 +75,7 @@ namespace WAVCombine {
             return;
         descFileDevice.write(jsonDoc.toJson());
         //write wave file
-        kfr::audio_writer_wav<sample_process_t> writer(kfr::open_file_for_writing(saveFileName.toStdWString()), output_format);
+        kfr::audio_writer_wav<sample_process_t> writer(kfr::open_qt_file_for_writing(saveFileName), output_format);
         writer.write(combinedResult);
     }
 } // namespace WAVCombineWorker

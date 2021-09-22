@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <QDir>
 #include "wavtar_utils.h"
+#include "kfr_adapt.h"
 
 using namespace wavtar_defines;
 using namespace wavtar_utils;
@@ -28,9 +29,7 @@ namespace WAVExtact {
         //TODO:Need more check here
 
         //These code maybe can merged with identical codes in the combine...But with 2 occurance, whatever.
-        auto descFileName = srcWAVFileName;
-        descFileName.remove(QRegExp("(\\.wav)$"));
-        descFileName.append(".kirawavtar-desc.json");
+        auto descFileName = getDescFileNameFrom(srcWAVFileName);
 
         QFile descFileDevice{descFileName};
         if (!descFileDevice.exists())
@@ -58,7 +57,7 @@ namespace WAVExtact {
             //makes folder if current subdir not exist
             QFileInfo {dstDir.absoluteFilePath(fileName)}.absoluteDir().mkpath(".");
 
-            auto writer = kfr::audio_writer_wav<sample_process_t>(kfr::open_file_for_writing(dstDir.absoluteFilePath(fileName).toStdWString()), output_format);
+            auto writer = kfr::audio_writer_wav<sample_process_t>(kfr::open_qt_file_for_writing(dstDir.absoluteFilePath(fileName)), output_format);
             writer.write(currentSegmentData);
         }
     }
