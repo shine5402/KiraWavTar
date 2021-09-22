@@ -68,8 +68,8 @@ namespace WAVCombine {
         QJsonObject descJsonRoot;
         descJsonRoot.insert("version", desc_file_version);
         descJsonRoot.insert("description", combineDescArray);
-        QJsonDocument jsonDoc(combineDescArray);
-        QFile descFileDevice{descJsonRoot};
+        QJsonDocument jsonDoc(descJsonRoot);
+        QFile descFileDevice{descFileName};
         if (!descFileDevice.open(QFile::WriteOnly | QFile::Text))
             return;
         descFileDevice.write(jsonDoc.toJson());

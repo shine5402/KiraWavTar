@@ -26,4 +26,11 @@ namespace wavtar_utils {
         }
         return result;
     }
+
+    QString getDescFileNameFrom(const QString& WAVFileName){
+        auto descFileName = WAVFileName;
+        descFileName.remove(QRegExp("(\\.wav)$"));
+        descFileName.append(".kirawavtar-desc.json");
+        return descFileName;
+    }
 }

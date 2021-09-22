@@ -14,8 +14,9 @@ namespace wavtar_defines {
     using sample_o_t = int16_t;
     constexpr auto sample_type_o = kfr::audio_sample_type::i16;
     constexpr auto sample_rate_o = 44100;
-    constexpr auto o_w64 = false;
-    constexpr auto output_channel_count = 1;
+    constexpr kfr::audio_format output_format{1, sample_type_o, sample_rate_o, false};
+
+    constexpr auto desc_file_version = 1;
 }
 
 #endif // WAVTAR_UTILS_H
