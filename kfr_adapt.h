@@ -1,10 +1,21 @@
 #ifndef KFR_ADAPT_H
 #define KFR_ADAPT_H
 
-#include <kfr/io/file.hpp>
+#include <kfr/all.hpp>
 #include <QFile>
 #include <memory>
+
+// Some extra utils added in kfr namespace to provide function needed by my demand.
+
 namespace kfr {
+
+    /*
+      qt_file_xxx/open_qt_file_for_xxx provide a alternative for kfr'io part, utilizing Qt' QFile IO device.
+      Though it's some sort of unnecessary, as kfr already provide portable io out of box, use .toStdWString for bulit-in
+      unicode path api is kind of ugly...And Qt has a far more wide cross-platform range than kfr claims.
+      So maybe a good idea to port this....IDK, but whatever.
+    */
+
     template <typename T = void>
     struct qt_file_writer : abstract_writer<T>
     {
@@ -58,28 +69,38 @@ namespace kfr {
     };
 
     template <typename T = void>
-    inline std::shared_ptr<qt_file_reader<T>> open_qt_file_for_reading(const QString& fileName)
+    inline std::shared_ptr<qt_file_reader<T>> open_qt_file_for_reading(const QString& fileName, bool* openSuccess = nullptr)
     {
         auto device = std::make_unique<QFile>(fileName);
-        device->open(QFile::ReadOnly);
+        auto openSuccess_ = device->open(QFile::ReadOnly);
+        if (openSuccess)
+            *openSuccess = openSuccess_;
         return std::make_shared<qt_file_reader<T>>(std::move(device));
     }
 
     template <typename T = void>
-    inline std::shared_ptr<qt_file_writer<T>> open_qt_file_for_writing(const QString& fileName)
+    inline std::shared_ptr<qt_file_writer<T>> open_qt_file_for_writing(const QString& fileName, bool* openSuccess = nullptr)
     {
         auto device = std::make_unique<QFile>(fileName);
-        device->open(QFile::WriteOnly);
+        auto openSuccess_ = device->open(QFile::WriteOnly);
+        if (openSuccess)
+            *openSuccess = openSuccess_;
         return std::make_shared<qt_file_writer<T>>(std::move(device));
     }
 
     template <typename T = void>
-    inline std::shared_ptr<qt_file_writer<T>> open_qt_file_for_appending(const QString& fileName)
+    inline std::shared_ptr<qt_file_writer<T>> open_qt_file_for_appending(const QString& fileName, bool* openSuccess = nullptr)
     {
         auto device = std::make_unique<QFile>(fileName);
-        device->open(QIODevice::WriteOnly | QFile::Append);
+        auto openSuccess_ = device->open(QIODevice::WriteOnly | QFile::Append);
+        if (openSuccess)
+            *openSuccess = openSuccess_;
         return std::make_shared<qt_file_writer<T>>(std::move(device));
     }
+
+    inline bool audio_sample_is_float(audio_sample_type type){return type >= audio_sample_type::first_float;}
+
+    //constexpr
 }
 
 
