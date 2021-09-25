@@ -6,7 +6,7 @@
 #include <memory>
 #include <mapbox/eternal.hpp>
 
-// Some extra utils added in kfr namespace to provide function needed by my demand.
+// Some extra utils added in kfr namespace to provide function needed by my need.
 
 namespace kfr {
 
@@ -110,6 +110,20 @@ namespace kfr {
         {audio_sample_type::f32, "32-bit IEEE float"},
         {audio_sample_type::f64, "64-bit IEEE float"},
     });
+
+    template <typename sample_t>
+    std::unique_ptr<sample_t> interleave(univector2d<sample_t> in, size_t& out_size){
+        qint64 totalSampleCount = 0;
+        auto rawDatas = std::make_unique<const sample_t*[]>(in.size());
+        for (std::size_t i = 0; i < in.size(); ++i){
+            rawDatas.get()[i] = in[i].data();
+            totalSampleCount += in[i].size();
+        }
+        auto interleaveBuffer = std::make_unique<sample_t>(totalSampleCount);
+        kfr::interleave(interleaveBuffer.get(), rawDatas.get(), in.size(), totalSampleCount);
+        out_size = totalSampleCount;
+        return interleaveBuffer;
+    }
 }
 
 

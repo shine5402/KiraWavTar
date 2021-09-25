@@ -33,7 +33,4 @@ namespace wavtar_utils {
         descFileName.append(".kirawavtar-desc.json");
         return descFileName;
     }
-
-
-
 }

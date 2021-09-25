@@ -174,7 +174,21 @@ namespace WAVCombine {
             qCritical("Can not open wave file");
             return false;
         }
-        writer.write(data);
+
+//        qint64 totalSampleCount = 0;
+//        auto rawDatas = std::make_unique<const sample_process_t*>(data.size());
+//        for (std::size_t i = 0; i < data.size(); ++i){
+//            rawDatas.get()[i] = data[i].data();
+//            totalSampleCount += data[i].size();
+//        }
+
+//        auto interleaveBuffer = std::make_unique<sample_process_t>(totalSampleCount);
+
+//        kfr::interleave(interleaveBuffer.get(), rawDatas.get(), data.size(), totalSampleCount);
+//        writer.write(interleaveBuffer.get(), totalSampleCount);
+        size_t totalSampleCount;
+        auto interleaved = kfr::interleave(data, totalSampleCount);
+        writer.write(interleaved.get(), totalSampleCount);
         return true;
     }
 } // namespace WAVCombineWorker
