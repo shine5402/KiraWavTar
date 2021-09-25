@@ -99,6 +99,7 @@ namespace WAVCombine {
             descObj.insert("fileName", fileName.mid(absoluteDirName.count() + 1));//1 for separator after dirName
             descObj.insert("sample_rate", reader.format().samplerate);
             descObj.insert("sample_type", (int) reader.format().type);
+            descObj.insert("use_w64", reader.format().use_w64);
             //As Qt5's implementation would lose precision, we use base64 to store a int64 here.
             descObj.insert("length", encodeBase64(reader.format().length));
             //As channel count would likely not bigger enough to loose precision or overflow, so we just store it in json double. Same for sample rate.
