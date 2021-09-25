@@ -36,6 +36,7 @@ signals:
 public slots:
     void open() override;
     int exec() override;
+
 };
 
 #endif // WAVCOMBINEDIALOG_H

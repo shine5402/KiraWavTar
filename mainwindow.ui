@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>217</height>
+    <width>833</width>
+    <height>212</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>KiraWavTar</string>
@@ -74,24 +80,119 @@
        <number>0</number>
       </property>
       <widget class="QWidget" name="combineOptionPage">
-       <layout class="QGridLayout" name="gridLayout" columnstretch="0,1">
-        <property name="verticalSpacing">
-         <number>11</number>
-        </property>
+       <layout class="QGridLayout" name="gridLayout" columnstretch="0,0">
+        <item row="3" column="1">
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QLabel" name="label_8">
+            <property name="text">
+             <string>采样率</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="sampleRateComboBox">
+            <property name="editable">
+             <bool>true</bool>
+            </property>
+            <property name="currentIndex">
+             <number>2</number>
+            </property>
+            <item>
+             <property name="text">
+              <string>11025</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>22050</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>44100</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>48000</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>88200</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>96000</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>176400</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>192000</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_10">
+            <property name="text">
+             <string>采样类型</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="sampleTypeComboBox"/>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_9">
+            <property name="text">
+             <string>声道</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="channelsSpinBox">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="useW64CheckBox">
+            <property name="text">
+             <string>使用W64格式</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
         <item row="2" column="1">
          <widget class="FileNameEditWithSaveBrowse" name="combineResultPathWidget" native="true"/>
         </item>
-        <item row="3" column="0" colspan="2">
+        <item row="3" column="0">
          <widget class="QLabel" name="label_4">
           <property name="text">
-           <string>标记信息将会和合并结果保存到同一位置 (.kirawavtar-desc.json)。</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>保存合并结果到：</string>
+           <string>目标格式：</string>
           </property>
          </widget>
         </item>
@@ -101,22 +202,6 @@
            <string>WAV文件所在文件夹：</string>
           </property>
          </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="DirNameEditWithBrowse" name="combineDirPathWidget" native="true"/>
-        </item>
-        <item row="4" column="0" colspan="2">
-         <spacer name="verticalSpacer">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
         </item>
         <item row="1" column="1">
          <widget class="QCheckBox" name="subdirCheckBox">
@@ -128,10 +213,33 @@
           </property>
          </widget>
         </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>保存合并结果为：</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="DirNameEditWithBrowse" name="combineDirPathWidget" native="true"/>
+        </item>
+        <item row="4" column="0" colspan="2">
+         <spacer name="verticalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="extractOptionPage">
-       <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,1,0">
+       <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,0,0">
         <property name="verticalSpacing">
          <number>11</number>
         </property>
@@ -142,6 +250,9 @@
           </property>
          </widget>
         </item>
+        <item row="2" column="1" colspan="2">
+         <widget class="DirNameEditWithBrowse" name="extractResultPathWidget" native="true"/>
+        </item>
         <item row="2" column="0">
          <widget class="QLabel" name="label_7">
           <property name="text">
@@ -149,31 +260,28 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="1" colspan="2">
-         <widget class="DirNameEditWithBrowse" name="extractResultPathWidget" native="true"/>
-        </item>
-        <item row="3" column="0" colspan="3">
-         <spacer name="verticalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>753</width>
-            <height>189</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="0" column="1" colspan="2">
-         <widget class="FileNameEditWithBrowse" name="extractSrcPathWidget" native="true"/>
-        </item>
         <item row="1" column="0" colspan="3">
          <widget class="QLabel" name="label_6">
           <property name="text">
            <string>我们会自动把同名的“.kirawavtar-desc.json”作为标记文件。</string>
           </property>
          </widget>
+        </item>
+        <item row="0" column="1" colspan="2">
+         <widget class="FileNameEditWithBrowse" name="extractSrcPathWidget" native="true"/>
+        </item>
+        <item row="3" column="0" colspan="3">
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </widget>

@@ -22,9 +22,15 @@ WAVCombineDialog::WAVCombineDialog(QString rootDirName, bool recursive,
     layout->addWidget(label);
 
     progressBar = new QProgressBar(this);
+    progressBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     layout->addWidget(progressBar);
 
     buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel, this);
+    layout->addWidget(buttonBox);
+
+    setLayout(layout);
+    resize(300, height());
+
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     connect(this, &WAVCombineDialog::opened, this, &WAVCombineDialog::startWork);
 }
@@ -36,8 +42,8 @@ void WAVCombineDialog::startWork()
     auto nextFuture = QtConcurrent::run(preCheck, rootDirName, recursive, targetFormat);
     label->setText(tr("一些准备工作……"));
     //This will make progress bar show as busy indicator
-    progressBar->setMaximumWidth(0);
-    progressBar->setMinimumWidth(0);
+    progressBar->setMaximum(0);
+    progressBar->setMinimum(0);
     auto watcher = new preCheckFutureWatcher(this);
     watcher->setFuture(nextFuture);
     connect(watcher, &preCheckFutureWatcher::finished, this, &WAVCombineDialog::preCheckDone);
@@ -98,8 +104,8 @@ void WAVCombineDialog::readAndCombineWorkDone()
         auto result = watcher->result();
         label->setText(tr("写入合并后的文件……"));
         //This will make progress bar show as busy indicator
-        progressBar->setMaximumWidth(0);
-        progressBar->setMinimumWidth(0);
+        progressBar->setMaximum(0);
+        progressBar->setMinimum(0);
         auto nextFuture = QtConcurrent::run(writeCombineResult, result.first, result.second, saveFileName, targetFormat);
         auto nextWatcher = new QFutureWatcher<bool>();
         nextWatcher->setFuture(nextFuture);
@@ -112,8 +118,8 @@ void WAVCombineDialog::writeResultDone()
 {
     if (auto watcher = dynamic_cast<QFutureWatcher<bool>*>(QObject::sender())){
         label->setText(tr("完成"));
-        progressBar->setMaximumWidth(1);
-        progressBar->setMinimumWidth(0);
+        progressBar->setMaximum(1);
+        progressBar->setMinimum(0);
         progressBar->setValue(1);
         auto result = watcher->result();
         if (result){
