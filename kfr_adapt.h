@@ -4,6 +4,7 @@
 #include <kfr/all.hpp>
 #include <QFile>
 #include <memory>
+#include <mapbox/eternal.hpp>
 
 // Some extra utils added in kfr namespace to provide function needed by my demand.
 
@@ -100,7 +101,15 @@ namespace kfr {
 
     inline bool audio_sample_is_float(audio_sample_type type){return type >= audio_sample_type::first_float;}
 
-    //constexpr
+    constexpr auto audio_sample_type_human_string = mapbox::eternal::map<audio_sample_type, mapbox::eternal::string>({
+        {audio_sample_type::i8, "8-bit int"},
+        {audio_sample_type::i16, "16-bit int"},
+        {audio_sample_type::i24, "24-bit int"},
+        {audio_sample_type::i32, "32-bit int"},
+        {audio_sample_type::i64, "64-bit int"},
+        {audio_sample_type::f32, "32-bit IEEE float"},
+        {audio_sample_type::f64, "64-bit IEEE float"},
+    });
 }
 
 

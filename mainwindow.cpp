@@ -42,11 +42,11 @@ void MainWindow::updateStackWidgetIndex()
 
 void MainWindow::run()
 {
-    if (ui->combineWAVRadioButton->isChecked())
-        WAVCombine::doWork(ui->combineDirPathWidget->dirName(), ui->subdirCheckBox->isChecked(), ui->combineResultPathWidget->fileName());
-    else
-        WAVExtact::doWork(ui->extractSrcPathWidget->fileName(), ui->extractResultPathWidget->dirName());
+    //if (ui->combineWAVRadioButton->isChecked())
+        //WAVCombine::doWork(ui->combineDirPathWidget->dirName(), ui->subdirCheckBox->isChecked(), ui->combineResultPathWidget->fileName());
+    //else
+        //WAVExtact::doWork(ui->extractSrcPathWidget->fileName(), ui->extractResultPathWidget->dirName());
 
-    QMessageBox::information(this, {}, tr("操作已经完成。"));
+    //QMessageBox::information(this, {}, tr("操作已经完成。"));
 }
 
