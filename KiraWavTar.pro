@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui concurrent
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -13,8 +13,8 @@ SOURCES += \
     filenameeditwithbrowse.cpp \
     main.cpp \
     mainwindow.cpp \
-    optioncontainer.cpp \
     wavcombine.cpp \
+    wavcombinedialog.cpp \
     wavextract.cpp \
     wavtar_utils.cpp
 
@@ -22,10 +22,9 @@ HEADERS += \
     dirnameeditwithbrowse.h \
     filenameeditwithbrowse.h \
     kfr_adapt.h \
-    lambda_wrapper.h \
     mainwindow.h \
-    optioncontainer.h \
     wavcombine.h \
+    wavcombinedialog.h \
     wavextract.h \
     wavtar_utils.h
 
@@ -37,5 +36,7 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+INCLUDEPATH += libs/eternal/include/
 
 include(external-libs.pri)

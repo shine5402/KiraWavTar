@@ -1,37 +1,29 @@
 #include "wavcombine.h"
 #include <QDir>
-#include <kfr/all.hpp>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
 #include "wavtar_utils.h"
 #include "kfr_adapt.h"
 #include <QtConcurrent/QtConcurrent>
-#include "lambda_wrapper.h"
+#include <memory>
 
 using namespace wavtar_defines;
 using namespace wavtar_utils;
 
-//TODO: write a adapter for kfr to use QIODevice(QFile)
-//FIXME: seems like it will not close files after generate..?
 namespace WAVCombine {
 
-    enum CheckResultType{
-        OK, WARNING, CRITICAL
-    };
-
-    //@returns (canRun, checkHumanReadReportHTML)
-    QPair<CheckResultType, QString> preCheck(QString rootDirName, bool recursive, kfr::audio_format targetFormat){
+    CheckResult preCheck(QString rootDirName, bool recursive, kfr::audio_format targetFormat){
 
         auto wavFileNames = getAbsoluteWAVFileNamesUnder(rootDirName, recursive);
 
         if (wavFileNames.isEmpty())
         {
-            return {CRITICAL, QCoreApplication::translate("WAVCombine", "<p class='critical'>没有在所给文件夹中找到任何wav文件。请检查提供的路径，或者忘记勾选“包含子文件夹”了？</p>")};
+            return {CheckPassType::CRITICAL, QCoreApplication::translate("WAVCombine", "<p class='critical'>没有在所给文件夹中找到任何wav文件。请检查提供的路径，或者忘记勾选“包含子文件夹”了？</p>"), wavFileNames};
         }
 
-        //As mapped() need result_type member to work, so we use lambda_wrapper() to help us.
-        auto formats = QtConcurrent::mapped(wavFileNames, lambda_wrapper([](const QString& fileName)->QPair<QString, kfr::audio_format_and_length>{
+        //As mapped() need result_type member to work, so we use std::function() to help us.
+        auto formats = QtConcurrent::mapped(wavFileNames, std::function([](const QString& fileName)->QPair<QString, kfr::audio_format_and_length>{
             kfr::audio_reader_wav<sample_process_t> reader(kfr::open_qt_file_for_reading(fileName));
             return {fileName, reader.format()};
         })).results();
@@ -41,7 +33,7 @@ namespace WAVCombine {
             totalLength += i.second.length;
         }
         if (totalLength > UINT32_MAX && !targetFormat.use_w64){
-            return {CRITICAL, QCoreApplication::translate("WAVCombine", "<p class='critical'>合并后的音频数据长度超过了普通WAV文件所能承载的长度，请选择使用W64格式来保存。</p>")};
+            return {CheckPassType::CRITICAL, QCoreApplication::translate("WAVCombine", "<p class='critical'>合并后的音频数据长度超过了普通WAV文件所能承载的长度，请选择使用W64格式来保存。</p>"), wavFileNames};
         }
 
         QString warningMsg;
@@ -76,72 +68,113 @@ namespace WAVCombine {
             return isTargetIsFloatButInputNot || isTargetSizeLargger;
         }).results();
 
-
-
-
+        for (const auto& i : std::as_const(hasLargerQuantization)){
+            warningMsg.append(QCoreApplication::translate("WAVCombine", "<p class='warning'>“%1”的量化类型“%2”在转换到目标“%3”时可能会损失精度。</p>")
+                              .arg(i.first)
+                              .arg(kfr::audio_sample_type_human_string.at(i.second.type).c_str())
+                              .arg(kfr::audio_sample_type_human_string.at(targetFormat.type).c_str()));
+        }
+        return {warningMsg.isEmpty() ? CheckPassType::OK : CheckPassType::WARNING, warningMsg, wavFileNames};
     }
 
-    //TODO: Should consider error report after, ehh it's so annoying...
-    void doWork(QString rootDirName, bool recursive, QString saveFileName){
 
-        auto wavFileNames = getAbsoluteWAVFileNamesUnder(rootDirName, recursive);
-
-        QJsonArray combineDescArray;
-        kfr::univector<sample_process_t> combinedResult;
-        for (const auto& fileName : std::as_const(wavFileNames)){
+    //(finalDataToWrite, jsonObj)
+    QFuture<QPair<kfr::univector2d<wavtar_defines::sample_process_t>, QJsonObject>> startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, kfr::audio_format targetFormat){
+        return QtConcurrent::mappedReduced<QPair<kfr::univector2d<sample_process_t>, QJsonObject>>(WAVFileNames, std::function([rootDirName, targetFormat](const QString& fileName)->QPair<kfr::univector2d<sample_process_t>, QJsonObject>{
+            bool openSucess = false;
+            kfr::audio_reader_wav<sample_process_t> reader(kfr::open_qt_file_for_reading(fileName, &openSucess));
+            if (!openSucess)
+            {
+                qCritical("Can not open wave file %s for reading.", fileName.toStdString().c_str());
+                return {};
+            }
+            if (reader.format().type == kfr::audio_sample_type::unknown)
+            {
+                qCritical("Failed to know the sample type of %s", fileName.toStdString().c_str());
+                return {};
+            }
+            auto channnels = reader.read_channels();
             QJsonObject descObj;
-
             auto absoluteDirName = QDir(rootDirName).absolutePath();
             descObj.insert("fileName", fileName.mid(absoluteDirName.count() + 1));//1 for separator after dirName
-
-            kfr::audio_reader_wav<sample_process_t> reader(kfr::open_file_for_reading(fileName.toStdWString()));
-
-            if (reader.format().channels > 1){
-                qWarning() << QString("Input file %1 has multiple channels. "
-"Channels other than channel 0 will be thrown out.").arg(fileName);
-            };
-
-            if (reader.format().type != kfr::audio_sample_type::i16)
+            descObj.insert("sample_rate", reader.format().samplerate);
+            descObj.insert("sample_type", (int) reader.format().type);
+            //As Qt5's implementation would lose precision, we use base64 to store a int64 here.
+            descObj.insert("length", encodeBase64(reader.format().length));
+            //As channel count would likely not bigger enough to loose precision or overflow, so we just store it in json double. Same for sample rate.
+            descObj.insert("channel_count", (qint64) (reader.format().channels < targetFormat.channels ? reader.format().channels : targetFormat.channels));
+            kfr::univector2d<sample_process_t> result;
+            for (decltype (targetFormat.channels) i = 0; i < targetFormat.channels; ++i){
+                auto srcData = channnels.at(i);
+                if (reader.format().samplerate != targetFormat.samplerate){
+                    auto resampler = kfr::sample_rate_converter<sample_process_t>(kfr::sample_rate_conversion_quality::perfect, targetFormat.samplerate, reader.format().samplerate);
+                    decltype (srcData) resampled;
+                    resampler.process(resampled, srcData);
+                    srcData = resampled;
+                }
+                result.push_back(srcData);
+            }
+            return {result, descObj};
+        }),
+       std::function([targetFormat](QPair<kfr::univector2d<sample_process_t>, QJsonObject>& result, const QPair<kfr::univector2d<sample_process_t>, QJsonObject>& step){
+            auto descObj = step.second;
+            if (descObj.isEmpty())
             {
-                qWarning() << QString("Input file %1 are not quantized 16-bit int."
-"It will be convert to 16-bit int.").arg(fileName);
+                return;
             }
+            auto& resultObj = result.second;
+            auto previousCount = decodeBase64<qint64>(resultObj.value("total_sample_count").toString());
+            //We simply copy this cuz these are same...so....
+            descObj.insert("begin_index", resultObj.value("total_sample_count").toString());
+            auto length = decodeBase64<qint64>(descObj.value("length").toString());
+            //update the total sample count
+            resultObj.insert("total_sample_count", encodeBase64(previousCount + length));
+            auto descArray = resultObj.value("descriptions").toArray();
+            descArray.append(descObj);
+            resultObj.insert("descriptions", descArray);
 
-            // We just use one channel here.
-            // We don't do the mix cuz for our input because for typical use of this tool (similar to human vocal),
-            // all channels will be almost same.
-            auto currentData = reader.read_channels().at(0);
-
-            constexpr auto targetSampleRate = 44100;
-            if (reader.format().samplerate != targetSampleRate){
-                qWarning() << QString("Input file %1 are not sampled in 44100Hz."
-"It will be convert to 44100Hz.").arg(fileName);
-                auto resampler = kfr::sample_rate_converter<sample_process_t>(kfr::sample_rate_conversion_quality::perfect, targetSampleRate, reader.format().samplerate);
-                decltype (currentData) resampled;
-                resampler.process(resampled, currentData);
-                currentData = resampled;
+            auto& resultData = result.first;
+            auto stepData = step.first;
+            for (decltype (targetFormat.channels) i = 0; i < targetFormat.channels; ++i){
+               //create a simple zero-data channel to meet the requirement
+               if (stepData.size() < i)
+               stepData.push_back(kfr::univector<sample_process_t>(length));
+               if (resultData.size() < i)
+               resultData.push_back({});
+               auto& channelData = resultData[i];
+               auto& stepChannelData = stepData[i];
+               channelData.insert(channelData.end(), stepChannelData.cbegin(), stepChannelData.cend());
             }
+                }),
+                QtConcurrent::ReduceOption::OrderedReduce
+                );
+    }
 
-            //may use base64 to save this for a better precision...
-            descObj.insert("begin_sample_index", qint64(combinedResult.size()));
-            descObj.insert("duration", qint64(currentData.size()));
-
-            combinedResult.insert(combinedResult.end(), currentData.begin(), currentData.end());
-            combineDescArray.append(descObj);
+    bool writeCombineResult(kfr::univector2d<sample_process_t> data, QJsonObject descObj, QString wavFileName, kfr::audio_format targetFormat){
+        if (data.empty())
+        {
+            qCritical("No sample data to write after combining work.");
+            return false;
         }
 
-        //write desc file
-        auto descFileName = getDescFileNameFrom(saveFileName);
-        QJsonObject descJsonRoot;
-        descJsonRoot.insert("version", desc_file_version);
-        descJsonRoot.insert("description", combineDescArray);
-        QJsonDocument jsonDoc(descJsonRoot);
+        //write description file
+        descObj.insert("version", desc_file_version);
+        auto descFileName = getDescFileNameFrom(wavFileName);
+        QJsonDocument descDoc{descObj};
         QFile descFileDevice{descFileName};
-        if (!descFileDevice.open(QFile::WriteOnly | QFile::Text))
-            return;
-        descFileDevice.write(jsonDoc.toJson());
+        if (!descFileDevice.open(QFile::WriteOnly | QFile::Text)){
+            qCritical("Can not open desc json file.");
+            return false;
+        }
+        descFileDevice.write(descDoc.toJson());
         //write wave file
-        kfr::audio_writer_wav<sample_process_t> writer(kfr::open_qt_file_for_writing(saveFileName), output_format);
-        writer.write(combinedResult);
+        bool openSuccess = false;
+        kfr::audio_writer_wav<sample_process_t> writer(kfr::open_qt_file_for_writing(wavFileName, &openSuccess), targetFormat);
+        if (!openSuccess){
+            qCritical("Can not open wave file");
+            return false;
+        }
+        writer.write(data);
+        return true;
     }
 } // namespace WAVCombineWorker
