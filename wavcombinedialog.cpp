@@ -47,7 +47,7 @@ void WAVCombineDialog::startWork()
     auto watcher = new preCheckFutureWatcher(this);
     watcher->setFuture(nextFuture);
     connect(watcher, &preCheckFutureWatcher::finished, this, &WAVCombineDialog::preCheckDone);
-    connect(this, &QDialog::rejected, watcher, &preCheckFutureWatcher::cancel);
+    connect(buttonBox, &QDialogButtonBox::rejected, watcher, &preCheckFutureWatcher::cancel);
 }
 
 using readAndCombineFutureWatcher = QFutureWatcher<QPair<kfr::univector2d<wavtar_defines::sample_process_t>, QJsonObject>>;
@@ -63,6 +63,8 @@ void WAVCombineDialog::preCheckDone()
 }
 </style>)";
     if (auto watcher = dynamic_cast<preCheckFutureWatcher*>(QObject::sender())){
+        if (watcher->isCanceled())
+            return;
         auto result = watcher->result();
         QMessageBox msgBox;
         switch (result.pass) {
@@ -79,10 +81,12 @@ void WAVCombineDialog::preCheckDone()
             msgBox.setText(tr("发现了一些问题，不过操作仍然可以继续。请问要继续吗？"));
             msgBox.setInformativeText(reportTextStyle + result.reportString);
             msgBox.setStandardButtons(QMessageBox::Yes|QMessageBox::No);
-            if (msgBox.exec() == QDialog::Rejected){
-                reject();
-                break;
+            if (msgBox.exec() == QMessageBox::No){
+                this->reject();
+                this->close();
+                return;
             }
+            [[fallthrough]];
         case WAVCombine::CheckPassType::OK:
             auto nextFuture = startReadAndCombineWork(result.wavFileNames, rootDirName, targetFormat);
             auto nextWatcher = new readAndCombineFutureWatcher();
@@ -92,7 +96,7 @@ void WAVCombineDialog::preCheckDone()
             progressBar->setMaximum(nextWatcher->progressMaximum());
             connect(nextWatcher, &readAndCombineFutureWatcher::progressValueChanged, progressBar, &QProgressBar::setValue);
             connect(nextWatcher, &readAndCombineFutureWatcher::finished, this, &WAVCombineDialog::readAndCombineWorkDone);
-            connect(this, &QDialog::rejected, nextWatcher, &readAndCombineFutureWatcher::cancel);
+            connect(buttonBox, &QDialogButtonBox::rejected, nextWatcher, &readAndCombineFutureWatcher::cancel);
             break;
         }
     }
@@ -101,6 +105,8 @@ void WAVCombineDialog::preCheckDone()
 void WAVCombineDialog::readAndCombineWorkDone()
 {
     if (auto watcher = dynamic_cast<readAndCombineFutureWatcher*>(QObject::sender())){
+        if (watcher->isCanceled())
+            return;
         auto result = watcher->result();
         label->setText(tr("写入合并后的文件……"));
         //This will make progress bar show as busy indicator
@@ -110,13 +116,15 @@ void WAVCombineDialog::readAndCombineWorkDone()
         auto nextWatcher = new QFutureWatcher<bool>();
         nextWatcher->setFuture(nextFuture);
         connect(nextWatcher, &QFutureWatcher<bool>::finished, this, &WAVCombineDialog::writeResultDone);
-        connect(this, &QDialog::rejected, nextWatcher, &QFutureWatcher<bool>::cancel);
+        connect(buttonBox, &QDialogButtonBox::rejected, nextWatcher, &QFutureWatcher<bool>::cancel);
     }
 }
 
 void WAVCombineDialog::writeResultDone()
 {
     if (auto watcher = dynamic_cast<QFutureWatcher<bool>*>(QObject::sender())){
+        if (watcher->isCanceled())
+            return;
         label->setText(tr("完成"));
         progressBar->setMaximum(1);
         progressBar->setMinimum(0);
@@ -126,7 +134,7 @@ void WAVCombineDialog::writeResultDone()
             QMessageBox msgBox;
             msgBox.setIcon(QMessageBox::Icon::Information);
             msgBox.setText(tr("合并操作已经完成。"));
-            msgBox.setInformativeText(tr("合并后的波形文件已经存储至%1。请注意在处理时不要修改波形文件内的时值，也不要删除和修改同名的“.kirawavtar-desc.json”描述文件。"));
+            msgBox.setInformativeText(tr("合并后的波形文件已经存储至%1。请注意在处理时不要修改波形文件内的时值，也不要删除和修改同名的“.kirawavtar-desc.json”描述文件。").arg(saveFileName));
             msgBox.setStandardButtons(QMessageBox::Ok);
             msgBox.exec();
             accept();

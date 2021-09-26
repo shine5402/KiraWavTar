@@ -28,11 +28,11 @@ namespace WAVCombine {
             return {fileName, reader.format()};
         })).results();
 
-        quint64 totalLength = 0;
+        qint64 totalLength = 0;
         for (auto i : formats){
             totalLength += i.second.length;
         }
-        if (totalLength > UINT32_MAX && !targetFormat.use_w64){
+        if (totalLength > INT32_MAX && !targetFormat.use_w64){
             return {CheckPassType::CRITICAL, QCoreApplication::translate("WAVCombine", "<p class='critical'>合并后的音频数据长度超过了普通WAV文件所能承载的长度，请选择使用W64格式来保存。</p>"), wavFileNames};
         }
 
@@ -63,9 +63,7 @@ namespace WAVCombine {
         }
 
         auto hasLargerQuantization = QtConcurrent::filtered(formats, [targetFormat](const QPair<QString, kfr::audio_format>& info) -> bool{
-            auto isTargetIsFloatButInputNot = kfr::audio_sample_is_float(targetFormat.type) && !kfr::audio_sample_is_float(info.second.type);
-            auto isTargetSizeLargger = kfr::audio_sample_sizeof(targetFormat.type) > kfr::audio_sample_sizeof(info.second.type);
-            return isTargetIsFloatButInputNot || isTargetSizeLargger;
+           return kfr::audio_sample_type_precision_length.at(info.second.type) > kfr::audio_sample_type_precision_length.at(targetFormat.type);
         }).results();
 
         for (const auto& i : std::as_const(hasLargerQuantization)){
@@ -101,15 +99,18 @@ namespace WAVCombine {
             descObj.insert("sample_type", (int) reader.format().type);
             descObj.insert("use_w64", reader.format().use_w64);
             //As Qt5's implementation would lose precision, we use base64 to store a int64 here.
-            descObj.insert("length", encodeBase64(reader.format().length));
+            descObj.insert("length", encodeBase64((qint64) reader.format().length));
             //As channel count would likely not bigger enough to loose precision or overflow, so we just store it in json double. Same for sample rate.
             descObj.insert("channel_count", (qint64) (reader.format().channels < targetFormat.channels ? reader.format().channels : targetFormat.channels));
             kfr::univector2d<sample_process_t> result;
             for (decltype (targetFormat.channels) i = 0; i < targetFormat.channels; ++i){
+                if (channnels.size() <= i)
+                    break;
                 auto srcData = channnels.at(i);
                 if (reader.format().samplerate != targetFormat.samplerate){
-                    auto resampler = kfr::sample_rate_converter<sample_process_t>(kfr::sample_rate_conversion_quality::perfect, targetFormat.samplerate, reader.format().samplerate);
-                    decltype (srcData) resampled;
+                    //TODO: maybe give user a choice to control sample rate conversion quality
+                    auto resampler = kfr::sample_rate_converter<sample_process_t>(kfr::sample_rate_conversion_quality::normal, targetFormat.samplerate, reader.format().samplerate);
+                    decltype (srcData) resampled(reader.format().length * targetFormat.samplerate / reader.format().samplerate + resampler.get_delay());
                     resampler.process(resampled, srcData);
                     srcData = resampled;
                 }
@@ -138,10 +139,10 @@ namespace WAVCombine {
             auto stepData = step.first;
             for (decltype (targetFormat.channels) i = 0; i < targetFormat.channels; ++i){
                //create a simple zero-data channel to meet the requirement
-               if (stepData.size() < i)
-               stepData.push_back(kfr::univector<sample_process_t>(length));
-               if (resultData.size() < i)
-               resultData.push_back({});
+               if (stepData.size() <= i)
+                   stepData.push_back(kfr::univector<sample_process_t>(length));
+               if (resultData.size() <= i)
+                   resultData.emplace_back();
                auto& channelData = resultData[i];
                auto& stepChannelData = stepData[i];
                channelData.insert(channelData.end(), stepChannelData.cbegin(), stepChannelData.cend());
@@ -187,9 +188,13 @@ namespace WAVCombine {
 
 //        kfr::interleave(interleaveBuffer.get(), rawDatas.get(), data.size(), totalSampleCount);
 //        writer.write(interleaveBuffer.get(), totalSampleCount);
-        size_t totalSampleCount;
-        auto interleaved = kfr::interleave(data, totalSampleCount);
-        writer.write(interleaved.get(), totalSampleCount);
-        return true;
+        if (targetFormat.channels > 1){
+            size_t totalSampleCount;
+            auto interleaved = kfr::interleave(data, totalSampleCount);
+            return writer.write(interleaved.get(), totalSampleCount) == totalSampleCount;
+        }
+        else{
+            return writer.write(data.at(0)) == data.at(0).size();
+        }
     }
 } // namespace WAVCombineWorker
