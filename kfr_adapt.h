@@ -107,20 +107,35 @@ namespace kfr {
         {audio_sample_type::i24, "24-bit int"},
         {audio_sample_type::i32, "32-bit int"},
         {audio_sample_type::i64, "64-bit int"},
-        {audio_sample_type::f32, "32-bit IEEE float"},
-        {audio_sample_type::f64, "64-bit IEEE float"},
+        {audio_sample_type::f32, "32-bit single float"},
+        {audio_sample_type::f64, "64-bit double float"},
     });
 
+    constexpr auto audio_sample_type_precision_length = mapbox::eternal::map<audio_sample_type, int>({
+     {audio_sample_type::i8, 8},
+     {audio_sample_type::i16, 16},
+     {audio_sample_type::i24, 24},
+     {audio_sample_type::i32, 32},
+     {audio_sample_type::i64, 64},
+     {audio_sample_type::f32, 24},
+     {audio_sample_type::f64, 53},
+  });
+
     template <typename sample_t>
-    std::unique_ptr<sample_t> interleave(univector2d<sample_t> in, size_t& out_size){
+    std::unique_ptr<sample_t[]> interleave(univector2d<sample_t> in, size_t& out_size){
+        if (in.empty())
+        {
+            out_size = 0;
+            return nullptr;
+        }
         qint64 totalSampleCount = 0;
         auto rawDatas = std::make_unique<const sample_t*[]>(in.size());
         for (std::size_t i = 0; i < in.size(); ++i){
             rawDatas.get()[i] = in[i].data();
             totalSampleCount += in[i].size();
         }
-        auto interleaveBuffer = std::make_unique<sample_t>(totalSampleCount);
-        kfr::interleave(interleaveBuffer.get(), rawDatas.get(), in.size(), totalSampleCount);
+        auto interleaveBuffer = std::make_unique<sample_t[]>(totalSampleCount);
+        kfr::interleave(interleaveBuffer.get(), rawDatas.get(), in.size(), in[0].size());//in.size -> channel_count, in[0].size() -> length
         out_size = totalSampleCount;
         return interleaveBuffer;
     }

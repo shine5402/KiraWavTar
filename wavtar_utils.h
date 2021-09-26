@@ -14,6 +14,8 @@ namespace wavtar_utils {
 
     template <typename T>
     T decodeBase64(const QString& base64){
+        if (base64.isEmpty())
+            return {};
         return *((const T*) QByteArray::fromBase64(base64.toUtf8()).data());
     }
 }

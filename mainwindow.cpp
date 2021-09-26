@@ -13,6 +13,9 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    setFixedHeight(sizeHint().height());
+    setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
+
     auto sampleRateValidator = new QIntValidator(2, INT_MAX);
     ui->sampleRateComboBox->setValidator(sampleRateValidator);
 
