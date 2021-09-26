@@ -16,6 +16,7 @@ SOURCES += \
     wavcombine.cpp \
     wavcombinedialog.cpp \
     wavextract.cpp \
+    wavformatchooserwidget.cpp \
     wavtar_utils.cpp
 
 HEADERS += \
@@ -26,11 +27,13 @@ HEADERS += \
     wavcombine.h \
     wavcombinedialog.h \
     wavextract.h \
+    wavformatchooserwidget.h \
     wavtar_utils.h
 
 FORMS += \
     filenameeditwithbrowse.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    wavformatchooserwidget.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

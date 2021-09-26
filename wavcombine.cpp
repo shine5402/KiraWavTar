@@ -126,7 +126,7 @@ namespace WAVCombine {
             }
             auto& resultObj = result.second;
             auto previousCount = decodeBase64<qint64>(resultObj.value("total_sample_count").toString());
-            //We simply copy this cuz these are same...so....
+            //We simply copy this cuz these are same...so....The first would be a empty string, though. It doesn't matter cuz we see a empty string as a 0.
             descObj.insert("begin_index", resultObj.value("total_sample_count").toString());
             auto length = decodeBase64<qint64>(descObj.value("length").toString());
             //update the total sample count
