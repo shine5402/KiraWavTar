@@ -16,15 +16,6 @@ MainWindow::MainWindow(QWidget *parent)
     setFixedHeight(sizeHint().height());
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
 
-    auto sampleRateValidator = new QIntValidator(2, INT_MAX);
-    ui->sampleRateComboBox->setValidator(sampleRateValidator);
-
-    for(const auto& item : kfr::audio_sample_type_human_string){
-        ui->sampleTypeComboBox->addItem(item.second.c_str());
-    }
-
-    ui->sampleTypeComboBox->setCurrentText(kfr::audio_sample_type_human_string.at(kfr::audio_sample_type::i16).c_str());
-
     connect(ui->resetButton, &QPushButton::clicked, this, &MainWindow::reset);
     connect(ui->modeButtonGroup, &QButtonGroup::idClicked, this, &MainWindow::updateStackWidgetIndex);
     connect(ui->runButton, &QPushButton::clicked, this, &MainWindow::run);
@@ -40,6 +31,7 @@ void MainWindow::reset()
     ui->combineDirPathWidget->setDirName({});
     ui->subdirCheckBox->setChecked(false);
     ui->combineResultPathWidget->setFileName({});
+    ui->combineWAVFormatWidget->reset();
 
     ui->extractSrcPathWidget->setFileName({});
     ui->extractResultPathWidget->setDirName({});
@@ -61,10 +53,7 @@ void MainWindow::run()
     {
         auto rootDirName = ui->combineDirPathWidget->dirName();
         auto recursive = ui->subdirCheckBox->isChecked();
-        auto targetFormat = kfr::audio_format{static_cast<size_t>(ui->channelsSpinBox->value()),
-                             (kfr::audio_sample_type_human_string.begin() + ui->sampleTypeComboBox->currentIndex())->first,
-                            ui->sampleRateComboBox->currentText().toDouble(),
-                            ui->useW64CheckBox->isChecked()};
+        auto targetFormat = ui->combineWAVFormatWidget->getFormat();
         auto saveFileName = ui->combineResultPathWidget->fileName();
         auto dialog = new WAVCombineDialog(rootDirName, recursive, targetFormat, saveFileName, this);
         dialog->open();

@@ -74,112 +74,7 @@
        <number>0</number>
       </property>
       <widget class="QWidget" name="combineOptionPage">
-       <layout class="QGridLayout" name="gridLayout" columnstretch="0,0">
-        <item row="3" column="1">
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <item>
-           <widget class="QLabel" name="label_8">
-            <property name="text">
-             <string>采样率</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="sampleRateComboBox">
-            <property name="editable">
-             <bool>true</bool>
-            </property>
-            <property name="currentIndex">
-             <number>2</number>
-            </property>
-            <item>
-             <property name="text">
-              <string>11025</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>22050</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>44100</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>48000</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>88200</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>96000</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>176400</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>192000</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_10">
-            <property name="text">
-             <string>采样类型</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="sampleTypeComboBox"/>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_9">
-            <property name="text">
-             <string>声道</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSpinBox" name="channelsSpinBox">
-            <property name="minimum">
-             <number>1</number>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="useW64CheckBox">
-            <property name="text">
-             <string>使用W64格式</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_3">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </item>
+       <layout class="QGridLayout" name="gridLayout" columnstretch="0,1">
         <item row="2" column="1">
          <widget class="FileNameEditWithSaveBrowse" name="combineResultPathWidget" native="true"/>
         </item>
@@ -230,6 +125,9 @@
           </property>
          </spacer>
         </item>
+        <item row="3" column="1">
+         <widget class="WAVFormatChooserWidget" name="combineWAVFormatWidget" native="true"/>
+        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="extractOptionPage">
@@ -237,6 +135,12 @@
         <property name="verticalSpacing">
          <number>11</number>
         </property>
+        <item row="1" column="1" colspan="2">
+         <widget class="DirNameEditWithBrowse" name="extractResultPathWidget" native="true"/>
+        </item>
+        <item row="0" column="1" colspan="2">
+         <widget class="FileNameEditWithBrowse" name="extractSrcPathWidget" native="true"/>
+        </item>
         <item row="0" column="0">
          <widget class="QLabel" name="label_5">
           <property name="text">
@@ -244,27 +148,7 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="1" colspan="2">
-         <widget class="DirNameEditWithBrowse" name="extractResultPathWidget" native="true"/>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_7">
-          <property name="text">
-           <string>保存结果到：</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0" colspan="3">
-         <widget class="QLabel" name="label_6">
-          <property name="text">
-           <string>我们会自动把同名的“.kirawavtar-desc.json”作为标记文件。</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1" colspan="2">
-         <widget class="FileNameEditWithBrowse" name="extractSrcPathWidget" native="true"/>
-        </item>
-        <item row="3" column="0" colspan="3">
+        <item row="2" column="0" colspan="3">
          <spacer name="verticalSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -276,6 +160,13 @@
            </size>
           </property>
          </spacer>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>保存结果到：</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -332,6 +223,12 @@
    <class>FileNameEditWithSaveBrowse</class>
    <extends>QWidget</extends>
    <header>filenameeditwithbrowse.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>WAVFormatChooserWidget</class>
+   <extends>QWidget</extends>
+   <header>wavformatchooserwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>WAVFormatChooserWidget</class>
+ <widget class="QWidget" name="WAVFormatChooserWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>660</width>
+    <height>46</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <widget class="QLabel" name="label_8">
+     <property name="text">
+      <string>采样率</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="sampleRateComboBox">
+     <property name="editable">
+      <bool>true</bool>
+     </property>
+     <property name="currentIndex">
+      <number>2</number>
+     </property>
+     <item>
+      <property name="text">
+       <string>11025</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>22050</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>44100</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>48000</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>88200</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>96000</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>176400</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>192000</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_10">
+     <property name="text">
+      <string>采样类型</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="sampleTypeComboBox"/>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_9">
+     <property name="text">
+      <string>声道</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QSpinBox" name="channelsSpinBox">
+     <property name="minimum">
+      <number>1</number>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="useW64CheckBox">
+     <property name="text">
+      <string>使用W64格式</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="horizontalSpacer_3">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>117</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
