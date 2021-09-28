@@ -16,6 +16,7 @@ SOURCES += \
     wavcombine.cpp \
     wavcombinedialog.cpp \
     wavextract.cpp \
+    wavextractdialog.cpp \
     wavformatchooserwidget.cpp \
     wavtar_utils.cpp
 
@@ -27,6 +28,7 @@ HEADERS += \
     wavcombine.h \
     wavcombinedialog.h \
     wavextract.h \
+    wavextractdialog.h \
     wavformatchooserwidget.h \
     wavtar_utils.h
 

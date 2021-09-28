@@ -139,6 +139,18 @@ namespace kfr {
         out_size = totalSampleCount;
         return interleaveBuffer;
     }
+    template <typename T>
+    bool write_mutlichannel_wav_file(kfr::audio_writer_wav<T>& writer, const kfr::univector2d<T>& data){
+        const auto& targetFormat = writer.format();
+        if (targetFormat.channels > 1){
+            size_t totalSampleCount;
+            auto interleaved = kfr::interleave(data, totalSampleCount);
+            return writer.write(interleaved.get(), totalSampleCount) == totalSampleCount;
+        }
+        else{
+            return writer.write(data.at(0)) == data.at(0).size();
+        }
+    }
 }
 
 
