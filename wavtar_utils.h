@@ -20,15 +20,23 @@ namespace wavtar_utils {
     }
 }
 
-#include <kfr/io.hpp>
+#include <kfr/all.hpp>
 namespace wavtar_defines {
-    using sample_process_t = float;
-    using sample_o_t = int16_t;
-    constexpr auto sample_type_o = kfr::audio_sample_type::i16;
-    constexpr auto sample_rate_o = 44100;
-    constexpr kfr::audio_format output_format{1, sample_type_o, sample_rate_o, false};
+    //TODO: make these customizeable
+    constexpr auto sample_process_type = kfr::audio_sample_type::f32;
+    using sample_process_t = kfr::audio_sample_get_type<sample_process_type>::type;
+    constexpr auto sample_rate_conversion_quality_for_process = kfr::sample_rate_conversion_quality::normal;
 
     constexpr auto desc_file_version = 2;
+
+    constexpr auto reportTextStyle = R"(<style>
+.critical{
+    color:red;
+}
+.warning{
+    color:orange;
+}
+</style>)";
 }
 
 #endif // WAVTAR_UTILS_H

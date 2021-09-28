@@ -67,11 +67,23 @@ namespace WAVCombine {
         }).results();
 
         for (const auto& i : std::as_const(hasLargerQuantization)){
-            warningMsg.append(QCoreApplication::translate("WAVCombine", "<p class='warning'>“%1”的量化类型“%2”在转换到目标“%3”时可能会损失精度。</p>")
+            warningMsg.append(QCoreApplication::translate("WAVCombine", "<p class='warning'>“%1”的量化类型“%2”在转换到目标“%3”时可能会损失精度，或发生溢出。</p>")
                               .arg(i.first)
                               .arg(kfr::audio_sample_type_human_string.at(i.second.type).c_str())
                               .arg(kfr::audio_sample_type_human_string.at(targetFormat.type).c_str()));
         }
+
+        auto hasLargerQuantizationThanProcess = QtConcurrent::filtered(formats, [](const QPair<QString, kfr::audio_format>& info) -> bool{
+            return kfr::audio_sample_type_precision_length.at(info.second.type) > kfr::audio_sample_type_precision_length.at(sample_process_type);
+         }).results();
+
+        for (const auto& i : std::as_const(hasLargerQuantization)){
+            warningMsg.append(QCoreApplication::translate("WAVCombine", "<p class='warning'>“%1”的量化类型“%2”在处理时可能会损失精度，因为本程序内部统一使用”%3“来进行处理。</p>")
+                              .arg(i.first)
+                              .arg(kfr::audio_sample_type_human_string.at(i.second.type).c_str())
+                              .arg(kfr::audio_sample_type_human_string.at(sample_process_type).c_str()));
+        }
+
         return {warningMsg.isEmpty() ? CheckPassType::OK : CheckPassType::WARNING, warningMsg, wavFileNames};
     }
 
@@ -83,6 +95,7 @@ namespace WAVCombine {
             kfr::audio_reader_wav<sample_process_t> reader(kfr::open_qt_file_for_reading(fileName, &openSucess));
             if (!openSucess)
             {
+                //May change to throw here?
                 qCritical("Can not open wave file %s for reading.", fileName.toStdString().c_str());
                 return {};
             }
@@ -94,12 +107,11 @@ namespace WAVCombine {
             auto channnels = reader.read_channels();
             QJsonObject descObj;
             auto absoluteDirName = QDir(rootDirName).absolutePath();
-            descObj.insert("fileName", fileName.mid(absoluteDirName.count() + 1));//1 for separator after dirName
+            descObj.insert("file_name", fileName.mid(absoluteDirName.count() + 1));//1 for separator after dirName
             descObj.insert("sample_rate", reader.format().samplerate);
             descObj.insert("sample_type", (int) reader.format().type);
             descObj.insert("use_w64", reader.format().use_w64);
-            //As Qt5's implementation would lose precision, we use base64 to store a int64 here.
-            descObj.insert("length", encodeBase64((qint64) reader.format().length));
+
             //As channel count would likely not bigger enough to loose precision or overflow, so we just store it in json double. Same for sample rate.
             descObj.insert("channel_count", (qint64) (reader.format().channels < targetFormat.channels ? reader.format().channels : targetFormat.channels));
             kfr::univector2d<sample_process_t> result;
@@ -109,13 +121,17 @@ namespace WAVCombine {
                 auto srcData = channnels.at(i);
                 if (reader.format().samplerate != targetFormat.samplerate){
                     //TODO: maybe give user a choice to control sample rate conversion quality
-                    auto resampler = kfr::sample_rate_converter<sample_process_t>(kfr::sample_rate_conversion_quality::normal, targetFormat.samplerate, reader.format().samplerate);
+                    auto resampler = kfr::sample_rate_converter<sample_process_t>(sample_rate_conversion_quality_for_process, targetFormat.samplerate, reader.format().samplerate);
                     decltype (srcData) resampled(reader.format().length * targetFormat.samplerate / reader.format().samplerate + resampler.get_delay());
                     resampler.process(resampled, srcData);
                     srcData = resampled;
                 }
                 result.push_back(srcData);
             }
+
+            //As Qt5's implementation would lose precision, we use base64 to store a int64 here.
+            descObj.insert("length", encodeBase64((qint64) result.at(0).size()));
+
             return {result, descObj};
         }),
        std::function([targetFormat](QPair<kfr::univector2d<sample_process_t>, QJsonObject>& result, const QPair<kfr::univector2d<sample_process_t>, QJsonObject>& step){
@@ -125,12 +141,12 @@ namespace WAVCombine {
                 return;
             }
             auto& resultObj = result.second;
-            auto previousCount = decodeBase64<qint64>(resultObj.value("total_sample_count").toString());
+            auto previousCount = decodeBase64<qint64>(resultObj.value("total_length").toString());
             //We simply copy this cuz these are same...so....The first would be a empty string, though. It doesn't matter cuz we see a empty string as a 0.
-            descObj.insert("begin_index", resultObj.value("total_sample_count").toString());
+            descObj.insert("begin_index", resultObj.value("total_length").toString());
             auto length = decodeBase64<qint64>(descObj.value("length").toString());
             //update the total sample count
-            resultObj.insert("total_sample_count", encodeBase64(previousCount + length));
+            resultObj.insert("total_length", encodeBase64(previousCount + length));
             auto descArray = resultObj.value("descriptions").toArray();
             descArray.append(descObj);
             resultObj.insert("descriptions", descArray);
@@ -161,6 +177,9 @@ namespace WAVCombine {
 
         //write description file
         descObj.insert("version", desc_file_version);
+        descObj.insert("sample_rate", targetFormat.samplerate);
+        descObj.insert("sample_type", (int) targetFormat.type);
+        descObj.insert("channel_count", (qint64) targetFormat.channels);
         auto descFileName = getDescFileNameFrom(wavFileName);
         QJsonDocument descDoc{descObj};
         QFile descFileDevice{descFileName};
@@ -177,24 +196,8 @@ namespace WAVCombine {
             return false;
         }
 
-//        qint64 totalSampleCount = 0;
-//        auto rawDatas = std::make_unique<const sample_process_t*>(data.size());
-//        for (std::size_t i = 0; i < data.size(); ++i){
-//            rawDatas.get()[i] = data[i].data();
-//            totalSampleCount += data[i].size();
-//        }
-
-//        auto interleaveBuffer = std::make_unique<sample_process_t>(totalSampleCount);
-
-//        kfr::interleave(interleaveBuffer.get(), rawDatas.get(), data.size(), totalSampleCount);
-//        writer.write(interleaveBuffer.get(), totalSampleCount);
-        if (targetFormat.channels > 1){
-            size_t totalSampleCount;
-            auto interleaved = kfr::interleave(data, totalSampleCount);
-            return writer.write(interleaved.get(), totalSampleCount) == totalSampleCount;
-        }
-        else{
-            return writer.write(data.at(0)) == data.at(0).size();
-        }
+        return kfr::write_mutlichannel_wav_file<sample_process_t>(writer, data);
     }
+
+
 } // namespace WAVCombineWorker

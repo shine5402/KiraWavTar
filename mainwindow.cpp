@@ -6,6 +6,7 @@
 #include <QValidator>
 #include "kfr_adapt.h"
 #include "wavcombinedialog.h"
+#include "wavextractdialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -59,7 +60,14 @@ void MainWindow::run()
         dialog->open();
     }
     else
-        WAVExtact::doWork(ui->extractSrcPathWidget->fileName(), ui->extractResultPathWidget->dirName());
+    {
+        constexpr auto invalidFormat = kfr::audio_format{0, kfr::audio_sample_type::unknown, 0, false};
+        auto targetFormat = ui->extractFormatSrcRadioButton->isChecked() ? invalidFormat : ui->extractFormatCustomChooser->getFormat();
+        auto srcWAVFileName = ui->extractSrcPathWidget->fileName();
+        auto dstDirName = ui->extractResultPathWidget->dirName();
+        auto dialog = new WAVExtractDialog(srcWAVFileName, dstDirName, targetFormat, this);
+        dialog->open();
+    }
 
 }
 
