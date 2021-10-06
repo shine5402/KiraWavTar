@@ -20,7 +20,11 @@ namespace WAVExtract {
 
     CheckResult preCheck(QString srcWAVFileName, QString dstDirName);
     QPair<std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>>, QJsonArray> readSrcWAVFile(QString srcWAVFileName, QJsonObject descRoot);
-    QFuture<bool> startExtract(std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>> srcData, QJsonArray descArray, QString dstDirName, kfr::audio_format targetFormat);
+    struct ExtractErrorDescription{
+        QString description;
+        QJsonObject descObj;
+    };
+    QFuture<QList<ExtractErrorDescription>> startExtract(std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>> srcData, QJsonArray descArray, QString dstDirName, kfr::audio_format targetFormat);
 }
 
 Q_DECLARE_METATYPE(WAVExtract::CheckResult);

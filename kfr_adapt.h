@@ -140,15 +140,19 @@ namespace kfr {
         return interleaveBuffer;
     }
     template <typename T>
-    bool write_mutlichannel_wav_file(kfr::audio_writer_wav<T>& writer, const kfr::univector2d<T>& data){
+    size_t write_mutlichannel_wav_file(kfr::audio_writer_wav<T>& writer, const kfr::univector2d<T>& data, size_t* to_write_p = nullptr){
         const auto& targetFormat = writer.format();
         if (targetFormat.channels > 1){
-            size_t totalSampleCount;
-            auto interleaved = kfr::interleave(data, totalSampleCount);
-            return writer.write(interleaved.get(), totalSampleCount) == totalSampleCount;
+            size_t to_write;
+            auto interleaved = kfr::interleave(data, to_write);
+            if (to_write_p)
+                *to_write_p = to_write;
+            return writer.write(interleaved.get(), to_write);
         }
         else{
-            return writer.write(data.at(0)) == data.at(0).size();
+            if (to_write_p)
+                *to_write_p = data.at(0).size();
+            return writer.write(data.at(0));
         }
     }
 }

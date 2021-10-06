@@ -10,6 +10,7 @@
 #include "kfr_adapt.h"
 #include <QCoreApplication>
 #include <QtConcurrent>
+#include <exception>
 
 using namespace wavtar_defines;
 using namespace wavtar_utils;
@@ -61,13 +62,11 @@ namespace WAVExtract {
         bool openSuccess = false;
         kfr::audio_reader_wav<sample_process_t> reader{kfr::open_qt_file_for_reading(srcWAVFileName, &openSuccess)};
         if (!openSuccess){
-            qCritical("Can not open wave file.");
-            return {};
+            throw wavtar_exceptions::runtime_error(QCoreApplication::translate("WAVExtract", "打开文件%1时出现错误。").arg(srcWAVFileName));
         }
         auto data = std::make_shared<kfr::univector2d<sample_process_t>>(reader.read_channels());
         if (data->empty()){
-            qCritical("There is no data.");
-            return {};
+            throw wavtar_exceptions::runtime_error(QCoreApplication::translate("WAVExtract", "文件%1时中没有数据。").arg(srcWAVFileName));
         }
 
         auto expectedChannelCount = descRoot.value("channel_count").toInt();
@@ -83,7 +82,7 @@ namespace WAVExtract {
 
 
         auto expectedSampleRate = descRoot.value("sample_rate").toDouble();
-        if (reader.format().samplerate != expectedSampleRate)
+        if (!qFuzzyCompare(reader.format().samplerate, expectedSampleRate))
         {
             for (auto it = data->begin(); it != data->end(); ++it){
                 auto& srcData = *it;
@@ -110,12 +109,9 @@ namespace WAVExtract {
     }
 
     //Use format in description file, when targetFormat's type == unknown
-    QFuture<bool> startExtract(std::shared_ptr<kfr::univector2d<sample_process_t>> srcData, QJsonArray descArray, QString dstDirName, kfr::audio_format targetFormat){
-        //TODO:Use exception for error handling..?
-
-        auto descArrayCount = descArray.count();
-        //We change the array to VariantList here, as Qt 5.15.2 seems not copy QJsonArray correctly here. It may be a bug with the implicit sharing with the QJsonArray.
-        return QtConcurrent::mappedReduced<bool>(descArray.toVariantList(), std::function([targetFormat, srcData, dstDirName](const QVariant& descValue) mutable -> bool{
+    QFuture<QList<ExtractErrorDescription>> startExtract(std::shared_ptr<kfr::univector2d<sample_process_t>> srcData, QJsonArray descArray, QString dstDirName, kfr::audio_format targetFormat){
+        //We change the array to VariantList here, as Qt 5.15.2 seems not copy QJsonArray correctly here. It may be a bug with the implicit sharing with the QJsonArray. Qt 6 fixes that.
+        return QtConcurrent::mappedReduced<QList<ExtractErrorDescription>>(descArray.toVariantList(), std::function([targetFormat, srcData, dstDirName](const QVariant& descValue) mutable -> ExtractErrorDescription{
             auto descObj = descValue.toJsonObject();
 
             //Use format from desc file if user ask to
@@ -141,16 +137,19 @@ namespace WAVExtract {
             bool openSuccess;
             auto writer = kfr::audio_writer_wav<sample_process_t>(kfr::open_qt_file_for_writing(absoluteFileName, &openSuccess), targetFormat);
             if (!openSuccess){
-                qCritical("Can not open file to write.");
-                return false;
+                return {QCoreApplication::translate("WAVExtract", "为写入打开文件%1时出现问题。").arg(absoluteFileName), descObj};
             }
 
-            return kfr::write_mutlichannel_wav_file<sample_process_t>(writer, segmentData);
+            size_t to_write = 0;
+            auto written = kfr::write_mutlichannel_wav_file<sample_process_t>(writer, segmentData, &to_write);
+            if (to_write == written)
+                return {};
+            else
+                return {QCoreApplication::translate("WAVExtract", "文件%1写入的字节数（%2）和预期的（%3）不一致（即没有完全写入完成）。").arg(absoluteFileName).arg(written).arg(to_write), descObj};
         }),
-        std::function([descArrayCount](bool& result, const bool& stepResult){
-            static auto count = 0;
-            if (stepResult) ++count;
-            if (descArrayCount == count) result = true;
+        std::function([](QList<ExtractErrorDescription>& result, const ExtractErrorDescription& stepResult){
+            if (!stepResult.description.isEmpty())
+                result.append(stepResult);
         }));
     }
 }

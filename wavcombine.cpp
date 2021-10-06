@@ -95,14 +95,11 @@ namespace WAVCombine {
             kfr::audio_reader_wav<sample_process_t> reader(kfr::open_qt_file_for_reading(fileName, &openSucess));
             if (!openSucess)
             {
-                //May change to throw here?
-                qCritical("Can not open wave file %s for reading.", fileName.toStdString().c_str());
-                return {};
+                throw wavtar_exceptions::runtime_error(QCoreApplication::tr("WAVCombine", "为读取打开文件%1时出现错误。").arg(fileName));
             }
             if (reader.format().type == kfr::audio_sample_type::unknown)
             {
-                qCritical("Failed to know the sample type of %s", fileName.toStdString().c_str());
-                return {};
+                throw wavtar_exceptions::runtime_error(QCoreApplication::tr("WAVCombine", "无法得知文件%1的采样类型。").arg(fileName));
             }
             auto channnels = reader.read_channels();
             QJsonObject descObj;
@@ -171,8 +168,7 @@ namespace WAVCombine {
     bool writeCombineResult(kfr::univector2d<sample_process_t> data, QJsonObject descObj, QString wavFileName, kfr::audio_format targetFormat){
         if (data.empty())
         {
-            qCritical("No sample data to write after combining work.");
-            return false;
+            throw wavtar_exceptions::runtime_error(QCoreApplication::translate("WAVCombine", "没有可被合并的数据。"));
         }
 
         //write description file
@@ -192,11 +188,17 @@ namespace WAVCombine {
         bool openSuccess = false;
         kfr::audio_writer_wav<sample_process_t> writer(kfr::open_qt_file_for_writing(wavFileName, &openSuccess), targetFormat);
         if (!openSuccess){
-            qCritical("Can not open wave file");
-            return false;
+           throw wavtar_exceptions::runtime_error(QCoreApplication::tr("WAVCombine", "为写入打开文件%1时出现错误。").arg(wavFileName));
+        }
+        size_t to_write = 0;
+        auto written = kfr::write_mutlichannel_wav_file<sample_process_t>(writer, data, &to_write);
+
+        if (to_write != written)
+        {
+            throw wavtar_exceptions::runtime_error(QCoreApplication::translate("WAVCombine", "文件%1写入的字节数（%2）和预期的（%3）不一致（即没有完全写入完成）。").arg(wavFileName).arg(written).arg(to_write));
         }
 
-        return kfr::write_mutlichannel_wav_file<sample_process_t>(writer, data);
+        return to_write == written;
     }
 
 
