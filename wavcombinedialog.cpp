@@ -36,7 +36,7 @@ WAVCombineDialog::WAVCombineDialog(QString rootDirName, bool recursive,
     connect(this, &WAVCombineDialog::opened, this, &WAVCombineDialog::startWork);
 }
 
-using preCheckFutureWatcher = QFutureWatcher<decltype (std::function(preCheck))::result_type>;
+using PreCheckFutureWatcher = QFutureWatcher<decltype (std::function(preCheck))::result_type>;
 
 void WAVCombineDialog::startWork()
 {
@@ -45,18 +45,19 @@ void WAVCombineDialog::startWork()
     //This will make progress bar show as busy indicator
     progressBar->setMaximum(0);
     progressBar->setMinimum(0);
-    auto watcher = new preCheckFutureWatcher(this);
+    auto watcher = new PreCheckFutureWatcher(this);
     watcher->setFuture(nextFuture);
-    connect(watcher, &preCheckFutureWatcher::finished, this, &WAVCombineDialog::preCheckDone);
-    connect(buttonBox, &QDialogButtonBox::rejected, watcher, &preCheckFutureWatcher::cancel);
+    connect(watcher, &PreCheckFutureWatcher::finished, this, &WAVCombineDialog::preCheckDone);
+    connect(buttonBox, &QDialogButtonBox::rejected, watcher, &PreCheckFutureWatcher::cancel);
 }
 
 using readAndCombineFutureWatcher = QFutureWatcher<QPair<kfr::univector2d<wavtar_defines::sample_process_t>, QJsonObject>>;
 
 void WAVCombineDialog::preCheckDone()
 {
-    if (auto watcher = dynamic_cast<preCheckFutureWatcher*>(QObject::sender())){
-        //TODO: Use exception to tell user there is error occured
+    if (auto watcher = dynamic_cast<PreCheckFutureWatcher*>(QObject::sender())){
+        if (!wavtar_utils::checkFutureExceptionAndWarn(watcher->future()))
+            return;
         if (watcher->isCanceled())
             return;
         auto result = watcher->result();
@@ -99,6 +100,8 @@ void WAVCombineDialog::preCheckDone()
 void WAVCombineDialog::readAndCombineWorkDone()
 {
     if (auto watcher = dynamic_cast<readAndCombineFutureWatcher*>(QObject::sender())){
+        if (!wavtar_utils::checkFutureExceptionAndWarn(watcher->future()))
+            return;
         if (watcher->isCanceled())
             return;
         auto result = watcher->result();
@@ -117,6 +120,8 @@ void WAVCombineDialog::readAndCombineWorkDone()
 void WAVCombineDialog::writeResultDone()
 {
     if (auto watcher = dynamic_cast<QFutureWatcher<bool>*>(QObject::sender())){
+        if (!wavtar_utils::checkFutureExceptionAndWarn(watcher->future()))
+            return;
         if (watcher->isCanceled())
             return;
         label->setText(tr("完成"));

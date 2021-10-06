@@ -33,7 +33,7 @@ WAVExtractDialog::WAVExtractDialog(QString srcWAVFileName, QString dstDirName,
     connect(this, &WAVExtractDialog::opened, this, &WAVExtractDialog::startWork);
 }
 
-using preCheckFutureWatcher = QFutureWatcher<decltype (std::function(preCheck))::result_type>;
+using PreCheckFutureWatcher = QFutureWatcher<decltype (std::function(preCheck))::result_type>;
 
 void WAVExtractDialog::startWork()
 {
@@ -42,18 +42,19 @@ void WAVExtractDialog::startWork()
     //This will make progress bar show as busy indicator
     progressBar->setMaximum(0);
     progressBar->setMinimum(0);
-    auto watcher = new preCheckFutureWatcher(this);
+    auto watcher = new PreCheckFutureWatcher(this);
     watcher->setFuture(nextFuture);
-    connect(watcher, &preCheckFutureWatcher::finished, this, &WAVExtractDialog::preCheckDone);
-    connect(buttonBox, &QDialogButtonBox::rejected, watcher, &preCheckFutureWatcher::cancel);
+    connect(watcher, &PreCheckFutureWatcher::finished, this, &WAVExtractDialog::preCheckDone);
+    connect(buttonBox, &QDialogButtonBox::rejected, watcher, &PreCheckFutureWatcher::cancel);
 }
 
-using readSrcWAVFileFutureWatcher = QFutureWatcher<decltype (std::function(readSrcWAVFile))::result_type>;
+using ReadSrcWAVFileFutureWatcher = QFutureWatcher<decltype (std::function(readSrcWAVFile))::result_type>;
 
 void WAVExtractDialog::preCheckDone()
 {
-    if (auto watcher = dynamic_cast<preCheckFutureWatcher*>(QObject::sender())){
-        //TODO: Use exception to tell user there is error occured
+    if (auto watcher = dynamic_cast<PreCheckFutureWatcher*>(QObject::sender())){
+        if (!wavtar_utils::checkFutureExceptionAndWarn(watcher->future()))
+            return;
         if (watcher->isCanceled())
             return;
         auto result = watcher->result();
@@ -80,28 +81,33 @@ void WAVExtractDialog::preCheckDone()
             [[fallthrough]];
         case WAVExtract::CheckPassType::OK:
             auto nextFuture = QtConcurrent::run(readSrcWAVFile, srcWAVFileName, result.descRoot);
-            auto nextWatcher = new readSrcWAVFileFutureWatcher(this);
+            auto nextWatcher = new ReadSrcWAVFileFutureWatcher(this);
             nextWatcher->setFuture(nextFuture);
             label->setText(tr("读取源波形文件……"));
-            connect(nextWatcher, &readSrcWAVFileFutureWatcher::finished, this, &WAVExtractDialog::readSrcWAVFileDone);
-            connect(buttonBox, &QDialogButtonBox::rejected, nextWatcher, &readSrcWAVFileFutureWatcher::cancel);
+            connect(nextWatcher, &ReadSrcWAVFileFutureWatcher::finished, this, &WAVExtractDialog::readSrcWAVFileDone);
+            connect(buttonBox, &QDialogButtonBox::rejected, nextWatcher, &ReadSrcWAVFileFutureWatcher::cancel);
             break;
         }
     }
 }
 
+using ExtractWorkFutureWatcher = QFutureWatcher<QList<ExtractErrorDescription>>;
+
 void WAVExtractDialog::readSrcWAVFileDone()
 {
-    if (auto watcher = dynamic_cast<readSrcWAVFileFutureWatcher*>(QObject::sender())){
+    if (auto watcher = dynamic_cast<ReadSrcWAVFileFutureWatcher*>(QObject::sender())){
+        if (!wavtar_utils::checkFutureExceptionAndWarn(watcher->future()))
+            return;
         if (watcher->isCanceled())
             return;
         auto result = watcher->result();
         label->setText(tr("拆分波形文件并写入……"));
         auto nextFuture = startExtract(result.first, result.second, dstDirName, targetFormat);
-        auto nextWatcher = new QFutureWatcher<bool>(this);
+        auto nextWatcher = new ExtractWorkFutureWatcher(this);
         nextWatcher->setFuture(nextFuture);
         progressBar->setMinimum(nextWatcher->progressMinimum());
         progressBar->setMaximum(nextWatcher->progressMaximum());
+        connect(nextWatcher, &QFutureWatcher<bool>::progressValueChanged, progressBar, &QProgressBar::setValue);
         connect(nextWatcher, &QFutureWatcher<bool>::finished, this, &WAVExtractDialog::extractWorkDone);
         connect(buttonBox, &QDialogButtonBox::rejected, nextWatcher, &QFutureWatcher<bool>::cancel);
     }
@@ -109,7 +115,9 @@ void WAVExtractDialog::readSrcWAVFileDone()
 
 void WAVExtractDialog::extractWorkDone()
 {
-    if (auto watcher = dynamic_cast<QFutureWatcher<bool>*>(QObject::sender())){
+    if (auto watcher = dynamic_cast<ExtractWorkFutureWatcher*>(QObject::sender())){
+        if (!wavtar_utils::checkFutureExceptionAndWarn(watcher->future()))
+            return;
         if (watcher->isCanceled())
             return;
         label->setText(tr("完成"));
@@ -117,7 +125,7 @@ void WAVExtractDialog::extractWorkDone()
         progressBar->setMinimum(0);
         progressBar->setValue(1);
         auto result = watcher->result();
-        if (result){
+        if (result.isEmpty()){
             QMessageBox msgBox;
             msgBox.setIcon(QMessageBox::Icon::Information);
             msgBox.setText(tr("拆分操作已经完成。"));
@@ -129,8 +137,14 @@ void WAVExtractDialog::extractWorkDone()
         else{
             QMessageBox msgBox;
             msgBox.setIcon(QMessageBox::Icon::Critical);
-            msgBox.setText(tr("拆分波形文件时出现问题"));
-            msgBox.setInformativeText(tr("请排查可能问题后再试。"));
+            msgBox.setText(tr("拆分波形文件时出现问题。"));
+            msgBox.setInformativeText(QtConcurrent::mappedReduced<QString>(result,
+                                                                  std::function([](const ExtractErrorDescription& value)->QString{return value.description;}),
+            [](QString& result, const QString& desc){
+                                          if (result.isEmpty())
+                                            result = reportTextStyle;
+                                          result.append(QString("<p class='critical'>%1</p>").arg(desc));
+                                      }));
             msgBox.setStandardButtons(QMessageBox::Ok);
             msgBox.exec();
             reject();

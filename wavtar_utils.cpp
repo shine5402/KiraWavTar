@@ -1,7 +1,7 @@
 #include "wavtar_utils.h"
 #include <QDir>
 #include <QStack>
-
+#include <exception>
 
 namespace wavtar_utils {
     QStringList getAbsoluteWAVFileNamesUnder(QString rootDirName, bool recursive){
@@ -34,4 +34,6 @@ namespace wavtar_utils {
         descFileName.append(".kirawavtar-desc.json");
         return descFileName;
     }
+
+
 }

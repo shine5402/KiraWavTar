@@ -2,6 +2,9 @@
 #define WAVTAR_UTILS_H
 
 #include <QStringList>
+#include <QFuture>
+#include <QMessageBox>
+#include <QCoreApplication>
 
 namespace wavtar_utils {
     QStringList getAbsoluteWAVFileNamesUnder(QString rootDirName, bool recursive = false);
@@ -17,6 +20,20 @@ namespace wavtar_utils {
         if (base64.isEmpty())
             return {};
         return *((const T*) QByteArray::fromBase64(base64.toUtf8()).data());
+    }
+
+    template<typename T>
+    bool checkFutureExceptionAndWarn(QFuture<T> future){
+        try {
+            future.waitForFinished();
+            return true;
+        }  catch (const std::exception& e) {
+            QMessageBox::critical(nullptr, {}, e.what());
+            return false;
+        } catch(...){
+            QMessageBox::critical(nullptr, {}, QCoreApplication::translate("WAVTarUtils", "发生了未知错误。"));
+            return false;
+        }
     }
 }
 
@@ -37,6 +54,12 @@ namespace wavtar_defines {
     color:orange;
 }
 </style>)";
+}
+namespace wavtar_exceptions {
+    class runtime_error : std::runtime_error{
+    public:
+        explicit runtime_error(QString info):std::runtime_error(info.toStdString()){};
+    };
 }
 
 #endif // WAVTAR_UTILS_H
