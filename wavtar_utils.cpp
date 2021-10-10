@@ -31,7 +31,7 @@ namespace wavtar_utils {
         }
 
         auto timeEnd = QTime::currentTime();
-        auto duration = timeStart.secsTo(timeEnd);
+        auto duration = timeStart.msecsTo(timeEnd);
         qDebug("[getAbsoluteWAVFileNamesUnder] duration=%d", duration);
         return result;
     }
