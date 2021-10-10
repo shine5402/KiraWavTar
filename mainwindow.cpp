@@ -20,6 +20,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->resetButton, &QPushButton::clicked, this, &MainWindow::reset);
     connect(ui->modeButtonGroup, &QButtonGroup::idClicked, this, &MainWindow::updateStackWidgetIndex);
     connect(ui->runButton, &QPushButton::clicked, this, &MainWindow::run);
+
+    connect(ui->combineDirPathWidget, &DirNameEditWithBrowse::browseTriggered, this, &MainWindow::fillResultPath);
+    connect(ui->combineDirPathWidget, &DirNameEditWithBrowse::dropTriggered, this, &MainWindow::fillResultPath);
+    connect(ui->extractSrcPathWidget, &FileNameEditWithBrowse::browseTriggered, this, &MainWindow::fillResultPath);
+    connect(ui->extractSrcPathWidget, &FileNameEditWithBrowse::dropTriggered, this, &MainWindow::fillResultPath);
 }
 
 MainWindow::~MainWindow()
@@ -30,7 +35,7 @@ MainWindow::~MainWindow()
 void MainWindow::reset()
 {
     ui->combineDirPathWidget->setDirName({});
-    ui->subdirCheckBox->setChecked(false);
+    ui->subdirCheckBox->setChecked(true);
     ui->combineResultPathWidget->setFileName({});
     ui->combineWAVFormatWidget->reset();
 
@@ -70,5 +75,18 @@ void MainWindow::run()
         dialog->open();
     }
 
+}
+
+void MainWindow::fillResultPath()
+{
+    if (ui->combineWAVRadioButton->isChecked())
+        ui->combineResultPathWidget->setFileName(ui->combineDirPathWidget->dirName() + ".wav");
+    else
+    {
+        auto fileInfo = QFileInfo{ui->extractSrcPathWidget->fileName()};
+        auto dir = fileInfo.absoluteDir();
+        auto baseFileName = fileInfo.completeBaseName();
+        ui->extractResultPathWidget->setDirName(dir.absoluteFilePath(baseFileName + "_result"));
+    }
 }
 

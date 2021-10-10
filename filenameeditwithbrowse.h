@@ -77,6 +77,7 @@ private slots:
 
 signals:
     void browseTriggered();
+    void dropTriggered();
 };
 
 
