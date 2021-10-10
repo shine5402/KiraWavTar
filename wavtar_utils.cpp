@@ -3,9 +3,12 @@
 #include <QStack>
 #include <exception>
 #include <QStackedWidget>
+#include <QTime>
 
 namespace wavtar_utils {
     QStringList getAbsoluteWAVFileNamesUnder(QString rootDirName, bool recursive){
+        auto timeStart = QTime::currentTime();
+
         QStack<QString> dirNameStack;
         dirNameStack.append(rootDirName);
 
@@ -26,6 +29,10 @@ namespace wavtar_utils {
                 dirNameStack.push(currentDir.filePath(i));
             }
         }
+
+        auto timeEnd = QTime::currentTime();
+        auto duration = timeStart.secsTo(timeEnd);
+        qDebug("[getAbsoluteWAVFileNamesUnder] duration=%d", duration);
         return result;
     }
 
