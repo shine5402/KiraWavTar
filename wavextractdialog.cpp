@@ -70,7 +70,7 @@ void WAVExtractDialog::preCheckDone()
             msgBox.setInformativeText(reportTextStyle + result.reportString);
             msgBox.setStandardButtons(QMessageBox::Ok);
             msgBox.exec();
-            reject();
+            done(QDialog::Rejected);
             break;
         case WAVExtract::CheckPassType::WARNING:
             msgBox.setIcon(QMessageBox::Warning);
@@ -78,7 +78,7 @@ void WAVExtractDialog::preCheckDone()
             msgBox.setInformativeText(reportTextStyle + result.reportString);
             msgBox.setStandardButtons(QMessageBox::Yes|QMessageBox::No);
             if (msgBox.exec() == QMessageBox::No){
-                this->reject();
+                this->done(QDialog::Rejected);
                 this->close();
                 return;
             }
@@ -157,7 +157,7 @@ void WAVExtractDialog::readSrcWAVFileDone()
             selectDialog->resize(800, 500);
             auto selectDialogResult = selectDialog->exec();
             if (selectDialogResult == QDialog::Rejected){
-                reject();
+                done(QDialog::Rejected);
                 return;
             }
             //As model takes a pointer to result.second and modify it directly, there is no need for us to do extra work here.
@@ -185,7 +185,7 @@ void WAVExtractDialog::extractWorkDone()
             msgBox.setInformativeText(tr("拆分后的波形文件已经存储至%1，原先的文件夹结构也已经被还原（如果有）。").arg(dstDirName));
             msgBox.setStandardButtons(QMessageBox::Ok);
             msgBox.exec();
-            accept();
+            done(QDialog::Accepted);
         }
         else{
             QMessageBox msgBoxInfomation;
@@ -211,7 +211,7 @@ void WAVExtractDialog::extractWorkDone()
             msgBoxRetry.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
             auto retryDialogCode = msgBoxRetry.exec();
             if (retryDialogCode == QDialog::Rejected)
-                reject();
+                done(QDialog::Rejected);
             else
             {
                 QJsonArray descArray;

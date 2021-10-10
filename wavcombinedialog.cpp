@@ -69,7 +69,7 @@ void WAVCombineDialog::preCheckDone()
             msgBox.setInformativeText(reportTextStyle + result.reportString);
             msgBox.setStandardButtons(QMessageBox::Ok);
             msgBox.exec();
-            reject();
+            done(QDialog::Rejected);
             break;
         case WAVCombine::CheckPassType::WARNING:
             msgBox.setIcon(QMessageBox::Warning);
@@ -77,7 +77,7 @@ void WAVCombineDialog::preCheckDone()
             msgBox.setInformativeText(reportTextStyle + result.reportString);
             msgBox.setStandardButtons(QMessageBox::Yes|QMessageBox::No);
             if (msgBox.exec() == QMessageBox::No){
-                this->reject();
+                this->done(QDialog::Rejected);
                 this->close();
                 return;
             }
@@ -136,7 +136,7 @@ void WAVCombineDialog::writeResultDone()
             msgBox.setInformativeText(tr("合并后的波形文件已经存储至%1。请注意在处理时不要修改波形文件内的时值，也不要删除和修改同名的“.kirawavtar-desc.json”描述文件。").arg(saveFileName));
             msgBox.setStandardButtons(QMessageBox::Ok);
             msgBox.exec();
-            accept();
+            done(QDialog::Accepted);
         }
         else{
             QMessageBox msgBox;
@@ -145,7 +145,7 @@ void WAVCombineDialog::writeResultDone()
             msgBox.setInformativeText(tr("请排查可能问题后再试。"));
             msgBox.setStandardButtons(QMessageBox::Ok);
             msgBox.exec();
-            reject();
+            done(QDialog::Rejected);
         }
     }
 }
