@@ -94,8 +94,8 @@ namespace WAVCombine {
 
 
     //(finalDataToWrite, jsonObj)
-    QFuture<QPair<kfr::univector2d<wavtar_defines::sample_process_t>, QJsonObject>> startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, kfr::audio_format targetFormat){
-        return QtConcurrent::mappedReduced<QPair<kfr::univector2d<sample_process_t>, QJsonObject>>(WAVFileNames, std::function([rootDirName, targetFormat](const QString& fileName)->QPair<kfr::univector2d<sample_process_t>, QJsonObject>{
+    QFuture<QPair<std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>>, QJsonObject>> startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, kfr::audio_format targetFormat){
+        return QtConcurrent::mappedReduced<QPair<std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>>, QJsonObject>>(WAVFileNames, std::function([rootDirName, targetFormat](const QString& fileName)->QPair<kfr::univector2d<sample_process_t>, QJsonObject>{
             bool openSucess = false;
             kfr::audio_reader_wav<sample_process_t> reader(kfr::open_qt_file_for_reading(fileName, &openSucess));
             if (!openSucess)
@@ -136,7 +136,9 @@ namespace WAVCombine {
 
             return {result, descObj};
         }),
-       std::function([targetFormat](QPair<kfr::univector2d<sample_process_t>, QJsonObject>& result, const QPair<kfr::univector2d<sample_process_t>, QJsonObject>& step){
+       std::function([targetFormat](QPair<std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>>, QJsonObject>& result, const QPair<kfr::univector2d<sample_process_t>, QJsonObject>& step){
+            if (!result.first)
+                result.first = std::make_shared<kfr::univector2d<wavtar_defines::sample_process_t>>();
             auto descObj = step.second;
             if (descObj.isEmpty())
             {
@@ -159,9 +161,9 @@ namespace WAVCombine {
                //create a simple zero-data channel to meet the requirement
                if (stepData.size() <= i)
                    stepData.push_back(kfr::univector<sample_process_t>(length));
-               if (resultData.size() <= i)
-                   resultData.emplace_back();
-               auto& channelData = resultData[i];
+               if (resultData->size() <= i)
+                   resultData->emplace_back();
+               auto& channelData = (*resultData)[i];
                auto& stepChannelData = stepData[i];
                channelData.insert(channelData.end(), stepChannelData.cbegin(), stepChannelData.cend());
             }
@@ -170,8 +172,8 @@ namespace WAVCombine {
                 );
     }
 
-    bool writeCombineResult(kfr::univector2d<sample_process_t> data, QJsonObject descObj, QString wavFileName, kfr::audio_format targetFormat){
-        if (data.empty())
+    bool writeCombineResult(std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>> data, QJsonObject descObj, QString wavFileName, kfr::audio_format targetFormat){
+        if (!data || data->empty())
         {
             throw wavtar_exceptions::runtime_error(QCoreApplication::translate("WAVCombine", "没有可被合并的数据。"));
         }
@@ -196,7 +198,7 @@ namespace WAVCombine {
            throw wavtar_exceptions::runtime_error(QCoreApplication::tr("WAVCombine", "为写入打开文件%1时出现错误。").arg(wavFileName));
         }
         size_t to_write = 0;
-        auto written = kfr::write_mutlichannel_wav_file<sample_process_t>(writer, data, &to_write);
+        auto written = kfr::write_mutlichannel_wav_file<sample_process_t>(writer, *data, &to_write);
 
         if (to_write != written)
         {
