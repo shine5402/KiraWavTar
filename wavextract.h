@@ -23,6 +23,7 @@ namespace WAVExtract {
     struct ExtractErrorDescription{
         QString description;
         QJsonObject descObj;
+        std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>> srcData;
     };
     QFuture<QList<ExtractErrorDescription>> startExtract(std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>> srcData, QJsonArray descArray, QString dstDirName, kfr::audio_format targetFormat);
 }

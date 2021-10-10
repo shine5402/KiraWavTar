@@ -20,7 +20,7 @@ namespace WAVCombine
         QStringList wavFileNames;
     };
 
-    CheckResult preCheck(QString rootDirName, bool recursive, kfr::audio_format targetFormat);
+    CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive, kfr::audio_format targetFormat);
     QFuture<QPair<kfr::univector2d<wavtar_defines::sample_process_t>, QJsonObject>> startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, kfr::audio_format targetFormat);
     bool writeCombineResult(kfr::univector2d<wavtar_defines::sample_process_t> data, QJsonObject descObj, QString wavFileName, kfr::audio_format targetFormat);
 };

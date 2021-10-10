@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <kfr/all.hpp>
+#include "wavtar_utils.h"
 
 class QLabel;
 class QProgressBar;
@@ -22,6 +23,8 @@ private:
     QString dstDirName;
     kfr::audio_format targetFormat;
     bool extractResultSelection;
+
+    void doExtractCall(std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t> > srcData, QJsonArray descArray);
 
 private slots:
     void startWork();
