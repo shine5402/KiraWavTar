@@ -5,6 +5,7 @@
 #include <QFuture>
 #include <QMessageBox>
 #include <QCoreApplication>
+class QStackedWidget;
 
 namespace wavtar_utils {
     QStringList getAbsoluteWAVFileNamesUnder(QString rootDirName, bool recursive = false);
@@ -35,6 +36,8 @@ namespace wavtar_utils {
             return false;
         }
     }
+
+    void refreshStackedWidgetSize(QStackedWidget* stackedWidget);
 }
 
 #include <kfr/all.hpp>

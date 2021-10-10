@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>881</width>
-    <height>237</height>
+    <height>244</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -71,32 +71,32 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="combineOptionPage">
        <layout class="QGridLayout" name="gridLayout" columnstretch="0,0">
-        <item row="2" column="0">
+        <item row="3" column="0">
          <widget class="QLabel" name="label_3">
           <property name="text">
            <string>保存合并结果为：</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="0">
+        <item row="4" column="0">
          <widget class="QLabel" name="label_4">
           <property name="text">
            <string>目标格式：</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="0">
+        <item row="1" column="0">
          <widget class="QLabel" name="label_2">
           <property name="text">
            <string>WAV文件所在文件夹：</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
+        <item row="2" column="1">
          <widget class="QCheckBox" name="subdirCheckBox">
           <property name="toolTip">
            <string>该选项让程序检查子文件夹（以及他们的子文件夹），并合并这些文件夹中的WAV文件。这些文件夹的结构会写入记录信息中，以备拆分时恢复。</string>
@@ -106,16 +106,13 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
+        <item row="1" column="1">
          <widget class="DirNameEditWithBrowse" name="combineDirPathWidget" native="true"/>
         </item>
-        <item row="2" column="1">
+        <item row="3" column="1">
          <widget class="FileNameEditWithSaveBrowse" name="combineResultPathWidget" native="true"/>
         </item>
-        <item row="3" column="1">
-         <widget class="WAVFormatChooserWidget" name="combineWAVFormatWidget" native="true"/>
-        </item>
-        <item row="4" column="0" colspan="2">
+        <item row="5" column="0" colspan="2">
          <spacer name="verticalSpacer_2">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -123,7 +120,23 @@
           <property name="sizeHint" stdset="0">
            <size>
             <width>20</width>
-            <height>40</height>
+            <height>0</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="4" column="1">
+         <widget class="WAVFormatChooserWidget" name="combineWAVFormatWidget" native="true"/>
+        </item>
+        <item row="0" column="0" colspan="2">
+         <spacer name="verticalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>0</height>
            </size>
           </property>
          </spacer>
@@ -132,28 +145,28 @@
       </widget>
       <widget class="QWidget" name="extractOptionPage">
        <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,1">
-        <item row="0" column="0">
+        <item row="1" column="0">
          <widget class="QLabel" name="label_5">
           <property name="text">
            <string>要拆分的WAV文件：</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="0" colspan="2">
+        <item row="4" column="0" colspan="2">
          <widget class="QCheckBox" name="extractSelectionCheckBox">
           <property name="text">
            <string>选择要被拆分的项...</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
+        <item row="2" column="0">
          <widget class="QLabel" name="label_7">
           <property name="text">
            <string>保存结果到：</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
+        <item row="3" column="1">
          <layout class="QGridLayout" name="gridLayout_3">
           <item row="1" column="0">
            <widget class="QRadioButton" name="extractFormatCustomRadioButton">
@@ -193,20 +206,10 @@
           </item>
          </layout>
         </item>
-        <item row="1" column="1">
+        <item row="2" column="1">
          <widget class="DirNameEditWithBrowse" name="extractResultPathWidget" native="true"/>
         </item>
-        <item row="0" column="1">
-         <widget class="FileNameEditWithBrowse" name="extractSrcPathWidget" native="true"/>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_6">
-          <property name="text">
-           <string>输出格式：</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0" colspan="2">
+        <item row="5" column="0" colspan="2">
          <spacer name="verticalSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -214,7 +217,30 @@
           <property name="sizeHint" stdset="0">
            <size>
             <width>20</width>
-            <height>40</height>
+            <height>0</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="1">
+         <widget class="FileNameEditWithBrowse" name="extractSrcPathWidget" native="true"/>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>输出格式：</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" colspan="2">
+         <spacer name="verticalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>0</height>
            </size>
           </property>
          </spacer>
