@@ -141,10 +141,12 @@ void WAVExtractDialog::readSrcWAVFileDone()
 
             selectDialog->setLayout(selectDialogLayout);
 
-            selectDialog->resize(600, 500);
+            selectDialog->resize(800, 500);
             auto selectDialogResult = selectDialog->exec();
-            if (selectDialogResult == QDialog::Rejected)
+            if (selectDialogResult == QDialog::Rejected){
                 reject();
+                return;
+            }
             //As model takes a pointer to result.second and modify it directly, there is no need for us to do extra work here.
         }
         label->setText(tr("拆分波形文件并写入……"));
