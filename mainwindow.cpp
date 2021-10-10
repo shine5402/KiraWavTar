@@ -62,6 +62,7 @@ void MainWindow::run()
         auto targetFormat = ui->combineWAVFormatWidget->getFormat();
         auto saveFileName = ui->combineResultPathWidget->fileName();
         auto dialog = new WAVCombineDialog(rootDirName, recursive, targetFormat, saveFileName, this);
+        dialog->setAttribute(Qt::WA_DeleteOnClose, true);
         dialog->open();
     }
     else
@@ -72,6 +73,7 @@ void MainWindow::run()
         auto dstDirName = ui->extractResultPathWidget->dirName();
         auto extractResultSelection = ui->extractSelectionCheckBox->isChecked();
         auto dialog = new WAVExtractDialog(srcWAVFileName, dstDirName, targetFormat, extractResultSelection, this);
+        dialog->setAttribute(Qt::WA_DeleteOnClose, true);
         dialog->open();
     }
 
