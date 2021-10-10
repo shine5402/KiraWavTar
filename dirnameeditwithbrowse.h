@@ -29,6 +29,7 @@ private slots:
     void onBrowse();
 signals:
     void browseTriggered();
+    void dropTriggered();
     // QWidget interface
 protected:
     void dragEnterEvent(QDragEnterEvent *event) override;

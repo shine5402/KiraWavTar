@@ -22,5 +22,6 @@ private slots:
     void reset();
     void updateStackWidgetIndex();
     void run();
+    void fillResultPath();
 };
 #endif // MAINWINDOW_H

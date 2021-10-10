@@ -81,5 +81,8 @@ void DirNameEditWithBrowse::dropEvent(QDropEvent* event)
         else
             result = fileInfo.absoluteDir().absolutePath();
         dirNameEdit->setText(result);
+        emit dropTriggered();
+        event->setDropAction(Qt::LinkAction);
+        event->accept();
     }
 }
