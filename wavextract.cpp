@@ -110,10 +110,18 @@ namespace WAVExtract {
 
     //Use format in description file, when targetFormat's type == unknown
     QFuture<QList<ExtractErrorDescription>> startExtract(std::shared_ptr<kfr::univector2d<sample_process_t>> srcData, QJsonArray descArray, QString dstDirName, kfr::audio_format targetFormat){
-        //We change the array to VariantList here, as Qt 5.15.2 seems not copy QJsonArray correctly here. It may be a bug with the implicit sharing with the QJsonArray. Qt 6 fixes that.
-        return QtConcurrent::mappedReduced<QList<ExtractErrorDescription>>(descArray.toVariantList(), std::function([targetFormat, srcData, dstDirName](const QVariant& descValue) mutable -> ExtractErrorDescription{
-            auto descObj = descValue.toJsonObject();
+        //We change the array to VariantList here, as Qt 5.15.2 seems not copy QJsonArray correctly here. It may be a bug with the implicit sharing with the QJsonArray. Qt 6 fixes it though.
+        //NOTE: if moved to Qt 6, change the behaviour here.
 
+        auto filteredDescVariantList = QtConcurrent::filtered(descArray.toVariantList(), std::function([](const QVariant& value)->bool{
+            return value.toJsonObject().value("selected").toBool(true);
+        })).results();
+
+        auto descObjList = QtConcurrent::mapped(filteredDescVariantList,std::function([](const QVariant& value)->QJsonObject{
+            return value.toJsonObject();
+        })).results();
+
+        return QtConcurrent::mappedReduced<QList<ExtractErrorDescription>>(descObjList, std::function([targetFormat, srcData, dstDirName](const QJsonObject& descObj) mutable -> ExtractErrorDescription{
             //Use format from desc file if user ask to
             if (targetFormat.type == kfr::audio_sample_type::unknown){
                 targetFormat.samplerate = descObj.value("sample_rate").toDouble();

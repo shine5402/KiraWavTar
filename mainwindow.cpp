@@ -65,7 +65,8 @@ void MainWindow::run()
         auto targetFormat = ui->extractFormatSrcRadioButton->isChecked() ? invalidFormat : ui->extractFormatCustomChooser->getFormat();
         auto srcWAVFileName = ui->extractSrcPathWidget->fileName();
         auto dstDirName = ui->extractResultPathWidget->dirName();
-        auto dialog = new WAVExtractDialog(srcWAVFileName, dstDirName, targetFormat, this);
+        auto extractResultSelection = ui->extractSelectionCheckBox->isChecked();
+        auto dialog = new WAVExtractDialog(srcWAVFileName, dstDirName, targetFormat, extractResultSelection, this);
         dialog->open();
     }
 

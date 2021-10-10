@@ -10,6 +10,7 @@ CONFIG += c++17
 
 SOURCES += \
     dirnameeditwithbrowse.cpp \
+    extracttargetselectmodel.cpp \
     filenameeditwithbrowse.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -22,6 +23,7 @@ SOURCES += \
 
 HEADERS += \
     dirnameeditwithbrowse.h \
+    extracttargetselectmodel.h \
     filenameeditwithbrowse.h \
     kfr_adapt.h \
     mainwindow.h \

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>881</width>
-    <height>212</height>
+    <height>237</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -74,21 +74,25 @@
        <number>0</number>
       </property>
       <widget class="QWidget" name="combineOptionPage">
-       <layout class="QGridLayout" name="gridLayout" columnstretch="0,1">
-        <item row="0" column="1">
-         <widget class="DirNameEditWithBrowse" name="combineDirPathWidget" native="true"/>
+       <layout class="QGridLayout" name="gridLayout" columnstretch="0,0">
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>保存合并结果为：</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>目标格式：</string>
+          </property>
+         </widget>
         </item>
         <item row="0" column="0">
          <widget class="QLabel" name="label_2">
           <property name="text">
            <string>WAV文件所在文件夹：</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>保存合并结果为：</string>
           </property>
          </widget>
         </item>
@@ -102,18 +106,27 @@
           </property>
          </widget>
         </item>
+        <item row="0" column="1">
+         <widget class="DirNameEditWithBrowse" name="combineDirPathWidget" native="true"/>
+        </item>
         <item row="2" column="1">
          <widget class="FileNameEditWithSaveBrowse" name="combineResultPathWidget" native="true"/>
         </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_4">
-          <property name="text">
-           <string>目标格式：</string>
-          </property>
-         </widget>
-        </item>
         <item row="3" column="1">
          <widget class="WAVFormatChooserWidget" name="combineWAVFormatWidget" native="true"/>
+        </item>
+        <item row="4" column="0" colspan="2">
+         <spacer name="verticalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </widget>
@@ -126,23 +139,17 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
-         <widget class="FileNameEditWithBrowse" name="extractSrcPathWidget" native="true"/>
+        <item row="3" column="0" colspan="2">
+         <widget class="QCheckBox" name="extractSelectionCheckBox">
+          <property name="text">
+           <string>选择要被拆分的项...</string>
+          </property>
+         </widget>
         </item>
         <item row="1" column="0">
          <widget class="QLabel" name="label_7">
           <property name="text">
            <string>保存结果到：</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="DirNameEditWithBrowse" name="extractResultPathWidget" native="true"/>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_6">
-          <property name="text">
-           <string>输出格式：</string>
           </property>
          </widget>
         </item>
@@ -186,22 +193,35 @@
           </item>
          </layout>
         </item>
+        <item row="1" column="1">
+         <widget class="DirNameEditWithBrowse" name="extractResultPathWidget" native="true"/>
+        </item>
+        <item row="0" column="1">
+         <widget class="FileNameEditWithBrowse" name="extractSrcPathWidget" native="true"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>输出格式：</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0" colspan="2">
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
        </layout>
       </widget>
      </widget>
-    </item>
-    <item>
-     <spacer name="verticalSpacer">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>0</height>
-       </size>
-      </property>
-     </spacer>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
