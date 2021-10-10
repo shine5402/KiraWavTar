@@ -63,11 +63,11 @@ namespace WAVCombine {
         }
 
         auto hasLargerQuantization = QtConcurrent::filtered(formats, [targetFormat](const QPair<QString, kfr::audio_format>& info) -> bool{
-           return (kfr::audio_sample_type_precision_length.at(info.second.type) > kfr::audio_sample_type_precision_length.at(targetFormat.type)) || (kfr::audio_sample_is_float(info.second.type) && (!kfr::audio_sample_is_float(targetFormat.type)));//FIXME:make think of float -> int
+           return (kfr::audio_sample_type_precision_length.at(info.second.type) > kfr::audio_sample_type_precision_length.at(targetFormat.type)) || (kfr::audio_sample_is_float(info.second.type) && (!kfr::audio_sample_is_float(targetFormat.type)));
         }).results();
 
         for (const auto& i : std::as_const(hasLargerQuantization)){
-            warningMsg.append(QCoreApplication::translate("WAVCombine", "<p class='warning'>“%1”的量化类型“%2”在转换到目标“%3”时可能会损失精度，或发生溢出。</p>")
+            warningMsg.append(QCoreApplication::translate("WAVCombine", "<p class='warning'>“%1”的量化类型“%2”在转换到目标“%3”时可能会损失精度。</p>")
                               .arg(i.first)
                               .arg(kfr::audio_sample_type_human_string.at(i.second.type).c_str())
                               .arg(kfr::audio_sample_type_human_string.at(targetFormat.type).c_str()));
