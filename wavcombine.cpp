@@ -63,7 +63,7 @@ namespace WAVCombine {
         }
 
         auto hasLargerQuantization = QtConcurrent::filtered(formats, [targetFormat](const QPair<QString, kfr::audio_format>& info) -> bool{
-           return (kfr::audio_sample_type_precision_length.at(info.second.type) > kfr::audio_sample_type_precision_length.at(targetFormat.type)) || (kfr::audio_sample_is_float(info.second.type) && (!kfr::audio_sample_is_float(targetFormat.type)));//FIXME:make think of float -> int
+           return (kfr::audio_sample_type_precision_length.at(info.second.type) > kfr::audio_sample_type_precision_length.at(targetFormat.type)) || (kfr::audio_sample_is_float(info.second.type) ^ kfr::audio_sample_is_float(targetFormat.type));
         }).results();
 
         for (const auto& i : std::as_const(hasLargerQuantization)){
@@ -74,7 +74,7 @@ namespace WAVCombine {
         }
 
         auto hasLargerQuantizationThanProcess = QtConcurrent::filtered(formats, [](const QPair<QString, kfr::audio_format>& info) -> bool{
-            return kfr::audio_sample_type_precision_length.at(info.second.type) > kfr::audio_sample_type_precision_length.at(sample_process_type);
+            return kfr::audio_sample_type_precision_length.at(info.second.type) > kfr::audio_sample_type_precision_length.at(sample_process_type) || (kfr::audio_sample_is_float(info.second.type) ^ kfr::audio_sample_is_float(sample_process_type));
          }).results();
 
         for (const auto& i : std::as_const(hasLargerQuantization)){
