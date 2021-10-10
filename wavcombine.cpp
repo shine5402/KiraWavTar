@@ -13,7 +13,7 @@ using namespace wavtar_utils;
 
 namespace WAVCombine {
 
-    CheckResult preCheck(QString rootDirName, bool recursive, kfr::audio_format targetFormat){
+    CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive, kfr::audio_format targetFormat){
 
         auto wavFileNames = getAbsoluteWAVFileNamesUnder(rootDirName, recursive);
 
@@ -82,6 +82,11 @@ namespace WAVCombine {
                               .arg(i.first)
                               .arg(kfr::audio_sample_type_human_string.at(i.second.type).c_str())
                               .arg(kfr::audio_sample_type_human_string.at(sample_process_type).c_str()));
+        }
+
+        if (QFileInfo{dstWAVFileName}.exists())
+        {
+            warningMsg.append(QCoreApplication::translate("WAVCombine", "<p class='warning'>目标文件“%1”已存在，继续操作的话会覆盖这个文件，如有需要请注意备份。</p>").arg(dstWAVFileName));
         }
 
         return {warningMsg.isEmpty() ? CheckPassType::OK : CheckPassType::WARNING, warningMsg, wavFileNames};

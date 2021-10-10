@@ -97,6 +97,19 @@ void WAVExtractDialog::preCheckDone()
 
 using ExtractWorkFutureWatcher = QFutureWatcher<QList<ExtractErrorDescription>>;
 
+void WAVExtractDialog::doExtractCall(std::shared_ptr<kfr::univector2d<sample_process_t>> srcData, QJsonArray descArray)
+{
+    label->setText(tr("拆分波形文件并写入……"));
+    auto nextFuture = startExtract(srcData, descArray, dstDirName, targetFormat);
+    auto nextWatcher = new ExtractWorkFutureWatcher(this);
+    nextWatcher->setFuture(nextFuture);
+    progressBar->setMinimum(nextWatcher->progressMinimum());
+    progressBar->setMaximum(nextWatcher->progressMaximum());
+    connect(nextWatcher, &QFutureWatcher<bool>::progressValueChanged, progressBar, &QProgressBar::setValue);
+    connect(nextWatcher, &QFutureWatcher<bool>::finished, this, &WAVExtractDialog::extractWorkDone);
+    connect(buttonBox, &QDialogButtonBox::rejected, nextWatcher, &QFutureWatcher<bool>::cancel);
+}
+
 void WAVExtractDialog::readSrcWAVFileDone()
 {
     if (auto watcher = dynamic_cast<ReadSrcWAVFileFutureWatcher*>(QObject::sender())){
@@ -149,15 +162,7 @@ void WAVExtractDialog::readSrcWAVFileDone()
             }
             //As model takes a pointer to result.second and modify it directly, there is no need for us to do extra work here.
         }
-        label->setText(tr("拆分波形文件并写入……"));
-        auto nextFuture = startExtract(result.first, result.second, dstDirName, targetFormat);
-        auto nextWatcher = new ExtractWorkFutureWatcher(this);
-        nextWatcher->setFuture(nextFuture);
-        progressBar->setMinimum(nextWatcher->progressMinimum());
-        progressBar->setMaximum(nextWatcher->progressMaximum());
-        connect(nextWatcher, &QFutureWatcher<bool>::progressValueChanged, progressBar, &QProgressBar::setValue);
-        connect(nextWatcher, &QFutureWatcher<bool>::finished, this, &WAVExtractDialog::extractWorkDone);
-        connect(buttonBox, &QDialogButtonBox::rejected, nextWatcher, &QFutureWatcher<bool>::cancel);
+        doExtractCall(result.first, result.second);
     }
 }
 
@@ -183,19 +188,39 @@ void WAVExtractDialog::extractWorkDone()
             accept();
         }
         else{
-            QMessageBox msgBox;
-            msgBox.setIcon(QMessageBox::Icon::Critical);
-            msgBox.setText(tr("拆分波形文件时出现问题。"));
-            msgBox.setInformativeText(QtConcurrent::mappedReduced<QString>(result,
+            QMessageBox msgBoxInfomation;
+            msgBoxInfomation.setIcon(QMessageBox::Icon::Critical);
+            msgBoxInfomation.setText(tr("拆分波形文件时出现问题。"));
+            msgBoxInfomation.setInformativeText(QtConcurrent::mappedReduced<QString>(result,
                                                                   std::function([](const ExtractErrorDescription& value)->QString{return value.description;}),
             [](QString& result, const QString& desc){
                                           if (result.isEmpty())
                                             result = reportTextStyle;
                                           result.append(QString("<p class='critical'>%1</p>").arg(desc));
                                       }));
-            msgBox.setStandardButtons(QMessageBox::Ok);
-            msgBox.exec();
-            reject();
+            msgBoxInfomation.setStandardButtons(QMessageBox::Ok);
+            msgBoxInfomation.exec();
+            //TODO:ask user retry errored files here
+            QMessageBox msgBoxRetry;
+            msgBoxRetry.setIcon(QMessageBox::Icon::Question);
+            msgBoxRetry.setText(tr("要重试拆分这些文件吗？"));
+            msgBoxRetry.setInformativeText(QtConcurrent::mappedReduced<QStringList>(result, std::function([](const ExtractErrorDescription& value)->QString{return value.descObj.value("file_name").toString();}),
+                                                                                     [](QStringList& result, const QString& fileName){
+                                                    result.append(fileName);
+                                                }).result().join("\n"));
+            msgBoxRetry.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+            auto retryDialogCode = msgBoxRetry.exec();
+            if (retryDialogCode == QDialog::Rejected)
+                reject();
+            else
+            {
+                QJsonArray descArray;
+                for (const auto& i : std::as_const(result)){
+                    descArray.append(i.descObj);
+                }
+                auto srcData = result.at(0).srcData;
+                doExtractCall(srcData, descArray);
+            }
         }
     }
 }

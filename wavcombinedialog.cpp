@@ -40,7 +40,7 @@ using PreCheckFutureWatcher = QFutureWatcher<decltype (std::function(preCheck)):
 
 void WAVCombineDialog::startWork()
 {
-    auto nextFuture = QtConcurrent::run(preCheck, rootDirName, recursive, targetFormat);
+    auto nextFuture = QtConcurrent::run(preCheck, rootDirName, saveFileName, recursive, targetFormat);
     label->setText(tr("一些准备工作……"));
     //This will make progress bar show as busy indicator
     progressBar->setMaximum(0);

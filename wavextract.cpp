@@ -145,7 +145,7 @@ namespace WAVExtract {
             bool openSuccess;
             auto writer = kfr::audio_writer_wav<sample_process_t>(kfr::open_qt_file_for_writing(absoluteFileName, &openSuccess), targetFormat);
             if (!openSuccess){
-                return {QCoreApplication::translate("WAVExtract", "为写入打开文件%1时出现问题。").arg(absoluteFileName), descObj};
+                return {QCoreApplication::translate("WAVExtract", "为写入打开文件%1时出现问题。").arg(absoluteFileName), descObj, srcData};
             }
 
             size_t to_write = 0;
@@ -153,7 +153,7 @@ namespace WAVExtract {
             if (to_write == written)
                 return {};
             else
-                return {QCoreApplication::translate("WAVExtract", "文件%1写入的字节数（%2）和预期的（%3）不一致（即没有完全写入完成）。").arg(absoluteFileName).arg(written).arg(to_write), descObj};
+                return {QCoreApplication::translate("WAVExtract", "文件%1写入的字节数（%2）和预期的（%3）不一致（即没有完全写入完成）。").arg(absoluteFileName).arg(written).arg(to_write), descObj, srcData};
         }),
         std::function([](QList<ExtractErrorDescription>& result, const ExtractErrorDescription& stepResult){
             if (!stepResult.description.isEmpty())
