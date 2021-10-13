@@ -58,7 +58,7 @@ namespace WAVExtract {
         return {warningMsg.isEmpty() ? CheckPassType::OK : CheckPassType::WARNING, warningMsg, descRoot};
     }
 
-    QPair<std::shared_ptr<kfr::univector2d<sample_process_t>>, QJsonArray> readSrcWAVFile(QString srcWAVFileName, QJsonObject descRoot){
+    SrcData readSrcWAVFile(QString srcWAVFileName, QJsonObject descRoot){
         bool openSuccess = false;
         kfr::audio_reader_wav<sample_process_t> reader{kfr::open_qt_file_for_reading(srcWAVFileName, &openSuccess)};
         if (!openSuccess){
@@ -105,11 +105,11 @@ namespace WAVExtract {
             }
         }
 
-        return {data, descRoot.value("descriptions").toArray()};
+        return {data, expectedSampleRate, descRoot.value("descriptions").toArray()};
     }
 
     //Use format in description file, when targetFormat's type == unknown
-    QFuture<QList<ExtractErrorDescription>> startExtract(std::shared_ptr<kfr::univector2d<sample_process_t>> srcData, QJsonArray descArray, QString dstDirName, kfr::audio_format targetFormat){
+    QFuture<QList<ExtractErrorDescription>> startExtract(std::shared_ptr<kfr::univector2d<sample_process_t>> srcData, decltype(kfr::audio_format::samplerate) srcSampleRate, QJsonArray descArray, QString dstDirName, kfr::audio_format targetFormat){
         //We change the array to VariantList here, as Qt 5.15.2 seems not copy QJsonArray correctly here. It may be a bug with the implicit sharing with the QJsonArray. Qt 6 fixes it though.
         //NOTE: if moved to Qt 6, change the behaviour here.
 
@@ -121,7 +121,7 @@ namespace WAVExtract {
             return value.toJsonObject();
         })).results();
 
-        return QtConcurrent::mappedReduced<QList<ExtractErrorDescription>>(descObjList, std::function([targetFormat, srcData, dstDirName](const QJsonObject& descObj) mutable -> ExtractErrorDescription{
+        return QtConcurrent::mappedReduced<QList<ExtractErrorDescription>>(descObjList, std::function([srcSampleRate, targetFormat, srcData, dstDirName](const QJsonObject& descObj) mutable -> ExtractErrorDescription{
             //Use format from desc file if user ask to
             if (targetFormat.type == kfr::audio_sample_type::unknown){
                 targetFormat.samplerate = descObj.value("sample_rate").toDouble();
@@ -136,6 +136,14 @@ namespace WAVExtract {
             for (decltype (targetFormat.channels) i = 0; i < targetFormat.channels; ++i){
                 auto& segmentChannel = segmentData[i];
                 segmentChannel = kfr::univector<sample_process_t>(srcData->at(i).begin() + beginIndex, srcData->at(i).begin() + beginIndex + length);
+                //FIXME:resample here
+                if (!qFuzzyCompare(srcSampleRate, targetFormat.samplerate)){
+                    //TODO: may refractor this into a function?
+                    auto resampler = kfr::sample_rate_converter<sample_process_t>(sample_rate_conversion_quality_for_process, targetFormat.samplerate, srcSampleRate);
+                    kfr::univector<sample_process_t> resampled(segmentChannel.size() + resampler.get_delay());
+                    resampler.process(resampled, segmentChannel);
+                    segmentChannel = resampled;
+                }
             }
 
             auto fileName = descObj.value("file_name").toString();
@@ -145,7 +153,7 @@ namespace WAVExtract {
             bool openSuccess;
             auto writer = kfr::audio_writer_wav<sample_process_t>(kfr::open_qt_file_for_writing(absoluteFileName, &openSuccess), targetFormat);
             if (!openSuccess){
-                return {QCoreApplication::translate("WAVExtract", "为写入打开文件%1时出现问题。").arg(absoluteFileName), descObj, srcData};
+                return {QCoreApplication::translate("WAVExtract", "为写入打开文件%1时出现问题。").arg(absoluteFileName), descObj, srcData, srcSampleRate};
             }
 
             size_t to_write = 0;
@@ -153,7 +161,7 @@ namespace WAVExtract {
             if (to_write == written)
                 return {};
             else
-                return {QCoreApplication::translate("WAVExtract", "文件%1写入的字节数（%2）和预期的（%3）不一致（即没有完全写入完成）。").arg(absoluteFileName).arg(written).arg(to_write), descObj, srcData};
+                return {QCoreApplication::translate("WAVExtract", "文件%1写入的字节数（%2）和预期的（%3）不一致（即没有完全写入完成）。").arg(absoluteFileName).arg(written).arg(to_write), descObj, srcData, srcSampleRate};
         }),
         std::function([](QList<ExtractErrorDescription>& result, const ExtractErrorDescription& stepResult){
             if (!stepResult.description.isEmpty())

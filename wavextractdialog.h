@@ -24,7 +24,7 @@ private:
     kfr::audio_format targetFormat;
     bool extractResultSelection;
 
-    void doExtractCall(std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t> > srcData, QJsonArray descArray);
+    void doExtractCall(std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t> > srcData, decltype(kfr::audio_format::samplerate) samplerate, QJsonArray descArray);
 
 private slots:
     void startWork();
