@@ -97,10 +97,11 @@ void WAVExtractDialog::preCheckDone()
 
 using ExtractWorkFutureWatcher = QFutureWatcher<QList<ExtractErrorDescription>>;
 
-void WAVExtractDialog::doExtractCall(std::shared_ptr<kfr::univector2d<sample_process_t>> srcData, QJsonArray descArray)
+// Though use SrcData as param would be better, but it will expose this internal struct in wavextractdialog.h, so..
+void WAVExtractDialog::doExtractCall(std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t> > srcData, decltype(kfr::audio_format::samplerate) samplerate, QJsonArray descArray)
 {
     label->setText(tr("拆分波形文件并写入……"));
-    auto nextFuture = startExtract(srcData, descArray, dstDirName, targetFormat);
+    auto nextFuture = startExtract(srcData, samplerate, descArray, dstDirName, targetFormat);
     auto nextWatcher = new ExtractWorkFutureWatcher(this);
     nextWatcher->setFuture(nextFuture);
     progressBar->setMinimum(nextWatcher->progressMinimum());
@@ -121,7 +122,7 @@ void WAVExtractDialog::readSrcWAVFileDone()
         if (extractResultSelection)
         {
             auto selectDialog = new QDialog(this);
-            auto selectModel = new ExtractTargetSelectModel(&result.second, selectDialog);
+            auto selectModel = new ExtractTargetSelectModel(&result.descArray, selectDialog);
             auto selectDialogLayout = new QVBoxLayout(selectDialog);
 
             auto selectLabel = new QLabel(tr("请选择要被拆分的项。"), selectDialog);
@@ -162,7 +163,7 @@ void WAVExtractDialog::readSrcWAVFileDone()
             }
             //As model takes a pointer to result.second and modify it directly, there is no need for us to do extra work here.
         }
-        doExtractCall(result.first, result.second);
+        doExtractCall(result.srcData, result.samplerate, result.descArray);
     }
 }
 
@@ -219,7 +220,8 @@ void WAVExtractDialog::extractWorkDone()
                     descArray.append(i.descObj);
                 }
                 auto srcData = result.at(0).srcData;
-                doExtractCall(srcData, descArray);
+                auto srcSampleRate = result.at(0).srcSampleRate;
+                doExtractCall(srcData, srcSampleRate, descArray);
             }
         }
     }
