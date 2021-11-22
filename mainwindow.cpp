@@ -82,6 +82,7 @@ void MainWindow::run()
 void MainWindow::fillResultPath()
 {
     if (ui->combineWAVRadioButton->isChecked())
+        //TODO: remove last (if exists) "/" and "\" on dirName, as on specific platform, they will have this on the end.
         ui->combineResultPathWidget->setFileName(ui->combineDirPathWidget->dirName() + ".wav");
     else
     {
