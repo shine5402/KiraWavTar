@@ -15,7 +15,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     setFixedHeight(sizeHint().height());
-    setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
+    setWindowFlags(Qt::Window | Qt::CustomizeWindowHint |
+                   Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint |
+                   Qt::WindowCloseButtonHint);
 
     connect(ui->resetButton, &QPushButton::clicked, this, &MainWindow::reset);
     connect(ui->modeButtonGroup, &QButtonGroup::idClicked, this, &MainWindow::updateStackWidgetIndex);

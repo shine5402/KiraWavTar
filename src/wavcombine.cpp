@@ -21,7 +21,11 @@ namespace WAVCombine {
 
         if (wavFileNames.isEmpty())
         {
-            return {CheckPassType::CRITICAL, QCoreApplication::translate("WAVCombine", "<p class='critical'>没有在所给文件夹中找到任何wav文件。请检查提供的路径，或者忘记勾选“包含子文件夹”了？</p>"), wavFileNames};
+            return {CheckPassType::CRITICAL,
+                        QCoreApplication::translate("WAVCombine",
+                                                    "<p class='critical'>There are not any wav files in the given folder."
+                                                    "Please check the path, or if you forget to turn \"scan subfolders\" on?</p>"),
+                        wavFileNames};
         }
 
         //As mapped() need result_type member to work, so we use std::function() to help us.
@@ -35,7 +39,11 @@ namespace WAVCombine {
             totalLength += i.second.length;
         }
         if (totalLength > INT32_MAX && !targetFormat.use_w64){
-            return {CheckPassType::CRITICAL, QCoreApplication::translate("WAVCombine", "<p class='critical'>合并后的音频数据长度超过了普通WAV文件所能承载的长度，请选择使用W64格式来保存。</p>"), wavFileNames};
+            return {CheckPassType::CRITICAL,
+                        QCoreApplication::translate("WAVCombine",
+                                                    "<p class='critical'>Length of the wav file combined will be too large to save in normal WAVs. "
+                                                    "Please use W64 WAV instead.</p>"),
+                        wavFileNames};
         }
 
         QString warningMsg;
@@ -45,7 +53,10 @@ namespace WAVCombine {
         }).results();
 
         for (const auto& i : std::as_const(hasUnknownType)){
-            warningMsg.append(QCoreApplication::translate("WAVCombine", "<p class='warning'>我们无法得知“%1”存储的量化类型，可能该文件已损坏，或者文件打开时出现了问题。</p>").arg(i.first));
+            warningMsg.append(QCoreApplication::translate("WAVCombine", "<p class='warning'>Can not know bit depth from \"%1\"."
+                                                                        " Maybe this file id corrupted, "
+                                                                        "or error happend during openning the file.</p>")
+                              .arg(i.first));
         }
 
         auto hasMultipleChannels = QtConcurrent::filtered(formats, [targetFormat](const QPair<QString, kfr::audio_format>& info) -> bool{
@@ -53,7 +64,11 @@ namespace WAVCombine {
         }).results();
 
         for (const auto& i : std::as_const(hasMultipleChannels)){
-            warningMsg.append(QCoreApplication::translate("WAVCombine", "<p class='warning'>“%1”包含了%2个声道，位于%3号之后的声道数据会被丢弃。</p>").arg(i.first).arg(i.second.channels).arg(targetFormat.channels));
+            warningMsg.append(QCoreApplication::translate("WAVCombine", "<p class='warning'>There are %2 channel(s) in \"%1\". "
+                                                                        "Channels after No.%3 will be discarded.</p>")
+                              .arg(i.first)
+                              .arg(i.second.channels)
+                              .arg(targetFormat.channels));
         }
 
         auto hasLargerSampleRate = QtConcurrent::filtered(formats, [targetFormat](const QPair<QString, kfr::audio_format>& info) -> bool{
@@ -61,7 +76,8 @@ namespace WAVCombine {
         }).results();
 
         for (const auto& i : std::as_const(hasLargerSampleRate)){
-            warningMsg.append(QCoreApplication::translate("WAVCombine", "<p class='warning'>“%1”的采样率（%2 Hz）比目标（%3 Hz）要大，处理时的重采样会造成一定的精度损失。</p>").arg(i.first).arg(i.second.samplerate).arg(targetFormat.samplerate));
+            warningMsg.append(QCoreApplication::translate("WAVCombine", "<p class='warning'>Sample rate (%2 Hz) of \"%1\" is larger than target (\"3\" Hz)."
+                                                                        "The precision could be lost a bit when processing.</p>").arg(i.first).arg(i.second.samplerate).arg(targetFormat.samplerate));
         }
 
         auto hasLargerQuantization = QtConcurrent::filtered(formats, [targetFormat](const QPair<QString, kfr::audio_format>& info) -> bool{
@@ -69,7 +85,7 @@ namespace WAVCombine {
         }).results();
 
         for (const auto& i : std::as_const(hasLargerQuantization)){
-            warningMsg.append(QCoreApplication::translate("WAVCombine", "<p class='warning'>“%1”的量化类型“%2”在转换到目标“%3”时可能会损失精度。</p>")
+            warningMsg.append(QCoreApplication::translate("WAVCombine", "<p class='warning'>The precision could be lost a bit when processing between \"%1\" (%2) and target (%3).</p>")
                               .arg(i.first)
                               .arg(kfr::audio_sample_type_human_string.at(i.second.type).c_str())
                               .arg(kfr::audio_sample_type_human_string.at(targetFormat.type).c_str()));
@@ -79,8 +95,8 @@ namespace WAVCombine {
             return kfr::audio_sample_type_precision_length.at(info.second.type) > kfr::audio_sample_type_precision_length.at(sample_process_type);
          }).results();
 
-        for (const auto& i : std::as_const(hasLargerQuantization)){
-            warningMsg.append(QCoreApplication::translate("WAVCombine", "<p class='warning'>“%1”的量化类型“%2”在处理时可能会损失精度，因为本程序内部统一使用”%3“来进行处理。</p>")
+        for (const auto& i : std::as_const(hasLargerQuantizationThanProcess)){
+            warningMsg.append(QCoreApplication::translate("WAVCombine", "<p class='warning'>The precision could be lost a bit when processing, as we use a bit depth of \"%3\" while source \"%1\" having \"%2\".</p>")
                               .arg(i.first)
                               .arg(kfr::audio_sample_type_human_string.at(i.second.type).c_str())
                               .arg(kfr::audio_sample_type_human_string.at(sample_process_type).c_str()));
@@ -88,7 +104,8 @@ namespace WAVCombine {
 
         if (QFileInfo{dstWAVFileName}.exists())
         {
-            warningMsg.append(QCoreApplication::translate("WAVCombine", "<p class='warning'>目标文件“%1”已存在，继续操作的话会覆盖这个文件，如有需要请注意备份。</p>").arg(dstWAVFileName));
+            warningMsg.append(QCoreApplication::translate("WAVCombine", "<p class='warning'>The target file \"%1\" exists. "
+                                                                        "It will be replaced if proceed, so BACKUP if needed to.</p>").arg(dstWAVFileName));
         }
 
         return {warningMsg.isEmpty() ? CheckPassType::OK : CheckPassType::WARNING, warningMsg, wavFileNames};
@@ -102,11 +119,11 @@ namespace WAVCombine {
             kfr::audio_reader_wav<sample_process_t> reader(kfr::open_qt_file_for_reading(fileName, &openSucess));
             if (!openSucess)
             {
-                throw wavtar_exceptions::runtime_error(QCoreApplication::tr("WAVCombine", "为读取打开文件%1时出现错误。").arg(fileName));
+                throw wavtar_exceptions::runtime_error(QCoreApplication::tr("WAVCombine", "Error occurred during reading file \"%1\".").arg(fileName));
             }
             if (reader.format().type == kfr::audio_sample_type::unknown)
             {
-                throw wavtar_exceptions::runtime_error(QCoreApplication::tr("WAVCombine", "无法得知文件%1的采样类型。").arg(fileName));
+                throw wavtar_exceptions::runtime_error(QCoreApplication::tr("WAVCombine", "Cannot know sample type of file \"%1\".").arg(fileName));
             }
             auto channnels = reader.read_channels();
             QJsonObject descObj;
@@ -177,7 +194,7 @@ namespace WAVCombine {
     bool writeCombineResult(std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>> data, QJsonObject descObj, QString wavFileName, kfr::audio_format targetFormat){
         if (!data || data->empty())
         {
-            throw wavtar_exceptions::runtime_error(QCoreApplication::translate("WAVCombine", "没有可被合并的数据。"));
+            throw wavtar_exceptions::runtime_error(QCoreApplication::translate("WAVCombine", "No data to combine."));
         }
 
         //write description file
@@ -197,14 +214,17 @@ namespace WAVCombine {
         bool openSuccess = false;
         kfr::audio_writer_wav<sample_process_t> writer(kfr::open_qt_file_for_writing(wavFileName, &openSuccess), targetFormat);
         if (!openSuccess){
-           throw wavtar_exceptions::runtime_error(QCoreApplication::tr("WAVCombine", "为写入打开文件%1时出现错误。").arg(wavFileName));
+           throw wavtar_exceptions::runtime_error(QCoreApplication::tr("WAVCombine", "Error occurred during writing file \"%1\".").arg(wavFileName));
         }
         size_t to_write = 0;
         auto written = kfr::write_mutlichannel_wav_file<sample_process_t>(writer, *data, &to_write);
 
         if (to_write != written)
         {
-            throw wavtar_exceptions::runtime_error(QCoreApplication::translate("WAVCombine", "文件%1写入的字节数（%2）和预期的（%3）不一致（即没有完全写入完成）。").arg(wavFileName).arg(written).arg(to_write));
+            throw wavtar_exceptions::runtime_error(QCoreApplication::translate("WAVCombine", "File \"%1\" can not being fully written. "
+                                                                                             "%2 bytes has been written into file \"%1\", "
+                                                                                             "which is expected to be %3.")
+                                                   .arg(wavFileName).arg(written).arg(to_write));
         }
 
         return to_write == written;

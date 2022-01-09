@@ -20,14 +20,14 @@
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>要进行的操作：</string>
+         <string>What to do</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QRadioButton" name="combineWAVRadioButton">
         <property name="text">
-         <string>合并波形文件</string>
+         <string>Combine WAV files</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -40,7 +40,7 @@
       <item>
        <widget class="QRadioButton" name="extarctWAVRadioButton">
         <property name="text">
-         <string>拆分波形文件</string>
+         <string>Extract WAV file</string>
         </property>
         <attribute name="buttonGroup">
          <string notr="true">modeButtonGroup</string>
@@ -78,21 +78,21 @@
         <item row="3" column="0">
          <widget class="QLabel" name="label_3">
           <property name="text">
-           <string>保存合并结果为：</string>
+           <string>Save combined file to:</string>
           </property>
          </widget>
         </item>
         <item row="4" column="0">
          <widget class="QLabel" name="label_4">
           <property name="text">
-           <string>目标格式：</string>
+           <string>Target format:</string>
           </property>
          </widget>
         </item>
         <item row="1" column="0">
          <widget class="QLabel" name="label_2">
           <property name="text">
-           <string>WAV文件所在文件夹：</string>
+           <string>Folder contains WAV files:</string>
           </property>
          </widget>
         </item>
@@ -102,7 +102,7 @@
            <string>该选项让程序检查子文件夹（以及他们的子文件夹），并合并这些文件夹中的WAV文件。这些文件夹的结构会写入记录信息中，以备拆分时恢复。</string>
           </property>
           <property name="text">
-           <string>也处理子文件夹</string>
+           <string>scan subfolders</string>
           </property>
           <property name="checked">
            <bool>true</bool>
@@ -151,21 +151,21 @@
         <item row="1" column="0">
          <widget class="QLabel" name="label_5">
           <property name="text">
-           <string>要拆分的WAV文件：</string>
+           <string>WAV file to extract:</string>
           </property>
          </widget>
         </item>
         <item row="4" column="0" colspan="2">
          <widget class="QCheckBox" name="extractSelectionCheckBox">
           <property name="text">
-           <string>选择要被拆分的项...</string>
+           <string>Choose which ones to extract...</string>
           </property>
          </widget>
         </item>
         <item row="2" column="0">
          <widget class="QLabel" name="label_7">
           <property name="text">
-           <string>保存结果到：</string>
+           <string>Save results to:</string>
           </property>
          </widget>
         </item>
@@ -174,7 +174,7 @@
           <item row="1" column="0">
            <widget class="QRadioButton" name="extractFormatCustomRadioButton">
             <property name="text">
-             <string>统一为：</string>
+             <string>Use unified format:</string>
             </property>
             <attribute name="buttonGroup">
              <string notr="true">extractFormatButtonGroup</string>
@@ -184,7 +184,7 @@
           <item row="0" column="0" colspan="2">
            <widget class="QRadioButton" name="extractFormatSrcRadioButton">
             <property name="text">
-             <string>与合并时的源文件一致</string>
+             <string>Same as source when combing</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -231,7 +231,7 @@
         <item row="3" column="0">
          <widget class="QLabel" name="label_6">
           <property name="text">
-           <string>输出格式：</string>
+           <string>Output format:</string>
           </property>
          </widget>
         </item>
@@ -257,7 +257,7 @@
       <item>
        <widget class="QPushButton" name="resetButton">
         <property name="text">
-         <string>重置</string>
+         <string>Reset</string>
         </property>
        </widget>
       </item>
@@ -277,7 +277,7 @@
       <item>
        <widget class="QPushButton" name="runButton">
         <property name="text">
-         <string>执行</string>
+         <string>Run</string>
         </property>
        </widget>
       </item>

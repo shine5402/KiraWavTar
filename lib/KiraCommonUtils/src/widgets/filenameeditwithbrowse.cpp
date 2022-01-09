@@ -1,4 +1,4 @@
-#include "filenameeditwithbrowse.h"
+#include <kira/widgets/filenameeditwithbrowse.h>
 #include "ui_filenameeditwithbrowse.h"
 #include <QFileDialog>
 #include <QDragEnterEvent>

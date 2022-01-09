@@ -41,8 +41,10 @@ QVariant ExtractTargetSelectModel::data(const QModelIndex &index, int role) cons
     auto currentObj = descArray->at(index.row()).toObject();
     auto currentSelected = currentObj.value("selected").toBool(true);
     auto currentFileName = currentObj.value("file_name").toString();
-    auto currentBeginIndex = QString("%1 样本").arg(decodeBase64<qint64>(currentObj.value("begin_index").toString()));
-    auto currentLength = QString("%1 样本").arg(decodeBase64<qint64>(currentObj.value("length").toString()));
+    auto currentBeginIndex = QString("%1 samples")
+            .arg(decodeBase64<qint64>(currentObj.value("begin_index").toString()));
+    auto currentLength = QString("%1 samples")
+            .arg(decodeBase64<qint64>(currentObj.value("length").toString()));
 
     switch (index.column()) {
     case FILENAME:
@@ -113,9 +115,9 @@ QVariant ExtractTargetSelectModel::headerData(int section, Qt::Orientation orien
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
     {
         switch (section){
-        case FILENAME: return tr("文件名");
-        case BEGIN_INDEX: return tr("开始位置");
-        case LENGTH: return tr("长度");
+        case FILENAME: return tr("Filename");
+        case BEGIN_INDEX: return tr("Begin index");
+        case LENGTH: return tr("Length");
         }
     }
     return {};

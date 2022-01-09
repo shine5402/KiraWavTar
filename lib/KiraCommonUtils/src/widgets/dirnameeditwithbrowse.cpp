@@ -16,7 +16,7 @@ DirNameEditWithBrowse::DirNameEditWithBrowse(QWidget *parent) : QWidget(parent)
     dirNameEdit = new QLineEdit(this);
     layout->addWidget(dirNameEdit);
 
-    auto browseButton = new QPushButton(tr("浏览"), this);
+    auto browseButton = new QPushButton(tr("Browse"), this);
     layout->addWidget(browseButton);
 
     connect(browseButton, &QPushButton::clicked, this, &DirNameEditWithBrowse::onBrowse);

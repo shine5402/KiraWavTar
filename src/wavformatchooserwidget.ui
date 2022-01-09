@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>660</width>
-    <height>24</height>
+    <height>28</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -29,7 +29,7 @@
    <item>
     <widget class="QLabel" name="label_8">
      <property name="text">
-      <string>采样率</string>
+      <string>Sample rate</string>
      </property>
     </widget>
    </item>
@@ -86,7 +86,7 @@
    <item>
     <widget class="QLabel" name="label_10">
      <property name="text">
-      <string>采样类型</string>
+      <string>Bit depth</string>
      </property>
     </widget>
    </item>
@@ -96,7 +96,7 @@
    <item>
     <widget class="QLabel" name="label_9">
      <property name="text">
-      <string>声道</string>
+      <string>Channels</string>
      </property>
     </widget>
    </item>
@@ -110,7 +110,7 @@
    <item>
     <widget class="QCheckBox" name="useW64CheckBox">
      <property name="text">
-      <string>使用W64格式</string>
+      <string>Use W64 format</string>
      </property>
     </widget>
    </item>

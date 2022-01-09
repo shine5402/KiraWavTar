@@ -23,38 +23,43 @@ namespace WAVExtract {
         auto descFileName = getDescFileNameFrom(srcWAVFileName);
 
         if (!(QFileInfo{srcWAVFileName}.exists() && QFileInfo{descFileName}.exists()))
-            return {CheckPassType::CRITICAL, QCoreApplication::translate("WAVExtract", "<p class='critical'>提供的波形文件或者其对应的描述文件不存在。</p>"), {}};
+            return {CheckPassType::CRITICAL, QCoreApplication::translate("WAVExtract", "<p class='critical'>The file given or its description file don't exists.</p>"), {}};
 
         QFile descFileDevice{descFileName};
 
         if (!descFileDevice.open(QFile::Text | QFile::ReadOnly))
-            return {CheckPassType::CRITICAL, QCoreApplication::translate("WAVExtract", "<p class='critical'>无法打开描述文件。</p>"), {}};
+            return {CheckPassType::CRITICAL, QCoreApplication::translate("WAVExtract", "<p class='critical'>The description can not be opened.</p>"), {}};
 
         auto descFileByteData = descFileDevice.readAll();
         auto descJsonDoc = QJsonDocument::fromJson(descFileByteData);
         auto descRoot = descJsonDoc.object();
 
         if (descRoot.value("version").toInt() != desc_file_version)
-             return {CheckPassType::CRITICAL, QCoreApplication::translate("WAVExtract", "<p class='critical'>描述文件的版本和我们当前使用的不兼容。</p>"), {}};
+             return {CheckPassType::CRITICAL, QCoreApplication::translate("WAVExtract", "<p class='critical'>The desctiption file has a incompatible version.</p>"), {}};
 
         bool openSuccess = false;
         kfr::audio_reader_wav<sample_process_t> reader(kfr::open_qt_file_for_reading(srcWAVFileName, &openSuccess));
         if (!openSuccess)
-            return {CheckPassType::CRITICAL, QCoreApplication::translate("WAVExtract", "<p class='critical'>无法打开波形文件。</p>"), {}};
+            return {CheckPassType::CRITICAL, QCoreApplication::translate("WAVExtract", "<p class='critical'>The wav file can not be opened.</p>"), {}};
 
         QString warningMsg;
         auto totalLength = decodeBase64<qint64>(descRoot.value("total_length").toString());
         if (reader.format().length != totalLength)
-            warningMsg.append(QCoreApplication::translate("WAVExtract", "<p class='warning'>波形文件的长度“%1”和描述文件告知的“%2”不一致。修改了采样率还是进行了时值修改？</p>").arg(reader.format().length).arg(totalLength));
+            warningMsg.append(QCoreApplication::translate("WAVExtract", "<p class='warning'>The wav file has a different length (%1 samples) than expected (%2 samples). "
+                                                                        "Sample rate changed or time has been changed?</p>").arg(reader.format().length).arg(totalLength));
         auto expectedSampleRate = descRoot.value("sample_rate").toDouble();
         if (reader.format().samplerate != expectedSampleRate)
-            warningMsg.append(QCoreApplication::translate("WAVExtract", "<p class='warning'>波形文件的采样率“%1 Hz”和描述文件告知“%2 Hz”的不一致。我们会进行重采样。</p>").arg(reader.format().samplerate).arg(expectedSampleRate));
+            warningMsg.append(QCoreApplication::translate("WAVExtract", "<p class='warning'>Sample rate (%1) of the given file is not same as it supposed to be (%2) in description file. "
+                                                                        "We will resample it.</p>")
+                              .arg(reader.format().samplerate).arg(expectedSampleRate));
         auto expectedChannelCount = descRoot.value("channel_count").toInt();
         if ((qint64) reader.format().channels != expectedChannelCount)
-            warningMsg.append(QCoreApplication::translate("WAVExtract", "<p class='warning'>波形文件的声道数“%1”与预期的“%2”不符。</p>").arg(reader.format().channels).arg(expectedChannelCount));
+            warningMsg.append(QCoreApplication::translate("WAVExtract", "<p class='warning'>Channel count (%1) of the given file is not same as it supposed to be (%2) in description file.</p>")
+                              .arg(reader.format().channels).arg(expectedChannelCount));
 
         if (!QDir{dstDirName}.isEmpty())
-            warningMsg.append(QCoreApplication::translate("WAVExtract", "<p class='warning'>看起来目标文件夹不为空。在拆分过程中所有会产生名称冲突的文件都会被替换，如果有必要的话请做好备份。</p>"));
+            warningMsg.append(QCoreApplication::translate("WAVExtract", "<p class='warning'>It seems like that target folder is not empty. "
+                                                                        "All files have name conflicts will be replaced, so BACKUP if needed to.</p>"));
 
         return {warningMsg.isEmpty() ? CheckPassType::OK : CheckPassType::WARNING, warningMsg, descRoot};
     }
@@ -63,11 +68,11 @@ namespace WAVExtract {
         bool openSuccess = false;
         kfr::audio_reader_wav<sample_process_t> reader{kfr::open_qt_file_for_reading(srcWAVFileName, &openSuccess)};
         if (!openSuccess){
-            throw wavtar_exceptions::runtime_error(QCoreApplication::translate("WAVExtract", "打开文件%1时出现错误。").arg(srcWAVFileName));
+            throw wavtar_exceptions::runtime_error(QCoreApplication::translate("WAVExtract", "Error occurred when opening \"%1\".").arg(srcWAVFileName));
         }
         auto data = std::make_shared<kfr::univector2d<sample_process_t>>(reader.read_channels());
         if (data->empty()){
-            throw wavtar_exceptions::runtime_error(QCoreApplication::translate("WAVExtract", "文件%1时中没有数据。").arg(srcWAVFileName));
+            throw wavtar_exceptions::runtime_error(QCoreApplication::translate("WAVExtract", "There have no data in file \"%1\".").arg(srcWAVFileName));
         }
 
         auto expectedChannelCount = descRoot.value("channel_count").toInt();
@@ -137,7 +142,6 @@ namespace WAVExtract {
             for (decltype (targetFormat.channels) i = 0; i < targetFormat.channels; ++i){
                 auto& segmentChannel = segmentData[i];
                 segmentChannel = kfr::univector<sample_process_t>(srcData->at(i).begin() + beginIndex, srcData->at(i).begin() + beginIndex + length);
-                //FIXME:resample here
                 if (!qFuzzyCompare(srcSampleRate, targetFormat.samplerate)){
                     //TODO: may refractor this into a function?
                     auto resampler = kfr::sample_rate_converter<sample_process_t>(sample_rate_conversion_quality_for_process, targetFormat.samplerate, srcSampleRate);
@@ -154,7 +158,7 @@ namespace WAVExtract {
             bool openSuccess;
             auto writer = kfr::audio_writer_wav<sample_process_t>(kfr::open_qt_file_for_writing(absoluteFileName, &openSuccess), targetFormat);
             if (!openSuccess){
-                return {QCoreApplication::translate("WAVExtract", "为写入打开文件%1时出现问题。").arg(absoluteFileName), descObj, srcData, srcSampleRate};
+                return {QCoreApplication::translate("WAVExtract", "Error occurred when writing into \"%1\".").arg(absoluteFileName), descObj, srcData, srcSampleRate};
             }
 
             size_t to_write = 0;
@@ -162,7 +166,11 @@ namespace WAVExtract {
             if (to_write == written)
                 return {};
             else
-                return {QCoreApplication::translate("WAVExtract", "文件%1写入的字节数（%2）和预期的（%3）不一致（即没有完全写入完成）。").arg(absoluteFileName).arg(written).arg(to_write), descObj, srcData, srcSampleRate};
+                return {QCoreApplication::translate("WAVExtract", "File \"%1\" can not being fully written. "
+                                                                  "%2 bytes has been written into file \"%1\", "
+                                                                  "which is expected to be %3.")
+                            .arg(absoluteFileName).arg(written).arg(to_write),
+                            descObj, srcData, srcSampleRate};
         }),
         std::function([](QList<ExtractErrorDescription>& result, const ExtractErrorDescription& stepResult){
             if (!stepResult.description.isEmpty())
