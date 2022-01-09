@@ -1,4 +1,4 @@
-#include <kira/widgets/filenameeditwithbrowse.h>
+#include "filenameeditwithbrowse.h"
 #include "ui_filenameeditwithbrowse.h"
 #include <QFileDialog>
 #include <QDragEnterEvent>
@@ -124,12 +124,13 @@ void FileNameEditWithBrowse::dropEvent(QDropEvent* event)
         {
             auto urls = event->mimeData()->urls();
             QStringList fileNames;
-            for (auto url : urls){
+            for (const auto &url : urls){
                 fileNames.append(url.toLocalFile());
             }
             ui->fileNameEdit->setText(fileNames.join(multipleModeSeparator));
         }
 
+        emit dropTriggered();
         event->setDropAction(Qt::LinkAction);
         event->accept();
     }
