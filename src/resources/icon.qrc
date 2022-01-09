@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/icon">
+        <file alias="appIcon">icon.svg</file>
+    </qresource>
+</RCC>
