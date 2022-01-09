@@ -36,8 +36,6 @@ namespace wavtar_utils {
             return false;
         }
     }
-
-    void refreshStackedWidgetSize(QStackedWidget* stackedWidget);
 }
 
 #include <kfr/all.hpp>
