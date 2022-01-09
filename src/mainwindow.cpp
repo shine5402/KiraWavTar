@@ -4,7 +4,7 @@
 #include "wavextract.h"
 #include <QMessageBox>
 #include <QValidator>
-#include "kfr_adapt.h"
+#include <kira/lib_helper/kfr_helper.h>
 #include "wavcombinedialog.h"
 #include "wavextractdialog.h"
 

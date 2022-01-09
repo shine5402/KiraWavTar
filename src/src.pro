@@ -10,9 +10,7 @@ VERSION = 1.0.3
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    dirnameeditwithbrowse.cpp \
     extracttargetselectmodel.cpp \
-    filenameeditwithbrowse.cpp \
     main.cpp \
     mainwindow.cpp \
     wavcombine.cpp \
@@ -23,10 +21,7 @@ SOURCES += \
     wavtar_utils.cpp
 
 HEADERS += \
-    dirnameeditwithbrowse.h \
     extracttargetselectmodel.h \
-    filenameeditwithbrowse.h \
-    kfr_adapt.h \
     mainwindow.h \
     wavcombine.h \
     wavcombinedialog.h \
@@ -36,7 +31,6 @@ HEADERS += \
     wavtar_utils.h
 
 FORMS += \
-    filenameeditwithbrowse.ui \
     mainwindow.ui \
     wavformatchooserwidget.ui
 
@@ -45,6 +39,19 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-INCLUDEPATH += ../lib/eternal/include/
-
 include(external-libs.pri)
+
+# KiraCommonUtils
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../lib/KiraCommonUtils/src/release/ -lKiraCommonUtils
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../lib/KiraCommonUtils/src/debug/ -lKiraCommonUtils
+else:unix: LIBS += -L$$OUT_PWD/../lib/KiraCommonUtils/src/ -lKiraCommonUtils
+
+INCLUDEPATH += $$PWD/../lib/KiraCommonUtils/src/include
+DEPENDPATH += $$PWD/../lib/KiraCommonUtils/src/include
+
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../lib/KiraCommonUtils/src/release/libKiraCommonUtils.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../lib/KiraCommonUtils/src/debug/libKiraCommonUtils.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../lib/KiraCommonUtils/src/release/KiraCommonUtils.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../lib/KiraCommonUtils/src/debug/KiraCommonUtils.lib
+else:unix: PRE_TARGETDEPS += $$OUT_PWD/../lib/KiraCommonUtils/src/libKiraCommonUtils.a
