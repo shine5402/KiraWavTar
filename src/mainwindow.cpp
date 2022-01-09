@@ -43,6 +43,9 @@ void MainWindow::reset()
 
     ui->extractSrcPathWidget->setFileName({});
     ui->extractResultPathWidget->setDirName({});
+    ui->extractFormatSrcRadioButton->setChecked(true);
+    ui->extractFormatCustomChooser->reset();
+    ui->extractSelectionCheckBox->setChecked(false);
 }
 
 void MainWindow::updateStackWidgetIndex()
