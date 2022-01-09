@@ -5,23 +5,11 @@
 #include <QFuture>
 #include <QMessageBox>
 #include <QCoreApplication>
+#include <kira/base64.h>
 class QStackedWidget;
 
 namespace wavtar_utils {
-    QStringList getAbsoluteWAVFileNamesUnder(QString rootDirName, bool recursive = false);
     QString getDescFileNameFrom(const QString& WAVFileName);
-
-    template <typename T>
-    QString encodeBase64(const T& value){
-        return QString::fromUtf8(QByteArray::fromRawData((const char*)&value, sizeof (T)).toBase64());
-    }
-
-    template <typename T>
-    T decodeBase64(const QString& base64){
-        if (base64.isEmpty())
-            return {};
-        return *((const T*) QByteArray::fromBase64(base64.toUtf8()).data());
-    }
 
     template<typename T>
     bool checkFutureExceptionAndWarn(QFuture<T> future){

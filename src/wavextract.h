@@ -3,8 +3,8 @@
 
 #include <QObject>
 #include <QJsonObject>
-#include "kfr_adapt.h"
 #include "wavtar_utils.h"
+#include <kira/lib_helper/kfr_helper.h>
 #include <QFuture>
 #include <QJsonArray>
 

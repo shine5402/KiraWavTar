@@ -4,7 +4,9 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include "wavtar_utils.h"
-#include "kfr_adapt.h"
+#include <kira/lib_helper/kfr_helper.h>
+#include <kira/base64.h>
+#include <kira/filesystem.h>
 #include <QtConcurrent/QtConcurrent>
 #include <memory>
 

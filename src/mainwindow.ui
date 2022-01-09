@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>881</width>
-    <height>244</height>
+    <height>272</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -290,19 +290,19 @@
   <customwidget>
    <class>DirNameEditWithBrowse</class>
    <extends>QWidget</extends>
-   <header>dirnameeditwithbrowse.h</header>
+   <header location="global">kira/widgets/dirnameeditwithbrowse.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>FileNameEditWithBrowse</class>
    <extends>QWidget</extends>
-   <header>filenameeditwithbrowse.h</header>
+   <header location="global">kira/widgets/filenameeditwithbrowse.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>FileNameEditWithSaveBrowse</class>
    <extends>QWidget</extends>
-   <header>filenameeditwithbrowse.h</header>
+   <header location="global">kira/widgets/filenameeditwithbrowse.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

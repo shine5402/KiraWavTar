@@ -7,7 +7,8 @@
 #include <algorithm>
 #include <QDir>
 #include "wavtar_utils.h"
-#include "kfr_adapt.h"
+#include <kira/lib_helper/kfr_helper.h>
+#include <kira/base64.h>
 #include <QCoreApplication>
 #include <QtConcurrent>
 #include <exception>
