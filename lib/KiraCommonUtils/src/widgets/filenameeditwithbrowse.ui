@@ -35,7 +35,7 @@
       <string notr="true"/>
      </property>
      <property name="text">
-      <string>浏览</string>
+      <string>Browse</string>
      </property>
      <property name="flat">
       <bool>false</bool>

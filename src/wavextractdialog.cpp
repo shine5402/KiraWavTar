@@ -42,7 +42,7 @@ using PreCheckFutureWatcher = QFutureWatcher<decltype (std::function(preCheck)):
 void WAVExtractDialog::startWork()
 {
     auto nextFuture = QtConcurrent::run(preCheck, srcWAVFileName, dstDirName);
-    label->setText(tr("一些准备工作……"));
+    label->setText(tr("Some preparing work..."));
     //This will make progress bar show as busy indicator
     progressBar->setMaximum(0);
     progressBar->setMinimum(0);
@@ -66,7 +66,7 @@ void WAVExtractDialog::preCheckDone()
         switch (result.pass) {
         case WAVExtract::CheckPassType::CRITICAL:
             msgBox.setIcon(QMessageBox::Critical);
-            msgBox.setText(tr("发现了一些严重问题，操作无法继续。"));
+            msgBox.setText(tr("Critical error found. Can not continue."));
             msgBox.setInformativeText(reportTextStyle + result.reportString);
             msgBox.setStandardButtons(QMessageBox::Ok);
             msgBox.exec();
@@ -74,7 +74,7 @@ void WAVExtractDialog::preCheckDone()
             break;
         case WAVExtract::CheckPassType::WARNING:
             msgBox.setIcon(QMessageBox::Warning);
-            msgBox.setText(tr("发现了一些问题，不过操作仍然可以继续。请问要继续吗？"));
+            msgBox.setText(tr("Some problems have been found but process can continue. Should we proceed?"));
             msgBox.setInformativeText(reportTextStyle + result.reportString);
             msgBox.setStandardButtons(QMessageBox::Yes|QMessageBox::No);
             if (msgBox.exec() == QMessageBox::No){
@@ -87,7 +87,7 @@ void WAVExtractDialog::preCheckDone()
             auto nextFuture = QtConcurrent::run(readSrcWAVFile, srcWAVFileName, result.descRoot);
             auto nextWatcher = new ReadSrcWAVFileFutureWatcher(this);
             nextWatcher->setFuture(nextFuture);
-            label->setText(tr("读取源波形文件……"));
+            label->setText(tr("Reading source WAV file..."));
             connect(nextWatcher, &ReadSrcWAVFileFutureWatcher::finished, this, &WAVExtractDialog::readSrcWAVFileDone);
             connect(buttonBox, &QDialogButtonBox::rejected, nextWatcher, &ReadSrcWAVFileFutureWatcher::cancel);
             break;
@@ -100,7 +100,7 @@ using ExtractWorkFutureWatcher = QFutureWatcher<QList<ExtractErrorDescription>>;
 // Though use SrcData as param would be better, but it will expose this internal struct in wavextractdialog.h, so..
 void WAVExtractDialog::doExtractCall(std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t> > srcData, decltype(kfr::audio_format::samplerate) samplerate, QJsonArray descArray)
 {
-    label->setText(tr("拆分波形文件并写入……"));
+    label->setText(tr("Writing extracted file..."));
     auto nextFuture = startExtract(srcData, samplerate, descArray, dstDirName, targetFormat);
     auto nextWatcher = new ExtractWorkFutureWatcher(this);
     nextWatcher->setFuture(nextFuture);
@@ -125,7 +125,7 @@ void WAVExtractDialog::readSrcWAVFileDone()
             auto selectModel = new ExtractTargetSelectModel(&result.descArray, selectDialog);
             auto selectDialogLayout = new QVBoxLayout(selectDialog);
 
-            auto selectLabel = new QLabel(tr("请选择要被拆分的项。"), selectDialog);
+            auto selectLabel = new QLabel(tr("Choose which ones to extract."), selectDialog);
             selectDialogLayout->addWidget(selectLabel);
 
             auto selectView = new QTableView(selectDialog);
@@ -136,9 +136,9 @@ void WAVExtractDialog::readSrcWAVFileDone()
             selectDialogLayout->addWidget(selectView);
 
             auto buttonLayout = new QHBoxLayout(selectDialog);
-            auto selectAllButton = new QPushButton(tr("选择全部"), selectDialog);
-            auto unselectAllButton = new QPushButton(tr("取消选择全部"), selectDialog);
-            auto reverseSelectButton = new QPushButton(tr("选择反向"), selectDialog);
+            auto selectAllButton = new QPushButton(tr("Select all"), selectDialog);
+            auto unselectAllButton = new QPushButton(tr("Unselect all"), selectDialog);
+            auto reverseSelectButton = new QPushButton(tr("Inverse"), selectDialog);
             buttonLayout->addWidget(selectAllButton);
             buttonLayout->addWidget(unselectAllButton);
             buttonLayout->addWidget(reverseSelectButton);
@@ -174,7 +174,7 @@ void WAVExtractDialog::extractWorkDone()
             return;
         if (watcher->isCanceled())
             return;
-        label->setText(tr("完成"));
+        label->setText(tr("Done"));
         progressBar->setMaximum(1);
         progressBar->setMinimum(0);
         progressBar->setValue(1);
@@ -182,8 +182,10 @@ void WAVExtractDialog::extractWorkDone()
         if (result.isEmpty()){
             QMessageBox msgBox;
             msgBox.setIcon(QMessageBox::Icon::Information);
-            msgBox.setText(tr("拆分操作已经完成。"));
-            msgBox.setInformativeText(tr("拆分后的波形文件已经存储至%1，原先的文件夹结构也已经被还原（如果有）。").arg(dstDirName));
+            msgBox.setText(tr("The wav file has been extracted."));
+            msgBox.setInformativeText(tr("Extracted wav files has been stored at \"%1\"."
+                                         "Original folder structure has been kept too.")
+                                      .arg(dstDirName));
             msgBox.setStandardButtons(QMessageBox::Ok);
             msgBox.exec();
             done(QDialog::Accepted);
@@ -191,7 +193,7 @@ void WAVExtractDialog::extractWorkDone()
         else{
             QMessageBox msgBoxInfomation;
             msgBoxInfomation.setIcon(QMessageBox::Icon::Critical);
-            msgBoxInfomation.setText(tr("拆分波形文件时出现问题。"));
+            msgBoxInfomation.setText(tr("Error occurred when extracting."));
             msgBoxInfomation.setInformativeText(QtConcurrent::mappedReduced<QString>(result,
                                                                   std::function([](const ExtractErrorDescription& value)->QString{return value.description;}),
             [](QString& result, const QString& desc){
@@ -204,8 +206,9 @@ void WAVExtractDialog::extractWorkDone()
             //TODO:ask user retry errored files here
             QMessageBox msgBoxRetry;
             msgBoxRetry.setIcon(QMessageBox::Icon::Question);
-            msgBoxRetry.setText(tr("要重试拆分这些文件吗？"));
-            msgBoxRetry.setInformativeText(QtConcurrent::mappedReduced<QStringList>(result, std::function([](const ExtractErrorDescription& value)->QString{return value.descObj.value("file_name").toString();}),
+            msgBoxRetry.setText(tr("Should retry extracting these?"));
+            msgBoxRetry.setInformativeText(QtConcurrent::mappedReduced<QStringList>(result,
+                                                                                    std::function([](const ExtractErrorDescription& value)->QString{return value.descObj.value("file_name").toString();}),
                                                                                      [](QStringList& result, const QString& fileName){
                                                     result.append(fileName);
                                                 }).result().join("\n"));

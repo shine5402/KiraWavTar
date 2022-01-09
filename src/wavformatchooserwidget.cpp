@@ -1,7 +1,7 @@
 #include "wavformatchooserwidget.h"
 #include "ui_wavformatchooserwidget.h"
 #include <kfr/all.hpp>
-#include "kfr_adapt.h"
+#include <kira/lib_helper/kfr_helper.h>
 #include <QMessageBox>
 
 WAVFormatChooserWidget::WAVFormatChooserWidget(QWidget *parent) :
@@ -92,12 +92,16 @@ void WAVFormatChooserWidget::warnAboutW64()
     if (ui->useW64CheckBox->isChecked()){
         QMessageBox msgBox;
         msgBox.setIcon(QMessageBox::Information);
-        msgBox.setText("选择W64格式之前请三思。");
-        msgBox.setInformativeText("请注意，W64格式与标准的WAV文件并不兼容。\n"
-"其质量与标准WAV文件并无不同，但是其64位的文件头可以解决标准WAV文件中32位文件头带来的大小限制（约2GB/4GB，取决于软件实现）。"
-"也因此该格式需要与标准WAV文件不同的代码进行读取和保存，还请注意确认您使用的音频软件是否支持该格式。\n"
-"您也有可能在软件中看到使用“Sony Wave 64”或者“Sonic Foundry Wave 64”来指代该格式。以及，该格式和RF64格式不同，也留意。\n"
-"以及该格式的推荐扩展名为“.w64”，如有必要请注意更改。");
+        msgBox.setText("Think twice before choose W64 format.");
+        msgBox.setInformativeText("Please notice that W64 format is not compatible with standard WAV files.\n"
+                                  "The quality has no difference between both formats, "
+                                  "but its 64-bit header can solve size restriction in standard 32-bit WAV format "
+                                  "(~2GB/4GB, based on implementation). \n"
+                                  "You may also see softwares use \"Sony Wave 64\" or \"Sonic Foundry Wave 64\" "
+                                  "to refer to this format. Also, this format is not same as RF64(use as default 64-bit WAV in Audition), "
+                                  "please pay attention to it. \n"
+                                  "And this format uses \".wav\" for recommended extension. "
+                                  "Change it if you need.");
         msgBox.exec();
     }
 }

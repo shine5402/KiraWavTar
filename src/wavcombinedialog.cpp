@@ -4,7 +4,6 @@
 #include <QProgressBar>
 #include <QDialogButtonBox>
 #include "kfr/all.hpp"
-#include "kfr_adapt.h"
 #include "wavcombine.h"
 #include <QtConcurrent/QtConcurrent>
 #include <QFutureWatcher>
@@ -41,7 +40,7 @@ using PreCheckFutureWatcher = QFutureWatcher<decltype (std::function(preCheck)):
 void WAVCombineDialog::startWork()
 {
     auto nextFuture = QtConcurrent::run(preCheck, rootDirName, saveFileName, recursive, targetFormat);
-    label->setText(tr("一些准备工作……"));
+    label->setText(tr("Some preparing work..."));
     //This will make progress bar show as busy indicator
     progressBar->setMaximum(0);
     progressBar->setMinimum(0);
@@ -65,7 +64,7 @@ void WAVCombineDialog::preCheckDone()
         switch (result.pass) {
         case WAVCombine::CheckPassType::CRITICAL:
             msgBox.setIcon(QMessageBox::Critical);
-            msgBox.setText(tr("发现了一些严重问题，操作无法继续。"));
+            msgBox.setText(tr("Critical error found. Can not continue."));
             msgBox.setInformativeText(reportTextStyle + result.reportString);
             msgBox.setStandardButtons(QMessageBox::Ok);
             msgBox.exec();
@@ -73,7 +72,7 @@ void WAVCombineDialog::preCheckDone()
             break;
         case WAVCombine::CheckPassType::WARNING:
             msgBox.setIcon(QMessageBox::Warning);
-            msgBox.setText(tr("发现了一些问题，不过操作仍然可以继续。请问要继续吗？"));
+            msgBox.setText(tr("Some problems have been found but process can continue. Should we proceed?"));
             msgBox.setInformativeText(reportTextStyle + result.reportString);
             msgBox.setStandardButtons(QMessageBox::Yes|QMessageBox::No);
             if (msgBox.exec() == QMessageBox::No){
@@ -86,7 +85,7 @@ void WAVCombineDialog::preCheckDone()
             auto nextFuture = startReadAndCombineWork(result.wavFileNames, rootDirName, targetFormat);
             auto nextWatcher = new readAndCombineFutureWatcher(this);
             nextWatcher->setFuture(nextFuture);
-            label->setText(tr("读取波形文件及拼接……"));
+            label->setText(tr("Reading WAV files and combining them..."));
             progressBar->setMinimum(nextWatcher->progressMinimum());
             progressBar->setMaximum(nextWatcher->progressMaximum());
             connect(nextWatcher, &readAndCombineFutureWatcher::progressValueChanged, progressBar, &QProgressBar::setValue);
@@ -105,7 +104,7 @@ void WAVCombineDialog::readAndCombineWorkDone()
         if (watcher->isCanceled())
             return;
         auto result = watcher->result();
-        label->setText(tr("写入合并后的文件……"));
+        label->setText(tr("Writing combined file..."));
         //This will make progress bar show as busy indicator
         progressBar->setMaximum(0);
         progressBar->setMinimum(0);
@@ -124,7 +123,7 @@ void WAVCombineDialog::writeResultDone()
             return;
         if (watcher->isCanceled())
             return;
-        label->setText(tr("完成"));
+        label->setText(tr("Done"));
         progressBar->setMaximum(1);
         progressBar->setMinimum(0);
         progressBar->setValue(1);
@@ -132,8 +131,11 @@ void WAVCombineDialog::writeResultDone()
         if (result){
             QMessageBox msgBox;
             msgBox.setIcon(QMessageBox::Icon::Information);
-            msgBox.setText(tr("合并操作已经完成。"));
-            msgBox.setInformativeText(tr("合并后的波形文件已经存储至%1。请注意在处理时不要修改波形文件内的时值，也不要删除和修改同名的“.kirawavtar-desc.json”描述文件。").arg(saveFileName));
+            msgBox.setText(tr("Wav files has been combined."));
+            msgBox.setInformativeText(tr("Combined file has been stored at \"%1\"."
+                                         "Please do not change the time when you edit it, "
+                                         "and do not delete or modify \".kirawavtar-desc.json\" file sharing the same name with the WAV.")
+                                      .arg(saveFileName));
             msgBox.setStandardButtons(QMessageBox::Ok);
             msgBox.exec();
             done(QDialog::Accepted);
@@ -141,8 +143,8 @@ void WAVCombineDialog::writeResultDone()
         else{
             QMessageBox msgBox;
             msgBox.setIcon(QMessageBox::Icon::Critical);
-            msgBox.setText(tr("写入合并结果文件时出现问题"));
-            msgBox.setInformativeText(tr("请排查可能问题后再试。"));
+            msgBox.setText(tr("Error occurred when writing combined WAV."));
+            msgBox.setInformativeText(tr("Please check potential causes and try again."));
             msgBox.setStandardButtons(QMessageBox::Ok);
             msgBox.exec();
             done(QDialog::Rejected);
