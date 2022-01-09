@@ -108,23 +108,26 @@ void MainWindow::fillResultPath()
 void MainWindow::about()
 {
     auto versionStr = qApp->applicationVersion();
-    QMessageBox::about(this, tr("About"), tr(
-                           R"(<h2>KiraOtoToolbox</h2>
+    QMessageBox msgBox;
+    msgBox.setIconPixmap(QPixmap(":/icon/appIcon").scaled(64,64,Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    msgBox.setWindowTitle(tr("About"));
+    msgBox.setText(tr(
+                       R"(<h2>KiraWAVTar</h2>
 <p>Copyright 2021 <a href="https://shine5402.top/about-me">shine_5402</a></p>
 <p>Version %1</p>
 <h3>About</h3>
 <p>A fast and easy-to-use WAV combine/extract tool.</p>
 <h3>License</h3>
 <p> This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.</p>
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.</p>
 <p>This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.</p>
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.</p>
 <p>You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.</p>
+along with this program.  If not, see <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.</p>
 
 <h3>3rd party librarays used by this project</h3>
 <ul>
@@ -134,5 +137,6 @@ void MainWindow::about()
 <li><a href="https://github.com/mapbox/eternal">eternal</a>, mapbox, under ISC License</li>
 </ul>
 )").arg(versionStr).arg(QT_VERSION_STR));
+    msgBox.exec();
 }
 
