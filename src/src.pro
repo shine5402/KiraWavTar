@@ -5,7 +5,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = KiraWAVTar
 
 CONFIG += c++17
-VERSION = 1.0.3
+VERSION = 1.1.0
 
 RC_ICONS = resources/icon.ico
 
