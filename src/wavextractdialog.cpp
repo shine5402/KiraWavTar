@@ -10,9 +10,11 @@
 #include <QPushButton>
 #include <QTableView>
 #include <QHeaderView>
+#include "wavtar_utils.h"
 
 using namespace WAVExtract;
 using namespace wavtar_defines;
+using namespace wavtar_utils;
 
 WAVExtractDialog::WAVExtractDialog(QString srcWAVFileName, QString dstDirName,
                                    const kfr::audio_format& targetFormat, bool extractResultSelection, QWidget* parent)
@@ -130,12 +132,12 @@ void WAVExtractDialog::readSrcWAVFileDone()
 
             auto selectView = new QTableView(selectDialog);
             selectView->setModel(selectModel);
-            //selectView->resizeColumnToContents(0);//FILENAME
-            selectView->horizontalHeader()->setStretchLastSection(false);
-            selectView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);//0 for FILENAME
+            selectView->resizeColumnsToContents();//FILENAME
+            //selectView->horizontalHeader()->setStretchLastSection(true);
+            //selectView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);//0 for FILENAME
             selectDialogLayout->addWidget(selectView);
 
-            auto buttonLayout = new QHBoxLayout(selectDialog);
+            auto buttonLayout = new QHBoxLayout;
             auto selectAllButton = new QPushButton(tr("Select all"), selectDialog);
             auto unselectAllButton = new QPushButton(tr("Unselect all"), selectDialog);
             auto reverseSelectButton = new QPushButton(tr("Inverse"), selectDialog);
@@ -175,6 +177,7 @@ void WAVExtractDialog::extractWorkDone()
         if (watcher->isCanceled())
             return;
         label->setText(tr("Done"));
+        //Set progressbar as done
         progressBar->setMaximum(1);
         progressBar->setMinimum(0);
         progressBar->setValue(1);
@@ -186,7 +189,21 @@ void WAVExtractDialog::extractWorkDone()
             msgBox.setInformativeText(tr("Extracted wav files has been stored at \"%1\"."
                                          "Original folder structure has been kept too.")
                                       .arg(dstDirName));
-            msgBox.setStandardButtons(QMessageBox::Ok);
+            auto deleteSrcButton = new QPushButton(tr("Delete source file"), &msgBox);
+            connect(deleteSrcButton, &QPushButton::clicked, this, [this](){
+                auto removeSrcWAV = QFile(srcWAVFileName).remove();
+                auto removeDescFile = QFile(getDescFileNameFrom(srcWAVFileName)).remove();
+                 if (!removeSrcWAV)
+                     QMessageBox::critical(this, {}, tr("Can not delete %1").arg(srcWAVFileName));
+                 if (!removeDescFile)
+                     QMessageBox::critical(this, {}, tr("Can not delete %1").arg(getDescFileNameFrom(srcWAVFileName)));
+                 if (removeSrcWAV && removeDescFile)
+                     QMessageBox::information(this, {}, tr("Source files have been deleted successfully."));
+
+            });
+            msgBox.addButton(deleteSrcButton, QMessageBox::AcceptRole);
+            msgBox.addButton(QMessageBox::Ok);
+            msgBox.setDefaultButton(QMessageBox::Ok);
             msgBox.exec();
             done(QDialog::Accepted);
         }
@@ -203,7 +220,6 @@ void WAVExtractDialog::extractWorkDone()
                                       }));
             msgBoxInfomation.setStandardButtons(QMessageBox::Ok);
             msgBoxInfomation.exec();
-            //TODO:ask user retry errored files here
             QMessageBox msgBoxRetry;
             msgBoxRetry.setIcon(QMessageBox::Icon::Question);
             msgBoxRetry.setText(tr("Should retry extracting these?"));
