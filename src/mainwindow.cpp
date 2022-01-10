@@ -9,6 +9,7 @@
 #include "wavextractdialog.h"
 #include <QPalette>
 #include <kira/i18n/translationmanager.h>
+#include <kira/darkmode.h>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -37,7 +38,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->leftBottomButtonLine->setPalette(linePalette);
 
     //i18n menu
-    ui->langButton->setMenu(TranslationManager::getManager()->createI18nMenu(this));
+    ui->langButton->setMenu(TranslationManager::getManager()->getI18nMenu());
+
+    //ui theme menu
+    ui->uiThemeButton->setMenu(DarkMode::getDarkModeSettingMenu());
 }
 
 MainWindow::~MainWindow()

@@ -269,6 +269,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="uiThemeButton">
+        <property name="text">
+         <string>UI Theme</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="Line" name="leftBottomButtonLine">
         <property name="frameShadow">
          <enum>QFrame::Plain</enum>

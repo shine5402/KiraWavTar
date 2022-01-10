@@ -95,10 +95,13 @@ Translation TranslationManager::getCurrentInstalled() const
     return Translation::getCurrentInstalled();
 }
 
-QMenu* TranslationManager::createI18nMenu(QWidget* parent) const
+QMenu* TranslationManager::getI18nMenu()
 {
+    if (i18nMenu)
+        return i18nMenu;
+
     auto translations = TranslationManager::getManager()->getTranslations();
-    auto i18nMenu = new QMenu("Language", parent);
+    i18nMenu = new QMenu("Language");
     auto defaultLang = new QAction("English, built-in", i18nMenu);
     defaultLang->setData(-1);
     defaultLang->setCheckable(true);
@@ -111,9 +114,8 @@ QMenu* TranslationManager::createI18nMenu(QWidget* parent) const
         langAction->setData(i);
         langAction->setCheckable(true);
         i18nMenu->addAction(langAction);
-
     }
-    QObject::connect(i18nMenu, &QMenu::triggered, i18nMenu, [this, i18nMenu](QAction* action){
+    QObject::connect(i18nMenu, &QMenu::triggered, i18nMenu, [this](QAction* action){
         auto translation = getTranslation(action->data().toInt());
         translation.install();
         setLangActionChecked(i18nMenu, translation);
