@@ -73,6 +73,12 @@ void MainWindow::run()
         auto recursive = ui->subdirCheckBox->isChecked();
         auto targetFormat = ui->combineWAVFormatWidget->getFormat();
         auto saveFileName = ui->combineResultPathWidget->fileName();
+
+        if (rootDirName.isEmpty() || saveFileName.isEmpty()){
+            QMessageBox::critical(this, {}, tr("Needed paths are empty. Please check your input and try again."));
+            return;
+        }
+
         auto dialog = new WAVCombineDialog(rootDirName, recursive, targetFormat, saveFileName, this);
         dialog->setAttribute(Qt::WA_DeleteOnClose, true);
         dialog->open();
@@ -84,6 +90,10 @@ void MainWindow::run()
         auto srcWAVFileName = ui->extractSrcPathWidget->fileName();
         auto dstDirName = ui->extractResultPathWidget->dirName();
         auto extractResultSelection = ui->extractSelectionCheckBox->isChecked();
+        if (srcWAVFileName.isEmpty() || dstDirName.isEmpty()){
+            QMessageBox::critical(this, {}, tr("Needed paths are empty. Please check your input and try again."));
+            return;
+        }
         auto dialog = new WAVExtractDialog(srcWAVFileName, dstDirName, targetFormat, extractResultSelection, this);
         dialog->setAttribute(Qt::WA_DeleteOnClose, true);
         dialog->open();
