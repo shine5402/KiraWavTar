@@ -23,7 +23,7 @@ private:
     QVector<Translation> translations;
 
     void setLangActionChecked(QMenu* i18nMenu, const Translation& translation) const;
-    void saveUserLocaleSetting(QLocale locale);
+    void saveUserLocaleSetting(QLocale locale) const;
     QLocale getLocaleUserSetting() const;
 };
 
