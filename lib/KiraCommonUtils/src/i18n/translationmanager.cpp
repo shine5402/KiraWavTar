@@ -50,7 +50,7 @@ void TranslationManager::setLangActionChecked(QMenu* i18nMenu, const Translation
     }
 }
 
-void TranslationManager::saveUserLocaleSetting(QLocale locale)
+void TranslationManager::saveUserLocaleSetting(QLocale locale) const
 {
     QSettings settings;
     settings.setValue("locale", locale);
@@ -117,6 +117,7 @@ QMenu* TranslationManager::createI18nMenu(QWidget* parent) const
         auto translation = getTranslation(action->data().toInt());
         translation.install();
         setLangActionChecked(i18nMenu, translation);
+        saveUserLocaleSetting(translation.locale());
     });
 
     setLangActionChecked(i18nMenu, getCurrentInstalled());
