@@ -24,5 +24,8 @@ private slots:
     void run();
     void fillResultPath();
     void about();
+
+protected:
+    void changeEvent(QEvent* event) override;
 };
 #endif // MAINWINDOW_H

@@ -262,6 +262,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="langButton">
+        <property name="text">
+         <string>Language</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="Line" name="leftBottomButtonLine">
         <property name="frameShadow">
          <enum>QFrame::Plain</enum>
@@ -349,7 +356,7 @@
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="modeButtonGroup"/>
   <buttongroup name="extractFormatButtonGroup"/>
+  <buttongroup name="modeButtonGroup"/>
  </buttongroups>
 </ui>

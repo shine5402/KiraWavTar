@@ -8,6 +8,7 @@
 #include "wavcombinedialog.h"
 #include "wavextractdialog.h"
 #include <QPalette>
+#include <kira/i18n/translationmanager.h>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -30,10 +31,13 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->extractSrcPathWidget, &FileNameEditWithBrowse::browseTriggered, this, &MainWindow::fillResultPath);
     connect(ui->extractSrcPathWidget, &FileNameEditWithBrowse::dropTriggered, this, &MainWindow::fillResultPath);
 
+    //Make line separator looks nicer
     QPalette linePalette;
     linePalette.setColor(QPalette::WindowText, linePalette.color(QPalette::Dark));
     ui->leftBottomButtonLine->setPalette(linePalette);
 
+    //i18n menu
+    ui->langButton->setMenu(TranslationManager::getManager()->createI18nMenu(this));
 }
 
 MainWindow::~MainWindow()
@@ -150,3 +154,9 @@ along with this program.  If not, see <a href="https://www.gnu.org/licenses/">ht
     msgBox.exec();
 }
 
+void MainWindow::changeEvent(QEvent* event){
+    if (event->type() == QEvent::LanguageChange)
+    {
+        ui->retranslateUi(this);
+    }
+}

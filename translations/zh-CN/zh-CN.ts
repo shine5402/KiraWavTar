@@ -98,28 +98,33 @@
     </message>
     <message>
         <location filename="../../src/mainwindow.ui" line="260"/>
-        <location filename="../../src/mainwindow.cpp" line="123"/>
+        <location filename="../../src/mainwindow.cpp" line="127"/>
         <source>About</source>
         <translation>关于</translation>
     </message>
     <message>
-        <location filename="../../src/mainwindow.ui" line="277"/>
+        <location filename="../../src/mainwindow.ui" line="267"/>
+        <source>Language</source>
+        <translation>语言(Lang.)</translation>
+    </message>
+    <message>
+        <location filename="../../src/mainwindow.ui" line="284"/>
         <source>Reset</source>
         <translation>重置</translation>
     </message>
     <message>
-        <location filename="../../src/mainwindow.ui" line="297"/>
+        <location filename="../../src/mainwindow.ui" line="304"/>
         <source>Run</source>
         <translation>运行</translation>
     </message>
     <message>
-        <location filename="../../src/mainwindow.cpp" line="78"/>
-        <location filename="../../src/mainwindow.cpp" line="94"/>
+        <location filename="../../src/mainwindow.cpp" line="82"/>
+        <location filename="../../src/mainwindow.cpp" line="98"/>
         <source>Needed paths are empty. Please check your input and try again.</source>
         <translation>没有提供所有需要的路径。请检查输入之后重试。</translation>
     </message>
     <message>
-        <location filename="../../src/mainwindow.cpp" line="124"/>
+        <location filename="../../src/mainwindow.cpp" line="128"/>
         <source>&lt;h2&gt;KiraWAVTar&lt;/h2&gt;
 &lt;p&gt;Copyright 2021 &lt;a href=&quot;https://shine5402.top/about-me&quot;&gt;shine_5402&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;Version %1&lt;/p&gt;

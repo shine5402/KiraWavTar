@@ -35,6 +35,8 @@ private:
 
 private slots:
     void warnAboutW64();
+protected:
+    void changeEvent(QEvent* event) override;
 };
 
 #endif // WAVFORMATCHOOSERWIDGET_H
