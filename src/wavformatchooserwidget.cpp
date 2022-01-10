@@ -105,3 +105,11 @@ void WAVFormatChooserWidget::warnAboutW64()
         msgBox.exec();
     }
 }
+
+void WAVFormatChooserWidget::changeEvent(QEvent* event)
+{
+    if (event->type() == QEvent::LanguageChange)
+    {
+        ui->retranslateUi(this);
+    }
+}
