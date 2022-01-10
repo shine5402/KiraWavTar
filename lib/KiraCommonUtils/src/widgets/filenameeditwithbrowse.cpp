@@ -136,6 +136,14 @@ void FileNameEditWithBrowse::dropEvent(QDropEvent* event)
     }
 }
 
+void FileNameEditWithBrowse::changeEvent(QEvent* event)
+{
+    if (event->type() == QEvent::LanguageChange)
+    {
+        ui->retranslateUi(this);
+    };
+}
+
 QString FileNameEditWithBrowse::getMultipleModeSeparator() const
 {
     return multipleModeSeparator;
