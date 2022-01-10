@@ -23,7 +23,7 @@ namespace WAVCombine {
         {
             return {CheckPassType::CRITICAL,
                         QCoreApplication::translate("WAVCombine",
-                                                    "<p class='critical'>There are not any wav files in the given folder."
+                                                    "<p class='critical'>There are not any wav files in the given folder. "
                                                     "Please check the path, or if you forget to turn \"scan subfolders\" on?</p>"),
                         wavFileNames};
         }
@@ -76,7 +76,7 @@ namespace WAVCombine {
         }).results();
 
         for (const auto& i : std::as_const(hasLargerSampleRate)){
-            warningMsg.append(QCoreApplication::translate("WAVCombine", "<p class='warning'>Sample rate (%2 Hz) of \"%1\" is larger than target (\"3\" Hz)."
+            warningMsg.append(QCoreApplication::translate("WAVCombine", "<p class='warning'>Sample rate (%2 Hz) of \"%1\" is larger than target (\"%3\" Hz)."
                                                                         "The precision could be lost a bit when processing.</p>").arg(i.first).arg(i.second.samplerate).arg(targetFormat.samplerate));
         }
 
@@ -96,7 +96,7 @@ namespace WAVCombine {
          }).results();
 
         for (const auto& i : std::as_const(hasLargerQuantizationThanProcess)){
-            warningMsg.append(QCoreApplication::translate("WAVCombine", "<p class='warning'>The precision could be lost a bit when processing, as we use a bit depth of \"%3\" while source \"%1\" having \"%2\".</p>")
+            warningMsg.append(QCoreApplication::translate("WAVCombine", "<p class='warning'>The precision could be lost a bit when processing, as we use a bit depth of \"%3\" in internal processing while source \"%1\" having \"%2\".</p>")
                               .arg(i.first)
                               .arg(kfr::audio_sample_type_human_string.at(i.second.type).c_str())
                               .arg(kfr::audio_sample_type_human_string.at(sample_process_type).c_str()));
@@ -119,11 +119,11 @@ namespace WAVCombine {
             kfr::audio_reader_wav<sample_process_t> reader(kfr::open_qt_file_for_reading(fileName, &openSucess));
             if (!openSucess)
             {
-                throw wavtar_exceptions::runtime_error(QCoreApplication::tr("WAVCombine", "Error occurred during reading file \"%1\".").arg(fileName));
+                throw wavtar_exceptions::runtime_error(QCoreApplication::translate("WAVCombine", "Error occurred during reading file \"%1\".").arg(fileName));
             }
             if (reader.format().type == kfr::audio_sample_type::unknown)
             {
-                throw wavtar_exceptions::runtime_error(QCoreApplication::tr("WAVCombine", "Cannot know sample type of file \"%1\".").arg(fileName));
+                throw wavtar_exceptions::runtime_error(QCoreApplication::translate("WAVCombine", "Cannot know sample type of file \"%1\".").arg(fileName));
             }
             auto channnels = reader.read_channels();
             QJsonObject descObj;
@@ -214,7 +214,7 @@ namespace WAVCombine {
         bool openSuccess = false;
         kfr::audio_writer_wav<sample_process_t> writer(kfr::open_qt_file_for_writing(wavFileName, &openSuccess), targetFormat);
         if (!openSuccess){
-           throw wavtar_exceptions::runtime_error(QCoreApplication::tr("WAVCombine", "Error occurred during writing file \"%1\".").arg(wavFileName));
+           throw wavtar_exceptions::runtime_error(QCoreApplication::translate("WAVCombine", "Error occurred during writing file \"%1\".").arg(wavFileName));
         }
         size_t to_write = 0;
         auto written = kfr::write_mutlichannel_wav_file<sample_process_t>(writer, *data, &to_write);

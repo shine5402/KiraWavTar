@@ -20,7 +20,7 @@
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>What to do</string>
+         <string>What to do:</string>
         </property>
        </widget>
       </item>
@@ -99,7 +99,7 @@
         <item row="2" column="1">
          <widget class="QCheckBox" name="subdirCheckBox">
           <property name="toolTip">
-           <string>该选项让程序检查子文件夹（以及他们的子文件夹），并合并这些文件夹中的WAV文件。这些文件夹的结构会写入记录信息中，以备拆分时恢复。</string>
+           <string>Make program to scan subfolders (and their subfolders), and combine all WAV files found. The folder structure will be stored in description file, as this will be reconstructed when extract.</string>
           </property>
           <property name="text">
            <string>scan subfolders</string>
