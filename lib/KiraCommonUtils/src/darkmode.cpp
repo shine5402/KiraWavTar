@@ -66,8 +66,8 @@ QPalette DarkMode::getPaletteFor(Mode mode)
     {
         auto lightPalette = QStyleFactory::create("fusion")->standardPalette();
         lightPalette.setColor(QPalette::Window, QColor(250,250,250));
-        lightPalette.setColor(QPalette::Inactive, QPalette::ToolTipBase, Qt::white);
-        lightPalette.setColor(QPalette::Inactive, QPalette::ToolTipText, Qt::darkGray);
+        lightPalette.setColor(QPalette::Inactive, QPalette::ToolTipBase, QColor(240,240,240));
+        lightPalette.setColor(QPalette::Inactive, QPalette::ToolTipText, QColor(50,50,50));
         return lightPalette;
     }
 }
