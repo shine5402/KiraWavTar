@@ -155,7 +155,6 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
 &lt;p&gt;版本 %1&lt;/p&gt;
 &lt;h3&gt;关于&lt;/h3&gt;
 &lt;p&gt;快速易用的WAV文件合并/拆分工具。&lt;/p&gt;
-&lt;h3&gt;License&lt;/h3&gt;
 &lt;h3&gt;许可&lt;/h3&gt;
 &lt;p&gt;本程序是自由软件：你可以在遵守由自由软件基金会发布的GNU通用公共许可证版本3（或者更新的版本）的情况下重新分发和/或修改本程序。&lt;/p&gt;
 &lt;p&gt;本程序的发布旨在能够派上用场，但是&lt;span style=&quot;font-weight: bold;&quot;&gt;并不对此作出任何担保&lt;/span&gt;；乃至也没有对&lt;span style=&quot;font-weight: bold;&quot;&gt;适销性&lt;/span&gt;或&lt;span style=&quot;font-weight: bold;&quot;&gt;特定用途适用性&lt;/span&gt;的默示担保。参见GNU通用公共许可证来获得更多细节。&lt;/p&gt;
