@@ -20,7 +20,7 @@ namespace wavtar_utils {
             QMessageBox::critical(nullptr, {}, e.what());
             return false;
         } catch(...){
-            QMessageBox::critical(nullptr, {}, QCoreApplication::translate("WAVTarUtils", "发生了未知错误。"));
+            QMessageBox::critical(nullptr, {}, QCoreApplication::translate("WAVTarUtils", "Unknown error occurred."));
             return false;
         }
     }
