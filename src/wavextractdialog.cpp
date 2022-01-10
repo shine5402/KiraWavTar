@@ -255,5 +255,5 @@ void WAVExtractDialog::open()
 int WAVExtractDialog::exec()
 {
     emit opened();
-    QDialog::exec();
+    return QDialog::exec();
 }
