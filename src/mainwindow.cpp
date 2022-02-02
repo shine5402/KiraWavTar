@@ -98,11 +98,12 @@ void MainWindow::run()
         auto srcWAVFileName = ui->extractSrcPathWidget->fileName();
         auto dstDirName = ui->extractResultPathWidget->dirName();
         auto extractResultSelection = ui->extractSelectionCheckBox->isChecked();
+        auto removeDCOffset = ui->removeDCCheckBox->isChecked();
         if (srcWAVFileName.isEmpty() || dstDirName.isEmpty()){
             QMessageBox::critical(this, {}, tr("Needed paths are empty. Please check your input and try again."));
             return;
         }
-        auto dialog = new WAVExtractDialog(srcWAVFileName, dstDirName, targetFormat, extractResultSelection, this);
+        auto dialog = new WAVExtractDialog(srcWAVFileName, dstDirName, targetFormat, extractResultSelection, removeDCOffset, this);
         dialog->setAttribute(Qt::WA_DeleteOnClose, true);
         dialog->open();
     }
@@ -131,7 +132,7 @@ void MainWindow::about()
     msgBox.setWindowTitle(tr("About"));
     msgBox.setText(tr(
                        R"(<h2>KiraWAVTar</h2>
-<p>Copyright 2021 <a href="https://shine5402.top/about-me">shine_5402</a></p>
+<p>Copyright 2021-2022 <a href="https://shine5402.top/about-me">shine_5402</a></p>
 <p>Version %1</p>
 <h3>About</h3>
 <p>A fast and easy-to-use WAV combine/extract tool.</p>
@@ -147,7 +148,7 @@ GNU General Public License for more details.</p>
 <p>You should have received a copy of the GNU General Public License
 along with this program.  If not, see <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.</p>
 
-<h3>3rd party librarays used by this project</h3>
+<h3>3rd party libraries used by this project</h3>
 <ul>
 <li>Qt %2, The Qt Company Ltd, under LGPL v3.</li>
 <li><a href="https://www.kfrlib.com/">KFR - Fast, modern C++ DSP framework</a>, under GNU GPL v2+</li>

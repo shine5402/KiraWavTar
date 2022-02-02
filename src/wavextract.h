@@ -34,7 +34,10 @@ namespace WAVExtract {
         std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>> srcData;
         decltype (kfr::audio_format::samplerate) srcSampleRate;
     };
-    QFuture<QList<ExtractErrorDescription>> startExtract(std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>> srcData, decltype(kfr::audio_format::samplerate) srcSampleRate, QJsonArray descArray, QString dstDirName, kfr::audio_format targetFormat);
+    QFuture<QList<ExtractErrorDescription>> startExtract(std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>> srcData,
+                                                         decltype(kfr::audio_format::samplerate) srcSampleRate,
+                                                         QJsonArray descArray, QString dstDirName, kfr::audio_format targetFormat,
+                                                         bool removeDCOffset);
 }
 
 Q_DECLARE_METATYPE(WAVExtract::CheckResult);

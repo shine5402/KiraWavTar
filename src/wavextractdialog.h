@@ -13,7 +13,7 @@ class WAVExtractDialog : public QDialog
 {
     Q_OBJECT
 public:
-    WAVExtractDialog(QString srcWAVFileName, QString dstDirName, const kfr::audio_format& targetFormat, bool extractResultSelection, QWidget* parent);
+    WAVExtractDialog(QString srcWAVFileName, QString dstDirName, const kfr::audio_format& targetFormat, bool extractResultSelection, bool removeDCOffset, QWidget* parent);
 private:
     QLabel* label;
     QProgressBar* progressBar;
@@ -23,6 +23,7 @@ private:
     QString dstDirName;
     kfr::audio_format targetFormat;
     bool extractResultSelection;
+    bool removeDCOffset;
 
     void doExtractCall(std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t> > srcData, decltype(kfr::audio_format::samplerate) samplerate, QJsonArray descArray);
 
