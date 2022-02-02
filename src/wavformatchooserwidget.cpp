@@ -98,9 +98,9 @@ void WAVFormatChooserWidget::warnAboutW64()
                                   "but its 64-bit header can solve size restriction in standard 32-bit WAV format "
                                   "(~2GB/4GB, based on implementation). \n"
                                   "You may also see softwares use \"Sony Wave 64\" or \"Sonic Foundry Wave 64\" "
-                                  "to refer to this format. Also, this format is not same as RF64(use as default 64-bit WAV in Audition), "
+                                  "to refer to this format. Also, this format is not same as RF64(use as default 64-bit WAV in Adobe Audition), "
                                   "please pay attention to it. \n"
-                                  "And this format uses \".wav\" for recommended extension. "
+                                  "And this format uses \".w64\" for recommended extension. "
                                   "Change it if you need.");
         msgBox.exec();
     }

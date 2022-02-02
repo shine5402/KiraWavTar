@@ -17,8 +17,8 @@ using namespace wavtar_defines;
 using namespace wavtar_utils;
 
 WAVExtractDialog::WAVExtractDialog(QString srcWAVFileName, QString dstDirName,
-                                   const kfr::audio_format& targetFormat, bool extractResultSelection, QWidget* parent)
-    : QDialog(parent), srcWAVFileName(srcWAVFileName), dstDirName(dstDirName), targetFormat(targetFormat), extractResultSelection(extractResultSelection)
+                                   const kfr::audio_format& targetFormat, bool extractResultSelection, bool removeDCOffset, QWidget* parent)
+    : QDialog(parent), srcWAVFileName(srcWAVFileName), dstDirName(dstDirName), targetFormat(targetFormat), extractResultSelection(extractResultSelection), removeDCOffset(removeDCOffset)
 {
     auto layout = new QVBoxLayout(this);
 
@@ -103,7 +103,7 @@ using ExtractWorkFutureWatcher = QFutureWatcher<QList<ExtractErrorDescription>>;
 void WAVExtractDialog::doExtractCall(std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t> > srcData, decltype(kfr::audio_format::samplerate) samplerate, QJsonArray descArray)
 {
     label->setText(tr("Writing extracted file..."));
-    auto nextFuture = startExtract(srcData, samplerate, descArray, dstDirName, targetFormat);
+    auto nextFuture = startExtract(srcData, samplerate, descArray, dstDirName, targetFormat, removeDCOffset);
     auto nextWatcher = new ExtractWorkFutureWatcher(this);
     nextWatcher->setFuture(nextFuture);
     progressBar->setMinimum(nextWatcher->progressMinimum());
@@ -183,7 +183,7 @@ void WAVExtractDialog::extractWorkDone()
         progressBar->setValue(1);
         auto result = watcher->result();
         if (result.isEmpty()){
-            QMessageBox msgBox;
+            QMessageBox msgBox(this);
             msgBox.setIcon(QMessageBox::Icon::Information);
             msgBox.setText(tr("The wav file has been extracted."));
             msgBox.setInformativeText(tr("Extracted wav files has been stored at \"%1\"."
