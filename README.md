@@ -69,7 +69,7 @@ It's come from [nwp8861's program "wavtar"](https://osdn.net/users/nwp8861/pf/wa
 
 ### Use it as utauwav
 
-Utauwav is a tool for utau users to make wavs under their voicebank most suitable for utau resamplers' needs. Extracting as 44100Hz, 16-bit int, 1 channel, RIFF(non-64bit) WAV can give almost same behavior.
+Utauwav is a tool for utau users to make wavs under their voicebank most suitable for utau resamplers' needs. Extracting as 44100Hz, 16-bit int, 1 channel, RIFF(non-64bit) WAV can give almost the same behavior.
 
 ## Build
 
@@ -101,6 +101,6 @@ It's recommended to using Qt 5.15 since I use it while developing this. But Qt 6
 <ul>
 <li>Qt, The Qt Company Ltd, under LGPL v3.</li>
 <li><a href="https://www.kfrlib.com/">KFR - Fast, modern C++ DSP framework</a>, under GNU GPL v2+, <a href="https://github.com/shine5402/kfr">using our own modified version</a></li>
-<li><a href="https://github.com/shine5402/KiraCommonUtils">KiraCommmonUtils</a>, shine_5402, mainly under the Apache License, Version 2.0</li>
+<li><a href="https://github.com/shine5402/KiraCommonUtils">KiraCommonUtils</a>, shine_5402, mainly under the Apache License, Version 2.0</li>
 <li><a href="https://github.com/mapbox/eternal">eternal</a>, mapbox, under ISC License</li>
 </ul>

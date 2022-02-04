@@ -13,6 +13,7 @@
 using namespace wavtar_defines;
 using namespace wavtar_utils;
 
+//TODO: check if file is opened in other program
 namespace WAVCombine {
 
     CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive, kfr::audio_format targetFormat){

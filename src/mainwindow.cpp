@@ -152,7 +152,7 @@ along with this program.  If not, see <a href="https://www.gnu.org/licenses/">ht
 <ul>
 <li>Qt %2, The Qt Company Ltd, under LGPL v3.</li>
 <li><a href="https://www.kfrlib.com/">KFR - Fast, modern C++ DSP framework</a>, under GNU GPL v2+, <a href="https://github.com/shine5402/kfr">using our own modified version</a></li>
-<li><a href="https://github.com/shine5402/KiraCommonUtils">KiraCommmonUtils</a>, shine_5402, mainly under the Apache License, Version 2.0</li>
+<li><a href="https://github.com/shine5402/KiraCommonUtils">KiraCommonUtils</a>, shine_5402, mainly under the Apache License, Version 2.0</li>
 <li><a href="https://github.com/mapbox/eternal">eternal</a>, mapbox, under ISC License</li>
 </ul>
 )").arg(versionStr).arg(QT_VERSION_STR));
