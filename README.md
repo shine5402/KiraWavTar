@@ -16,6 +16,8 @@ Softwares like Adobe Audition and iZotope RX all have their own batch processing
 
 ### How to use
 
+![KiraWAVTar workflow](rm-img/workflow.gif)
+
 KiraWAVTar has an intuitive UI that doesn't need much guidance on how to use it.
 
 ![KiraWAVTar UI](rm-img/ui.png)
