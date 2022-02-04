@@ -93,7 +93,7 @@ void MainWindow::run()
     }
     else
     {
-        constexpr auto invalidFormat = kfr::audio_format{0, kfr::audio_sample_type::unknown, 0, false};
+        constexpr auto invalidFormat = kfr::audio_format{0, kfr::audio_sample_type::unknown, 0, kfr::audio_format::riff};
         auto targetFormat = ui->extractFormatSrcRadioButton->isChecked() ? invalidFormat : ui->extractFormatCustomChooser->getFormat();
         auto srcWAVFileName = ui->extractSrcPathWidget->fileName();
         auto dstDirName = ui->extractResultPathWidget->dirName();
@@ -151,7 +151,7 @@ along with this program.  If not, see <a href="https://www.gnu.org/licenses/">ht
 <h3>3rd party libraries used by this project</h3>
 <ul>
 <li>Qt %2, The Qt Company Ltd, under LGPL v3.</li>
-<li><a href="https://www.kfrlib.com/">KFR - Fast, modern C++ DSP framework</a>, under GNU GPL v2+</li>
+<li><a href="https://www.kfrlib.com/">KFR - Fast, modern C++ DSP framework</a>, under GNU GPL v2+, <a href="https://github.com/shine5402/kfr">using our own modified version</a></li>
 <li><a href="https://github.com/shine5402/KiraCommonUtils">KiraCommmonUtils</a>, shine_5402, mainly under the Apache License, Version 2.0</li>
 <li><a href="https://github.com/mapbox/eternal">eternal</a>, mapbox, under ISC License</li>
 </ul>

@@ -19,7 +19,7 @@ WAVFormatChooserWidget::WAVFormatChooserWidget(QWidget *parent) :
 
     reset();
 
-    connect(ui->useW64CheckBox, &QCheckBox::clicked, this, &WAVFormatChooserWidget::warnAboutW64);
+    connect(ui->use64BitCheckBox, &QCheckBox::clicked, this, &WAVFormatChooserWidget::warnAbout64Bit);
 }
 
 WAVFormatChooserWidget::~WAVFormatChooserWidget()
@@ -42,10 +42,18 @@ decltype(kfr::audio_format::type) WAVFormatChooserWidget::getSampleType() const
     return (kfr::audio_sample_type_human_string.begin() + ui->sampleTypeComboBox->currentIndex())->first;
 }
 
-decltype (kfr::audio_format::use_w64) WAVFormatChooserWidget::getUseW64() const
+decltype (kfr::audio_format::wav_format) WAVFormatChooserWidget::getWAVContainerFormat() const
 {
-    return ui->useW64CheckBox->isChecked();
+    if (!ui->use64BitCheckBox->isChecked())
+        return kfr::audio_format::riff;
+    if (ui->wav64BitFormatComboBox->currentIndex() == 0)
+        return kfr::audio_format::rf64;
+    else
+        return kfr::audio_format::w64;
+
+    return kfr::audio_format::riff;
 }
+
 
 void WAVFormatChooserWidget::setSampleRate(decltype (kfr::audio_format::samplerate) value)
 {
@@ -61,14 +69,9 @@ void WAVFormatChooserWidget::setSampleType(decltype (kfr::audio_format::type) va
     ui->sampleTypeComboBox->setCurrentText(kfr::audio_sample_type_human_string.at(value).c_str());
 }
 
-void WAVFormatChooserWidget::setUseW64(decltype (kfr::audio_format::use_w64) value)
-{
-    ui->useW64CheckBox->setChecked(value);
-}
-
 kfr::audio_format WAVFormatChooserWidget::getFormat() const
 {
-    return {getChannelCount(), getSampleType(), getSampleRate(), getUseW64()};
+    return {getChannelCount(), getSampleType(), getSampleRate(), getWAVContainerFormat()};
 }
 
 void WAVFormatChooserWidget::setFormat(kfr::audio_format value)
@@ -76,7 +79,7 @@ void WAVFormatChooserWidget::setFormat(kfr::audio_format value)
     setChannelCount(value.channels);
     setSampleType(value.type);
     setSampleRate(value.samplerate);
-    setUseW64(value.use_w64);
+    //setUseW64(value.use_w64);
 }
 
 void WAVFormatChooserWidget::reset()
@@ -84,24 +87,21 @@ void WAVFormatChooserWidget::reset()
     setChannelCount(1);
     setSampleRate(44100);
     setSampleType(kfr::audio_sample_type::i16);
-    setUseW64(false);
+    //setUseW64(false);
 }
 
-void WAVFormatChooserWidget::warnAboutW64()
+void WAVFormatChooserWidget::warnAbout64Bit()
 {
-    if (ui->useW64CheckBox->isChecked()){
+    if (ui->use64BitCheckBox->isChecked()){
         QMessageBox msgBox;
         msgBox.setIcon(QMessageBox::Information);
-        msgBox.setText("Think twice before choose W64 format.");
-        msgBox.setInformativeText("Please notice that W64 format is not compatible with standard WAV files.\n"
-                                  "The quality has no difference between both formats, "
-                                  "but its 64-bit header can solve size restriction in standard 32-bit WAV format "
+        msgBox.setText(tr("Think twice before choose 64-bit format."));
+        msgBox.setInformativeText(tr("Please notice that 64-bit wav format is not compatible with standard (a.k.a RIFF) WAV files. "
+                                  "You may face errors when use them in softwares that not have good supporting for them.\n"
+                                  "The quality has no difference between these formats, "
+                                  "but 64-bit header in coresponding formats can solve size restriction in standard 32-bit WAV format "
                                   "(~2GB/4GB, based on implementation). \n"
-                                  "You may also see softwares use \"Sony Wave 64\" or \"Sonic Foundry Wave 64\" "
-                                  "to refer to this format. Also, this format is not same as RF64(use as default 64-bit WAV in Adobe Audition), "
-                                  "please pay attention to it. \n"
-                                  "And this format uses \".w64\" for recommended extension. "
-                                  "Change it if you need.");
+                                  "RF64 and W64 all have their own pros and cons, so choose what meets your need."));
         msgBox.exec();
     }
 }

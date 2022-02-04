@@ -38,11 +38,11 @@ namespace WAVCombine {
         for (auto i : formats){
             totalLength += i.second.length;
         }
-        if (totalLength > INT32_MAX && !targetFormat.use_w64){
+        if (totalLength > INT32_MAX && targetFormat.wav_format == kfr::audio_format::riff){
             return {CheckPassType::CRITICAL,
                         QCoreApplication::translate("WAVCombine",
-                                                    "<p class='critical'>Length of the wav file combined will be too large to save in normal WAVs. "
-                                                    "Please use W64 WAV instead.</p>"),
+                                                    "<p class='critical'>Length of the wav file combined will be too large to save in normal RIFF WAVs. "
+                                                    "Please use 64-bit WAV instead.</p>"),
                         wavFileNames};
         }
 
@@ -131,7 +131,7 @@ namespace WAVCombine {
             descObj.insert("file_name", fileName.mid(absoluteDirName.count() + 1));//1 for separator after dirName
             descObj.insert("sample_rate", reader.format().samplerate);
             descObj.insert("sample_type", (int) reader.format().type);
-            descObj.insert("use_w64", reader.format().use_w64);
+            descObj.insert("wav_format", reader.format().wav_format);
 
             //As channel count would likely not bigger enough to loose precision or overflow, so we just store it in json double. Same for sample rate.
             descObj.insert("channel_count", (qint64) (reader.format().channels < targetFormat.channels ? reader.format().channels : targetFormat.channels));

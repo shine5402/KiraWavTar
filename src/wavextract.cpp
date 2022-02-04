@@ -139,7 +139,7 @@ namespace WAVExtract {
             if (targetFormat.type == kfr::audio_sample_type::unknown){
                 targetFormat.samplerate = descObj.value("sample_rate").toDouble();
                 targetFormat.type = (kfr::audio_sample_type) descObj.value("sample_type").toInt();
-                targetFormat.use_w64 = descObj.value("use_w64").toBool();
+                targetFormat.wav_format = (kfr::audio_format::wav_format_t) descObj.value("wav_format").toInt();
                 targetFormat.channels = descObj.value("channel_count").toInt();
             }
 

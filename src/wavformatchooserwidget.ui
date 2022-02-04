@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>660</width>
+    <width>756</width>
     <height>28</height>
    </rect>
   </property>
@@ -105,10 +105,27 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="useW64CheckBox">
+    <widget class="QCheckBox" name="use64BitCheckBox">
      <property name="text">
-      <string>Use W64 format</string>
+      <string>Use 64-bit format</string>
      </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="wav64BitFormatComboBox">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <item>
+      <property name="text">
+       <string>RF64</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>W64</string>
+      </property>
+     </item>
     </widget>
    </item>
    <item>
@@ -127,5 +144,22 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>use64BitCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>wav64BitFormatComboBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>453</x>
+     <y>17</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>561</x>
+     <y>21</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
