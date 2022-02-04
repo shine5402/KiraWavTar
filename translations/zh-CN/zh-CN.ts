@@ -156,11 +156,56 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
 &lt;ul&gt;
 &lt;li&gt;Qt %2, The Qt Company Ltd, under LGPL v3.&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;https://www.kfrlib.com/&quot;&gt;KFR - Fast, modern C++ DSP framework&lt;/a&gt;, under GNU GPL v2+, &lt;a href=&quot;https://github.com/shine5402/kfr&quot;&gt;using our own modified version&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://github.com/shine5402/KiraCommonUtils&quot;&gt;KiraCommmonUtils&lt;/a&gt;, shine_5402, mainly under the Apache License, Version 2.0&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/shine5402/KiraCommonUtils&quot;&gt;KiraCommonUtils&lt;/a&gt;, shine_5402, mainly under the Apache License, Version 2.0&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;https://github.com/mapbox/eternal&quot;&gt;eternal&lt;/a&gt;, mapbox, under ISC License&lt;/li&gt;
 &lt;/ul&gt;
 </source>
         <translation>&lt;h2&gt;KiraWAVTar&lt;/h2&gt;
+&lt;p&gt;版权所有  2021-2022 &lt;a href=&quot;https://shine5402.top/about-me&quot;&gt;shine_5402&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;版本 %1&lt;/p&gt;
+&lt;h3&gt;关于&lt;/h3&gt;
+&lt;p&gt;快速易用的WAV文件合并/拆分工具。&lt;/p&gt;
+&lt;h3&gt;许可&lt;/h3&gt;
+&lt;p&gt;本程序是自由软件：你可以在遵守由自由软件基金会发布的GNU通用公共许可证版本3（或者更新的版本）的情况下重新分发和/或修改本程序。&lt;/p&gt;
+&lt;p&gt;本程序的发布旨在能够派上用场，但是&lt;span style=&quot;font-weight: bold;&quot;&gt;并不对此作出任何担保&lt;/span&gt;；乃至也没有对&lt;span style=&quot;font-weight: bold;&quot;&gt;适销性&lt;/span&gt;或&lt;span style=&quot;font-weight: bold;&quot;&gt;特定用途适用性&lt;/span&gt;的默示担保。参见GNU通用公共许可证来获得更多细节。&lt;/p&gt;
+&lt;p&gt;在得到本程序的同时，您应该也收到了一份GNU通用公共许可证的副本。如果没有，请查阅&lt;a href=&quot;https://www.gnu.org/licenses/&quot;&gt;https://www.gnu.org/licenses/&lt;/a&gt;。&lt;/p&gt;
+
+&lt;h3&gt;本程序使用的开源软件库&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Qt %2, The Qt Company Ltd, under LGPL v3.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.kfrlib.com/&quot;&gt;KFR - Fast, modern C++ DSP framework&lt;/a&gt;, under GNU GPL v2+, &lt;a href=&quot;https://github.com/shine5402/kfr&quot;&gt;使用的是我们自己的修改版本&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/shine5402/KiraCommonUtils&quot;&gt;KiraCommmonUtils&lt;/a&gt;, shine_5402, mainly under the Apache License, Version 2.0&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/mapbox/eternal&quot;&gt;eternal&lt;/a&gt;, mapbox, under ISC License&lt;/li&gt;
+&lt;/ul&gt;
+</translation>
+    </message>
+    <message>
+        <source>&lt;h2&gt;KiraWAVTar&lt;/h2&gt;
+&lt;p&gt;Copyright 2021-2022 &lt;a href=&quot;https://shine5402.top/about-me&quot;&gt;shine_5402&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Version %1&lt;/p&gt;
+&lt;h3&gt;About&lt;/h3&gt;
+&lt;p&gt;A fast and easy-to-use WAV combine/extract tool.&lt;/p&gt;
+&lt;h3&gt;License&lt;/h3&gt;
+&lt;p&gt; This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.&lt;/p&gt;
+&lt;p&gt;This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.&lt;/p&gt;
+&lt;p&gt;You should have received a copy of the GNU General Public License
+along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licenses/&quot;&gt;https://www.gnu.org/licenses/&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3&gt;3rd party libraries used by this project&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Qt %2, The Qt Company Ltd, under LGPL v3.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.kfrlib.com/&quot;&gt;KFR - Fast, modern C++ DSP framework&lt;/a&gt;, under GNU GPL v2+, &lt;a href=&quot;https://github.com/shine5402/kfr&quot;&gt;using our own modified version&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/shine5402/KiraCommonUtils&quot;&gt;KiraCommmonUtils&lt;/a&gt;, shine_5402, mainly under the Apache License, Version 2.0&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/mapbox/eternal&quot;&gt;eternal&lt;/a&gt;, mapbox, under ISC License&lt;/li&gt;
+&lt;/ul&gt;
+</source>
+        <translation type="vanished">&lt;h2&gt;KiraWAVTar&lt;/h2&gt;
 &lt;p&gt;版权所有  2021-2022 &lt;a href=&quot;https://shine5402.top/about-me&quot;&gt;shine_5402&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;版本 %1&lt;/p&gt;
 &lt;h3&gt;关于&lt;/h3&gt;
@@ -228,7 +273,7 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
 <context>
     <name>WAVCombine</name>
     <message>
-        <location filename="../../src/wavcombine.cpp" line="25"/>
+        <location filename="../../src/wavcombine.cpp" line="26"/>
         <source>&lt;p class=&apos;critical&apos;&gt;There are not any wav files in the given folder. Please check the path, or if you forget to turn &quot;scan subfolders&quot; on?&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;没有在所给文件夹中找到任何wav文件。请检查提供的路径，或者忘记勾选“包含子文件夹”了？&lt;/p&gt;</translation>
     </message>
@@ -237,62 +282,62 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
         <translation type="vanished">&lt;p class=&apos;critical&apos;&gt;合并后的音频数据长度超过了普通WAV文件所能承载的长度，请选择使用W64格式来保存。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../../src/wavcombine.cpp" line="43"/>
+        <location filename="../../src/wavcombine.cpp" line="44"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Length of the wav file combined will be too large to save in normal RIFF WAVs. Please use 64-bit WAV instead.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;合并后的音频数据长度超过了普通RIFF WAV文件所能承载的长度，请选择使用64位格式来保存。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../../src/wavcombine.cpp" line="56"/>
+        <location filename="../../src/wavcombine.cpp" line="57"/>
         <source>&lt;p class=&apos;warning&apos;&gt;Can not know bit depth from &quot;%1&quot;. Maybe this file id corrupted, or error happend during openning the file.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;warning&apos;&gt;我们无法得知“%1”存储的量化类型，可能该文件已损坏，或者文件打开时出现了问题。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../../src/wavcombine.cpp" line="67"/>
+        <location filename="../../src/wavcombine.cpp" line="68"/>
         <source>&lt;p class=&apos;warning&apos;&gt;There are %2 channel(s) in &quot;%1&quot;. Channels after No.%3 will be discarded.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;warning&apos;&gt;“%1”包含了%2个声道，位于%3号之后的声道数据会被丢弃。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../../src/wavcombine.cpp" line="79"/>
+        <location filename="../../src/wavcombine.cpp" line="80"/>
         <source>&lt;p class=&apos;warning&apos;&gt;Sample rate (%2 Hz) of &quot;%1&quot; is larger than target (&quot;%3&quot; Hz).The precision could be lost a bit when processing.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;warning&apos;&gt;“%1”的采样率（%2 Hz）比目标（%3 Hz）要大，处理时的重采样会造成一定的精度损失。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../../src/wavcombine.cpp" line="88"/>
+        <location filename="../../src/wavcombine.cpp" line="89"/>
         <source>&lt;p class=&apos;warning&apos;&gt;The precision could be lost a bit when processing between &quot;%1&quot; (%2) and target (%3).&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;warning&apos;&gt;“%1”的量化类型“%2”在转换到目标“%3”时可能会损失精度。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../../src/wavcombine.cpp" line="99"/>
+        <location filename="../../src/wavcombine.cpp" line="100"/>
         <source>&lt;p class=&apos;warning&apos;&gt;The precision could be lost a bit when processing, as we use a bit depth of &quot;%3&quot; in internal processing while source &quot;%1&quot; having &quot;%2&quot;.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;warning&apos;&gt;“%1”的量化类型“%2”在处理时可能会损失精度，因为本程序内部统一使用”%3“来进行处理。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../../src/wavcombine.cpp" line="107"/>
+        <location filename="../../src/wavcombine.cpp" line="108"/>
         <source>&lt;p class=&apos;warning&apos;&gt;The target file &quot;%1&quot; exists. It will be replaced if proceed, so BACKUP if needed to.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;warning&apos;&gt;目标文件“%1”已存在，继续操作的话会覆盖这个文件，如有需要请注意备份。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../../src/wavcombine.cpp" line="122"/>
+        <location filename="../../src/wavcombine.cpp" line="123"/>
         <source>Error occurred during reading file &quot;%1&quot;.</source>
         <translation>为读取打开文件%1时出现错误。</translation>
     </message>
     <message>
-        <location filename="../../src/wavcombine.cpp" line="126"/>
+        <location filename="../../src/wavcombine.cpp" line="127"/>
         <source>Cannot know sample type of file &quot;%1&quot;.</source>
         <translation>无法得知文件%1的采样类型。</translation>
     </message>
     <message>
-        <location filename="../../src/wavcombine.cpp" line="197"/>
+        <location filename="../../src/wavcombine.cpp" line="198"/>
         <source>No data to combine.</source>
         <translation>没有可被合并的数据。</translation>
     </message>
     <message>
-        <location filename="../../src/wavcombine.cpp" line="217"/>
+        <location filename="../../src/wavcombine.cpp" line="218"/>
         <source>Error occurred during writing file &quot;%1&quot;.</source>
         <translation>为写入打开文件%1时出现错误。</translation>
     </message>
     <message>
-        <location filename="../../src/wavcombine.cpp" line="224"/>
+        <location filename="../../src/wavcombine.cpp" line="225"/>
         <source>File &quot;%1&quot; can not being fully written. %2 bytes has been written into file &quot;%1&quot;, which is expected to be %3.</source>
         <translation>文件%1写入的字节数（%2）和预期的（%3）不一致（即没有完全写入完成）。</translation>
     </message>
