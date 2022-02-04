@@ -67,64 +67,119 @@
         <translation>也处理子文件夹</translation>
     </message>
     <message>
-        <location filename="../../src/mainwindow.ui" line="154"/>
+        <location filename="../../src/mainwindow.ui" line="187"/>
         <source>WAV file to extract:</source>
         <translation>要拆分的WAV文件：</translation>
     </message>
     <message>
-        <location filename="../../src/mainwindow.ui" line="161"/>
+        <location filename="../../src/mainwindow.ui" line="177"/>
         <source>Choose which ones to extract...</source>
         <translation>选择要被拆分的项...</translation>
     </message>
     <message>
-        <location filename="../../src/mainwindow.ui" line="168"/>
+        <location filename="../../src/mainwindow.ui" line="194"/>
         <source>Save results to:</source>
         <translation>保存结果到：</translation>
     </message>
     <message>
-        <location filename="../../src/mainwindow.ui" line="177"/>
+        <location filename="../../src/mainwindow.ui" line="216"/>
         <source>Use unified format:</source>
         <translation>统一为：</translation>
     </message>
     <message>
-        <location filename="../../src/mainwindow.ui" line="187"/>
+        <location filename="../../src/mainwindow.ui" line="226"/>
         <source>Same as source when combing</source>
         <translation>和合并时的源文件一致</translation>
     </message>
     <message>
-        <location filename="../../src/mainwindow.ui" line="234"/>
+        <location filename="../../src/mainwindow.ui" line="157"/>
         <source>Output format:</source>
         <translation>输出格式：</translation>
     </message>
     <message>
-        <location filename="../../src/mainwindow.ui" line="260"/>
-        <location filename="../../src/mainwindow.cpp" line="127"/>
+        <location filename="../../src/mainwindow.ui" line="254"/>
+        <source>Remove DC offset also</source>
+        <translation>同时移除直流偏移（DC偏移）</translation>
+    </message>
+    <message>
+        <location filename="../../src/mainwindow.ui" line="267"/>
+        <location filename="../../src/mainwindow.cpp" line="132"/>
         <source>About</source>
         <translation>关于</translation>
     </message>
     <message>
-        <location filename="../../src/mainwindow.ui" line="267"/>
+        <location filename="../../src/mainwindow.ui" line="274"/>
         <source>Language</source>
         <translation>语言(Lang.)</translation>
     </message>
     <message>
-        <location filename="../../src/mainwindow.ui" line="284"/>
+        <location filename="../../src/mainwindow.ui" line="281"/>
+        <source>UI Theme</source>
+        <translation>UI 主题</translation>
+    </message>
+    <message>
+        <location filename="../../src/mainwindow.ui" line="298"/>
         <source>Reset</source>
         <translation>重置</translation>
     </message>
     <message>
-        <location filename="../../src/mainwindow.ui" line="304"/>
+        <location filename="../../src/mainwindow.ui" line="318"/>
         <source>Run</source>
         <translation>运行</translation>
     </message>
     <message>
-        <location filename="../../src/mainwindow.cpp" line="82"/>
-        <location filename="../../src/mainwindow.cpp" line="98"/>
+        <location filename="../../src/mainwindow.cpp" line="86"/>
+        <location filename="../../src/mainwindow.cpp" line="103"/>
         <source>Needed paths are empty. Please check your input and try again.</source>
         <translation>没有提供所有需要的路径。请检查输入之后重试。</translation>
     </message>
     <message>
-        <location filename="../../src/mainwindow.cpp" line="128"/>
+        <location filename="../../src/mainwindow.cpp" line="133"/>
+        <source>&lt;h2&gt;KiraWAVTar&lt;/h2&gt;
+&lt;p&gt;Copyright 2021-2022 &lt;a href=&quot;https://shine5402.top/about-me&quot;&gt;shine_5402&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Version %1&lt;/p&gt;
+&lt;h3&gt;About&lt;/h3&gt;
+&lt;p&gt;A fast and easy-to-use WAV combine/extract tool.&lt;/p&gt;
+&lt;h3&gt;License&lt;/h3&gt;
+&lt;p&gt; This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.&lt;/p&gt;
+&lt;p&gt;This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.&lt;/p&gt;
+&lt;p&gt;You should have received a copy of the GNU General Public License
+along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licenses/&quot;&gt;https://www.gnu.org/licenses/&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3&gt;3rd party libraries used by this project&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Qt %2, The Qt Company Ltd, under LGPL v3.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.kfrlib.com/&quot;&gt;KFR - Fast, modern C++ DSP framework&lt;/a&gt;, under GNU GPL v2+, &lt;a href=&quot;https://github.com/shine5402/kfr&quot;&gt;using our own modified version&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/shine5402/KiraCommonUtils&quot;&gt;KiraCommmonUtils&lt;/a&gt;, shine_5402, mainly under the Apache License, Version 2.0&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/mapbox/eternal&quot;&gt;eternal&lt;/a&gt;, mapbox, under ISC License&lt;/li&gt;
+&lt;/ul&gt;
+</source>
+        <translation>&lt;h2&gt;KiraWAVTar&lt;/h2&gt;
+&lt;p&gt;版权所有  2021-2022 &lt;a href=&quot;https://shine5402.top/about-me&quot;&gt;shine_5402&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;版本 %1&lt;/p&gt;
+&lt;h3&gt;关于&lt;/h3&gt;
+&lt;p&gt;快速易用的WAV文件合并/拆分工具。&lt;/p&gt;
+&lt;h3&gt;许可&lt;/h3&gt;
+&lt;p&gt;本程序是自由软件：你可以在遵守由自由软件基金会发布的GNU通用公共许可证版本3（或者更新的版本）的情况下重新分发和/或修改本程序。&lt;/p&gt;
+&lt;p&gt;本程序的发布旨在能够派上用场，但是&lt;span style=&quot;font-weight: bold;&quot;&gt;并不对此作出任何担保&lt;/span&gt;；乃至也没有对&lt;span style=&quot;font-weight: bold;&quot;&gt;适销性&lt;/span&gt;或&lt;span style=&quot;font-weight: bold;&quot;&gt;特定用途适用性&lt;/span&gt;的默示担保。参见GNU通用公共许可证来获得更多细节。&lt;/p&gt;
+&lt;p&gt;在得到本程序的同时，您应该也收到了一份GNU通用公共许可证的副本。如果没有，请查阅&lt;a href=&quot;https://www.gnu.org/licenses/&quot;&gt;https://www.gnu.org/licenses/&lt;/a&gt;。&lt;/p&gt;
+
+&lt;h3&gt;本程序使用的开源软件库&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Qt %2, The Qt Company Ltd, under LGPL v3.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.kfrlib.com/&quot;&gt;KFR - Fast, modern C++ DSP framework&lt;/a&gt;, under GNU GPL v2+, &lt;a href=&quot;https://github.com/shine5402/kfr&quot;&gt;使用的是我们自己的修改版本&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/shine5402/KiraCommonUtils&quot;&gt;KiraCommmonUtils&lt;/a&gt;, shine_5402, mainly under the Apache License, Version 2.0&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/mapbox/eternal&quot;&gt;eternal&lt;/a&gt;, mapbox, under ISC License&lt;/li&gt;
+&lt;/ul&gt;
+</translation>
+    </message>
+    <message>
         <source>&lt;h2&gt;KiraWAVTar&lt;/h2&gt;
 &lt;p&gt;Copyright 2021 &lt;a href=&quot;https://shine5402.top/about-me&quot;&gt;shine_5402&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;Version %1&lt;/p&gt;
@@ -150,7 +205,7 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
 &lt;li&gt;&lt;a href=&quot;https://github.com/mapbox/eternal&quot;&gt;eternal&lt;/a&gt;, mapbox, under ISC License&lt;/li&gt;
 &lt;/ul&gt;
 </source>
-        <translation>&lt;h2&gt;KiraWAVTar&lt;/h2&gt;
+        <translation type="vanished">&lt;h2&gt;KiraWAVTar&lt;/h2&gt;
 &lt;p&gt;版权所有 2021 &lt;a href=&quot;https://shine5402.top/about-me&quot;&gt;shine_5402&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;版本 %1&lt;/p&gt;
 &lt;h3&gt;关于&lt;/h3&gt;
@@ -178,9 +233,13 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
         <translation>&lt;p class=&apos;critical&apos;&gt;没有在所给文件夹中找到任何wav文件。请检查提供的路径，或者忘记勾选“包含子文件夹”了？&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../../src/wavcombine.cpp" line="43"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Length of the wav file combined will be too large to save in normal WAVs. Please use W64 WAV instead.&lt;/p&gt;</source>
-        <translation>&lt;p class=&apos;critical&apos;&gt;合并后的音频数据长度超过了普通WAV文件所能承载的长度，请选择使用W64格式来保存。&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p class=&apos;critical&apos;&gt;合并后的音频数据长度超过了普通WAV文件所能承载的长度，请选择使用W64格式来保存。&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <location filename="../../src/wavcombine.cpp" line="43"/>
+        <source>&lt;p class=&apos;critical&apos;&gt;Length of the wav file combined will be too large to save in normal RIFF WAVs. Please use 64-bit WAV instead.&lt;/p&gt;</source>
+        <translation>&lt;p class=&apos;critical&apos;&gt;合并后的音频数据长度超过了普通RIFF WAV文件所能承载的长度，请选择使用64位格式来保存。&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../../src/wavcombine.cpp" line="56"/>
@@ -344,12 +403,12 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
         <translation>文件%1时中没有数据。</translation>
     </message>
     <message>
-        <location filename="../../src/wavextract.cpp" line="161"/>
+        <location filename="../../src/wavextract.cpp" line="168"/>
         <source>Error occurred when writing into &quot;%1&quot;.</source>
         <translation>为写入打开文件%1时出现错误。</translation>
     </message>
     <message>
-        <location filename="../../src/wavextract.cpp" line="169"/>
+        <location filename="../../src/wavextract.cpp" line="176"/>
         <source>File &quot;%1&quot; can not being fully written. %2 bytes has been written into file &quot;%1&quot;, which is expected to be %3.</source>
         <translation>文件%1写入的字节数（%2）和预期的（%3）不一致（即没有完全写入完成）。</translation>
     </message>
@@ -502,8 +561,36 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
     </message>
     <message>
         <location filename="../../src/wavformatchooserwidget.ui" line="110"/>
+        <source>Use 64-bit format</source>
+        <translation>使用64位格式</translation>
+    </message>
+    <message>
+        <location filename="../../src/wavformatchooserwidget.ui" line="121"/>
+        <source>RF64</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../../src/wavformatchooserwidget.ui" line="126"/>
+        <source>W64</source>
+        <translation></translation>
+    </message>
+    <message>
         <source>Use W64 format</source>
-        <translation>使用W64格式</translation>
+        <translation type="vanished">使用W64格式</translation>
+    </message>
+    <message>
+        <location filename="../../src/wavformatchooserwidget.cpp" line="98"/>
+        <source>Think twice before choose 64-bit format.</source>
+        <translation>选择64位格式前请三思。</translation>
+    </message>
+    <message>
+        <location filename="../../src/wavformatchooserwidget.cpp" line="99"/>
+        <source>Please notice that 64-bit wav format is not compatible with standard (a.k.a RIFF) WAV files. You may face errors when use them in softwares that not have good supporting for them.
+The quality has no difference between these formats, but 64-bit header in coresponding formats can solve size restriction in standard 32-bit WAV format (~2GB/4GB, based on implementation). 
+RF64 and W64 all have their own pros and cons, so choose what meets your need.</source>
+        <translation>请注意64位WAV格式与标准的WAV格式（RIFF格式）并不兼容。在不支持的软件上可能会出现错误。
+这些格式在音质上并无不同，但是64位格式的64位文件头可以避免32位WAV文件格式的最大大小限制（根据实现，这个限制约2GB/4GB）。
+RF64格式和W64格式各有优劣，请根据自己的需要选择。</translation>
     </message>
 </context>
 <context>
