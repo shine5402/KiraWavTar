@@ -21,10 +21,10 @@ public:
     decltype (kfr::audio_format::type) getSampleType() const;
     decltype (kfr::audio_format::wav_format) getWAVContainerFormat() const;
 
-    void setSampleRate(decltype (kfr::audio_format::samplerate) value);
-    void setChannelCount(decltype (kfr::audio_format::channels) value);
-    void setSampleType(decltype (kfr::audio_format::type) value);
-    void setWAVContainerFormat(decltype (kfr::audio_format::wav_format) value);
+    void setSampleRate(decltype(kfr::audio_format::samplerate) value);
+    void setChannelCount(decltype(kfr::audio_format::channels) value);
+    void setSampleType(decltype(kfr::audio_format::type) value);
+    void setWAVContainerFormat(decltype(kfr::audio_format::wav_format) value);
 
     kfr::audio_format getFormat() const;
     void setFormat(kfr::audio_format value);

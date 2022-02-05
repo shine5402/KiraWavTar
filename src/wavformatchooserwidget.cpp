@@ -55,7 +55,7 @@ decltype (kfr::audio_format::wav_format) WAVFormatChooserWidget::getWAVContainer
 }
 
 
-void WAVFormatChooserWidget::setSampleRate(decltype (kfr::audio_format::samplerate) value)
+void WAVFormatChooserWidget::setSampleRate(decltype(kfr::audio_format::samplerate) value)
 {
     ui->sampleRateComboBox->setCurrentText(QString("%1").arg(value));
 }
@@ -64,9 +64,27 @@ void WAVFormatChooserWidget::setChannelCount(decltype (kfr::audio_format::channe
     ui->channelsSpinBox->setValue(value);
 }
 
-void WAVFormatChooserWidget::setSampleType(decltype (kfr::audio_format::type) value)
+void WAVFormatChooserWidget::setSampleType(decltype(kfr::audio_format::type) value)
 {
     ui->sampleTypeComboBox->setCurrentText(kfr::audio_sample_type_human_string.at(value).c_str());
+}
+
+void WAVFormatChooserWidget::setWAVContainerFormat(decltype(kfr::audio_format::wav_format) value)
+{
+    switch (value){
+        case kfr::audio_format::riff:
+            ui->use64BitCheckBox->setChecked(false);
+            ui->wav64BitFormatComboBox->setCurrentIndex(0);
+            break;
+        case kfr::audio_format::rf64:
+            ui->use64BitCheckBox->setChecked(true);
+            ui->wav64BitFormatComboBox->setCurrentIndex(0);
+            break;
+        case kfr::audio_format::w64:
+            ui->use64BitCheckBox->setChecked(true);
+            ui->wav64BitFormatComboBox->setCurrentIndex(1);
+            break;
+    }
 }
 
 kfr::audio_format WAVFormatChooserWidget::getFormat() const
@@ -79,7 +97,7 @@ void WAVFormatChooserWidget::setFormat(kfr::audio_format value)
     setChannelCount(value.channels);
     setSampleType(value.type);
     setSampleRate(value.samplerate);
-    //setUseW64(value.use_w64);
+    setWAVContainerFormat(value.wav_format);
 }
 
 void WAVFormatChooserWidget::reset()
@@ -87,7 +105,7 @@ void WAVFormatChooserWidget::reset()
     setChannelCount(1);
     setSampleRate(44100);
     setSampleType(kfr::audio_sample_type::i16);
-    //setUseW64(false);
+    setWAVContainerFormat(kfr::audio_format::riff);
 }
 
 void WAVFormatChooserWidget::warnAbout64Bit()
