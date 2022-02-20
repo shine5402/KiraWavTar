@@ -23,6 +23,8 @@ private:
     Ui::MainWindow *ui;
     UpdateChecker::GithubReleaseChecker* updateChecker;
 
+    QMenu* createHelpMenu();
+
 private slots:
     void reset();
     void updateStackWidgetIndex();
