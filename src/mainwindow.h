@@ -7,6 +7,10 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
+namespace UpdateChecker {
+    class GithubReleaseChecker;
+}
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -17,6 +21,7 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    UpdateChecker::GithubReleaseChecker* updateChecker;
 
 private slots:
     void reset();
