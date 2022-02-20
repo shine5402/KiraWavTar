@@ -262,9 +262,9 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QPushButton" name="aboutButton">
+       <widget class="QPushButton" name="helpButton">
         <property name="text">
-         <string>About</string>
+         <string>Help</string>
         </property>
        </widget>
       </item>
@@ -370,7 +370,7 @@
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="modeButtonGroup"/>
   <buttongroup name="extractFormatButtonGroup"/>
+  <buttongroup name="modeButtonGroup"/>
  </buttongroups>
 </ui>
