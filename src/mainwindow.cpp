@@ -12,6 +12,21 @@
 #include <kira/darkmode.h>
 #include <kira/updatechecker.h>
 
+QMenu* MainWindow::createHelpMenu()
+{
+    auto helpMenu = new QMenu(this);
+    auto aboutAction = helpMenu->addAction(tr("About"));
+    connect(aboutAction, &QAction::triggered, this, &MainWindow::about);
+    helpMenu->addSeparator();
+    helpMenu->addMenu(UpdateChecker::createMenuForSchedule());
+    auto checkUpdateAction = helpMenu->addAction(tr("Check update now"));
+    connect(checkUpdateAction, &QAction::triggered, this, [this](){
+        UpdateChecker::checkManully(updateChecker);
+    });
+
+    return helpMenu;
+}
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -31,16 +46,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->runButton, &QPushButton::clicked, this, &MainWindow::run);
     //connect(ui->aboutButton, &QPushButton::clicked, this, &MainWindow::about);
 
-    auto helpMenu = new QMenu(this);
-    auto aboutAction = helpMenu->addAction(tr("About"));
-    connect(aboutAction, &QAction::triggered, this, &MainWindow::about);
-    helpMenu->addSeparator();
-    helpMenu->addMenu(UpdateChecker::createMenuForSchedule());
-    auto checkUpdateAction = helpMenu->addAction(tr("Check update now"));
-    connect(checkUpdateAction, &QAction::triggered, this, [this](){
-        UpdateChecker::checkManully(updateChecker);
-    });
-
+    auto helpMenu = createHelpMenu();
     ui->helpButton->setMenu(helpMenu);
 
     connect(ui->combineDirPathWidget, &DirNameEditWithBrowse::browseTriggered, this, &MainWindow::fillResultPath);
@@ -144,7 +150,7 @@ void MainWindow::about()
 {
     auto isBeta = QStringLiteral(GIT_BRANCH) == QStringLiteral("dev");
     QString versionStr = tr("<p>Version %1%4, <i>branch: %2, commit: %3, build on %5 %6<i></p>")
-            .arg(qApp->applicationVersion(), GIT_BRANCH, GIT_DESCRIBE, isBeta ? "-beta" : "", __DATE__, __TIME__);
+            .arg(qApp->applicationVersion(), GIT_BRANCH, GIT_HASH, isBeta ? "-beta" : "", __DATE__, __TIME__);
     if (isBeta)
         versionStr += tr("<p style=\"color:orange\">You are using a BETA build. "
                          "<b>Use it at your own risk.</b>"
@@ -199,5 +205,8 @@ void MainWindow::changeEvent(QEvent* event){
     if (event->type() == QEvent::LanguageChange)
     {
         ui->retranslateUi(this);
+        ui->helpButton->menu()->deleteLater();
+        ui->helpButton->setMenu(createHelpMenu());
+        ui->uiThemeButton->setMenu(DarkMode::getDarkModeSettingMenu());
     }
 }
