@@ -75,15 +75,15 @@ Utauwav is a tool for utau users to make wavs under their voicebank most suitabl
 
 ## Build
 
-You need to build KFR audio library first, sicne it's a cmake project and can not just plug into qmake building trees.
+You need to build KFR audio library first, since it's a complex cmake project and can not just plug into qmake building trees.
 
-KiraWAVTar don't use DFT part of KFR, so all supported compliers is ok.
+KiraWAVTar don't use the DFT part of KFR, so all supported compliers is ok.
 
 Because of the lack of RF64 support in KFR currently, this project use [my own modified version of it](https://github.com/shine5402/kfr/tree/dev). So build this, and configure it in ``src/external-libs.pri``. ``src/external-libs_template.pri`` is there for help. 
 
 Other dependencies are all ``git subtree`` in this repo, and all configured in ``.pro`` file. So you can just compile it in Qt Creator.
 
-It's recommended to using Qt 5.15 since I use it while developing this. But Qt 6 shouldn't change that much to break code compatibility with this project.
+It's recommended to using Qt 5.15 since I use it while developing this. But Qt 6 shouldn't change that much to break code compatibility with this project (no guarantee though).
 
 ## License
 
