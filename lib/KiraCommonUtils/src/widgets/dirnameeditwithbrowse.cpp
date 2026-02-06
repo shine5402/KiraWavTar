@@ -11,7 +11,7 @@ DirNameEditWithBrowse::DirNameEditWithBrowse(QWidget *parent) : QWidget(parent)
     setAcceptDrops(true);
 
     auto layout = new QHBoxLayout(this);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
 
     dirNameEdit = new QLineEdit(this);
     layout->addWidget(dirNameEdit);

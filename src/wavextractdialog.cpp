@@ -217,7 +217,7 @@ void WAVExtractDialog::extractWorkDone()
                                           if (result.isEmpty())
                                             result = reportTextStyle;
                                           result.append(QString("<p class='critical'>%1</p>").arg(desc));
-                                      }));
+                                      }).result());
             msgBoxInfomation.setStandardButtons(QMessageBox::Ok);
             msgBoxInfomation.exec();
             QMessageBox msgBoxRetry;

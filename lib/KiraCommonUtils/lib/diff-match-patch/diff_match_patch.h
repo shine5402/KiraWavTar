@@ -58,6 +58,7 @@
 
 #include <QtCore>
 #include <QString>
+#include <QRegularExpression>
 
 /**-
 * The data structure representing a diff is a Linked list of Diff objects:
@@ -151,8 +152,8 @@ class diff_match_patch {
 
  private:
   // Define some regex patterns for matching boundaries.
-  static QRegExp BLANKLINEEND;
-  static QRegExp BLANKLINESTART;
+  static QRegularExpression BLANKLINEEND;
+  static QRegularExpression BLANKLINESTART;
 
 
  public:

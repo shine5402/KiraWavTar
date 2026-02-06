@@ -1,6 +1,7 @@
 #ifndef FPLUSADAPTER_H
 #define FPLUSADAPTER_H
 #include <QList>
+#include <QtGlobal>
 #include <fplus/fplus.hpp>
 #include <QJsonArray>
 #include <QVariantList>
@@ -9,6 +10,12 @@
 // To use, include it with fplus, or just replace fplus with this file.
 // It only contains needed adapters to solve the problem I found, so it is very incomplete.
 // It also contains some utils making my usuage easier.
+
+// In Qt 6, QVector is an alias for QList, so we must not provide duplicate
+// specializations for both types.
+#if QT_VERSION_MAJOR < 6
+#define FPLUS_QT_QVECTOR_IS_SEPARATE_TYPE 1
+#endif
 
 namespace fplus {
     template <typename ContainerIn, typename ContainerOut = typename ContainerIn::value_type>
@@ -24,11 +31,13 @@ namespace fplus {
     {
         return concat_qt_adapt_internal(lists);
     }
+#ifdef FPLUS_QT_QVECTOR_IS_SEPARATE_TYPE
     template <typename ValueType>
     QVector<ValueType> concat(const QVector<QVector<ValueType>>& lists)
     {
         return concat_qt_adapt_internal(lists);
     }
+#endif
 
     template <typename F, typename T>
     auto transform_and_concat(F f, const QList<T>& xs)
@@ -37,12 +46,14 @@ namespace fplus {
         return concat_qt_adapt_internal(transform(f, xs));
     }
 
+#ifdef FPLUS_QT_QVECTOR_IS_SEPARATE_TYPE
     template <typename F, typename T>
     auto transform_and_concat(F f, const QVector<T>& xs)
     {
         internal::trigger_static_asserts<internal::unary_function_tag, F, typename QVector<T>::value_type>();
         return concat_qt_adapt_internal(transform(f, xs));
     }
+#endif
 
     template <typename F>
     auto transform_and_concat(F f, const QStringList& xs)
@@ -55,7 +66,7 @@ namespace fplus {
     QHash<Key,T> map_keep_if(Pred pred, const QHash<Key,T>& map)
     {
         QHash<Key,T> result;
-        for (auto it = map.begin(); it != map.end; ++it)
+        for (auto it = map.begin(); it != map.end(); ++it)
         {
             if (internal::invoke(pred, it.key()))
             {
@@ -80,35 +91,49 @@ namespace fplus {
     }
 
     namespace internal {
-        template<class T> struct has_order<QVector<T>> : public std::true_type{};
         template<class T> struct has_order<QList<T>> : public std::true_type{};
+#ifdef FPLUS_QT_QVECTOR_IS_SEPARATE_TYPE
+        template<class T> struct has_order<QVector<T>> : public std::true_type{};
+#endif
         template<> struct has_order<QJsonArray> : public std::true_type{};
         template<> struct has_order<QVariantList> : public std::true_type{};
 
 
         //same_container_new_type, used for construct a new container of same elem type.
-        template<class T, class NewT, int SizeOffset> struct same_cont_new_t<QVector<T>, NewT, SizeOffset>{typedef class QVector<NewT> type;};
-        template<class T, class NewT, int SizeOffset> struct same_cont_new_t<QList<T>, NewT, SizeOffset>{typedef class QList<NewT> type;};
-        template<class NewT, int SizeOffset> struct same_cont_new_t<QVariantList, NewT, SizeOffset>{typedef class QList<NewT> type;};
-        template<class NewT, int SizeOffset> struct same_cont_new_t<QStringList, NewT, SizeOffset>{typedef class QList<NewT> type;};
-        template<class NewT, int SizeOffset> struct same_cont_new_t<QJsonArray, NewT, SizeOffset>{typedef class QVector<NewT> type;};
+        template<class T, class NewT, int SizeOffset> struct same_cont_new_t<QList<T>, NewT, SizeOffset>{typedef QList<NewT> type;};
+#ifdef FPLUS_QT_QVECTOR_IS_SEPARATE_TYPE
+        template<class T, class NewT, int SizeOffset> struct same_cont_new_t<QVector<T>, NewT, SizeOffset>{typedef QVector<NewT> type;};
+#endif
+        template<class NewT, int SizeOffset> struct same_cont_new_t<QVariantList, NewT, SizeOffset>{typedef QList<NewT> type;};
+        template<class NewT, int SizeOffset> struct same_cont_new_t<QStringList, NewT, SizeOffset>{typedef QList<NewT> type;};
+        template<class NewT, int SizeOffset> struct same_cont_new_t<QJsonArray, NewT, SizeOffset>{typedef QList<NewT> type;};
 
         template<class Key, class T, class NewKey, class NewVal> struct SameMapTypeNewTypes<QMap<Key, T>, NewKey, NewVal> { typedef QMap<NewKey, NewVal> type; };
         template<class Key, class T, class NewKey, class NewVal> struct SameMapTypeNewTypes<QHash<Key, T>, NewKey, NewVal> { typedef QHash<NewKey, NewVal> type; };
 
 
         template<typename T>
-        struct can_self_assign<QVector<T>>
-        {
-            using type = std::integral_constant<bool, true>;
-        };
-        template<typename T>
         struct can_self_assign<QList<T>>
         {
             using type = std::integral_constant<bool, true>;
         };
+#ifdef FPLUS_QT_QVECTOR_IS_SEPARATE_TYPE
+        template<typename T>
+        struct can_self_assign<QVector<T>>
+        {
+            using type = std::integral_constant<bool, true>;
+        };
+#endif
 
-        //It seems that fplus want to reuse a rvalue const QVector<T>...
+        template <typename T>
+        struct can_reuse<const QList<T>>
+        {
+            using dContainer = typename std::decay<QList<T>>::type;
+            using can_assign = can_self_assign_t<typename dContainer::value_type>;
+            using cannot_reuse = std::integral_constant<bool, true>;
+            using value = reuse_container_bool_t<bool, can_assign::value && !cannot_reuse::value>;
+        };
+#ifdef FPLUS_QT_QVECTOR_IS_SEPARATE_TYPE
         template <typename T>
         struct can_reuse<const QVector<T>>
         {
@@ -117,14 +142,7 @@ namespace fplus {
             using cannot_reuse = std::integral_constant<bool, true>;
             using value = reuse_container_bool_t<bool, can_assign::value && !cannot_reuse::value>;
         };
-        template <typename T>
-        struct can_reuse<const QList<T>>
-        {
-            using dContainer = typename std::decay<QVector<T>>::type;
-            using can_assign = can_self_assign_t<typename dContainer::value_type>;
-            using cannot_reuse = std::integral_constant<bool, true>;
-            using value = reuse_container_bool_t<bool, can_assign::value && !cannot_reuse::value>;
-        };
+#endif
     }
 
     template <typename T>

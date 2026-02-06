@@ -73,3 +73,11 @@ Thumbs.db
 
 
 external-libs.pri
+.qtc_clangd
+
+# CMake build directory
+build/
+cmake-build-*/
+CMakeUserPresets.json
+
+.claude/
