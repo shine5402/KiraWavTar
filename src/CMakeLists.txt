@@ -1,4 +1,4 @@
-add_executable(KiraWAVTar
+qt_add_executable(KiraWAVTar
     main.cpp
     mainwindow.cpp mainwindow.h mainwindow.ui
     wavcombine.cpp wavcombine.h

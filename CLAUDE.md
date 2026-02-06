@@ -35,9 +35,36 @@ There are no tests. No linter is configured.
 - **`WAVFormatChooserWidget`** — Reusable widget for selecting sample rate, channels, bit depth, and container format (RIFF/RF64/W64).
 - **`ExtractTargetSelectModel`** — `QAbstractTableModel` for selecting which files to extract.
 
-### Metadata Format
+### Description File Format (version 3)
 
-Combined WAV files are paired with a JSON description file (version 2). The JSON stores folder structure, file names, sample formats, and byte offsets so extraction can reconstruct the original file tree. Large integers (lengths, indices) are base64-encoded for JSON safety.
+When WAV files are combined, the app produces two output files side by side:
+- **Combined WAV file** — all source audio concatenated sequentially into a single multi-file WAV (at a uniform sample rate, bit depth, and channel count chosen by the user).
+- **Description JSON file** (`.kirawavtar-desc.json`) — metadata that records where each original file sits within the combined WAV, so extraction can split it back out.
+
+The description file name is derived from the WAV file name via `wavtar_utils::getDescFileNameFrom()`. Its top-level JSON object contains:
+
+| Field | Type | Description |
+|---|---|---|
+| `version` | int | Always `3` |
+| `sample_rate` | double | Sample rate of the combined WAV (Hz) |
+| `sample_type` | int | KFR `audio_sample_type` enum value |
+| `channel_count` | int | Number of channels |
+| `total_duration` | string | Total duration of the combined WAV as a timecode `"HH:MM:SS.ffffff"` |
+| `descriptions` | array | Per-file entries (see below) |
+
+Each entry in `descriptions`:
+
+| Field | Type | Description |
+|---|---|---|
+| `file_name` | string | Relative path from the source root directory |
+| `sample_rate` | double | Original file's sample rate (before resampling) |
+| `sample_type` | int | Original file's sample type |
+| `wav_format` | int | Original file's WAV container format (RIFF/RF64/W64) |
+| `channel_count` | int | Number of channels kept (min of source and target) |
+| `begin_time` | string | Start position in the combined WAV as `"HH:MM:SS.ffffff"` |
+| `duration` | string | Duration of this segment as `"HH:MM:SS.ffffff"` |
+
+Timecodes use microsecond precision (6 decimal places). They are sample-rate-independent — if the combined WAV is resampled in a DAW, the timecodes remain valid. Conversion helpers live in `wavtar_utils.h`: `samplesToTimecode()` and `timecodeToSamples()`.
 
 ### Third-Party Libraries (all vendored in `lib/`)
 
