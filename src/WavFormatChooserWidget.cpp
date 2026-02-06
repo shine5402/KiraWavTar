@@ -1,4 +1,4 @@
-#include "wavformatchooserwidget.h"
+#include "WavFormatChooserWidget.h"
 #include "ui_wavformatchooserwidget.h"
 #include <kfr/all.hpp>
 #include <kira/lib_helper/kfr_helper.h>

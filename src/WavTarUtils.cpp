@@ -1,4 +1,4 @@
-#include "wavtar_utils.h"
+#include "WavTarUtils.h"
 #include <QDir>
 #include <QStack>
 #include <exception>

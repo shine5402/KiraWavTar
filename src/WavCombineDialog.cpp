@@ -1,10 +1,10 @@
-#include "wavcombinedialog.h"
+#include "WavCombineDialog.h"
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QProgressBar>
 #include <QDialogButtonBox>
 #include "kfr/all.hpp"
-#include "wavcombine.h"
+#include "WavCombine.h"
 #include <QtConcurrent/QtConcurrent>
 #include <QFutureWatcher>
 #include <QMessageBox>

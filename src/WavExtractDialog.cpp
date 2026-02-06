@@ -1,16 +1,16 @@
-#include "wavextractdialog.h"
+#include "WavExtractDialog.h"
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QProgressBar>
 #include <QDialogButtonBox>
-#include "wavextract.h"
+#include "WavExtract.h"
 #include <QtConcurrent>
 #include <QMessageBox>
-#include "extracttargetselectmodel.h"
+#include "ExtractTargetSelectModel.h"
 #include <QPushButton>
 #include <QTableView>
 #include <QHeaderView>
-#include "wavtar_utils.h"
+#include "WavTarUtils.h"
 
 using namespace WAVExtract;
 using namespace wavtar_defines;

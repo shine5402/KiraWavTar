@@ -1,4 +1,4 @@
-#include "wavextract.h"
+#include "WavExtract.h"
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -6,7 +6,7 @@
 #include <kfr/all.hpp>
 #include <algorithm>
 #include <QDir>
-#include "wavtar_utils.h"
+#include "WavTarUtils.h"
 #include <kira/lib_helper/kfr_helper.h>
 #include <kira/base64.h>
 #include <QCoreApplication>

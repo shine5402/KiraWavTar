@@ -1,13 +1,13 @@
 qt_add_executable(KiraWAVTar
-    main.cpp
-    mainwindow.cpp mainwindow.h mainwindow.ui
-    wavcombine.cpp wavcombine.h
-    wavcombinedialog.cpp wavcombinedialog.h
-    wavextract.cpp wavextract.h
-    wavextractdialog.cpp wavextractdialog.h
-    wavformatchooserwidget.cpp wavformatchooserwidget.h wavformatchooserwidget.ui
-    extracttargetselectmodel.cpp extracttargetselectmodel.h
-    wavtar_utils.cpp wavtar_utils.h
+    Main.cpp
+    MainWindow.cpp MainWindow.h MainWindow.ui
+    WavCombine.cpp WavCombine.h
+    WavCombineDialog.cpp WavCombineDialog.h
+    WavExtract.cpp WavExtract.h
+    WavExtractDialog.cpp WavExtractDialog.h
+    WavFormatChooserWidget.cpp WavFormatChooserWidget.h WavFormatChooserWidget.ui
+    ExtractTargetSelectModel.cpp ExtractTargetSelectModel.h
+    WavTarUtils.cpp WavTarUtils.h
     resources/icon.qrc
 )
 

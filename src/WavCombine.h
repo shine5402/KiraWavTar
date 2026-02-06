@@ -4,7 +4,7 @@
 #include <kfr/all.hpp>
 #include <QObject>
 
-#include "wavtar_utils.h"
+#include "WavTarUtils.h"
 #include <QFuture>
 
 //Because we are just writing static functions, so namespace may be a better choice than class.

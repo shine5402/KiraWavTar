@@ -1,12 +1,12 @@
-#include "mainwindow.h"
+#include "MainWindow.h"
 #include "ui_mainwindow.h"
-#include "wavcombine.h"
-#include "wavextract.h"
+#include "WavCombine.h"
+#include "WavExtract.h"
 #include <QMessageBox>
 #include <QValidator>
 #include <kira/lib_helper/kfr_helper.h>
-#include "wavcombinedialog.h"
-#include "wavextractdialog.h"
+#include "WavCombineDialog.h"
+#include "WavExtractDialog.h"
 #include <QPalette>
 #include <kira/i18n/translationmanager.h>
 #include <kira/darkmode.h>

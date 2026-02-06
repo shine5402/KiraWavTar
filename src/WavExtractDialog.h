@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include <kfr/all.hpp>
-#include "wavtar_utils.h"
+#include "WavTarUtils.h"
 
 class QLabel;
 class QProgressBar;

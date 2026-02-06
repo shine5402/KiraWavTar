@@ -1,9 +1,9 @@
-#include "wavcombine.h"
+#include "WavCombine.h"
 #include <QDir>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
-#include "wavtar_utils.h"
+#include "WavTarUtils.h"
 #include <kira/lib_helper/kfr_helper.h>
 #include <kira/base64.h>
 #include <kira/filesystem.h>
