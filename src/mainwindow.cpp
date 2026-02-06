@@ -134,9 +134,14 @@ void MainWindow::run()
 
 void MainWindow::fillResultPath()
 {
-    if (ui->combineWAVRadioButton->isChecked())
-        //TODO: remove last (if exists) "/" and "\" on dirName, as on specific platform, they will have this on the end.
-        ui->combineResultPathWidget->setFileName(ui->combineDirPathWidget->dirName() + ".wav");
+    if (ui->combineWAVRadioButton->isChecked()) {
+        auto dirPath = ui->combineDirPathWidget->dirName();
+        // Remove trailing separators before appending .wav
+        while (!dirPath.isEmpty() && (dirPath.endsWith('/') || dirPath.endsWith('\\'))) {
+            dirPath.chop(1);
+        }
+        ui->combineResultPathWidget->setFileName(dirPath + ".wav");
+    }
     else
     {
         auto fileInfo = QFileInfo{ui->extractSrcPathWidget->fileName()};
