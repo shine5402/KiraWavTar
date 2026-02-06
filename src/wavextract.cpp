@@ -43,11 +43,11 @@ namespace WAVExtract {
             return {CheckPassType::CRITICAL, QCoreApplication::translate("WAVExtract", "<p class='critical'>The wav file can not be opened.</p>"), {}};
 
         QString warningMsg;
-        auto totalLength = decodeBase64<qint64>(descRoot.value("total_length").toString());
+        auto expectedSampleRate = descRoot.value("sample_rate").toDouble();
+        auto totalLength = timecodeToSamples(descRoot.value("total_duration").toString(), expectedSampleRate);
         if (reader.format().length != totalLength)
             warningMsg.append(QCoreApplication::translate("WAVExtract", "<p class='warning'>The wav file has a different length (%1 samples) than expected (%2 samples). "
                                                                         "Sample rate changed or time has been changed?</p>").arg(reader.format().length).arg(totalLength));
-        auto expectedSampleRate = descRoot.value("sample_rate").toDouble();
         if (reader.format().samplerate != expectedSampleRate)
             warningMsg.append(QCoreApplication::translate("WAVExtract", "<p class='warning'>Sample rate (%1) of the given file is not same as it supposed to be (%2) in description file. "
                                                                         "We will resample it.</p>")
@@ -100,7 +100,7 @@ namespace WAVExtract {
             }
         }
 
-        auto expectedLength = decodeBase64<qint64>(descRoot.value("total_length").toString());
+        auto expectedLength = timecodeToSamples(descRoot.value("total_duration").toString(), expectedSampleRate);
         if (reader.format().length != expectedLength){
             for (auto it = data->begin(); it != data->end(); ++it){
                 kfr::univector<sample_process_t> trimmed(expectedLength);
@@ -143,8 +143,8 @@ namespace WAVExtract {
                 targetFormat.channels = descObj.value("channel_count").toInt();
             }
 
-            auto beginIndex = decodeBase64<qint64>(descObj.value("begin_index").toString());
-            auto length = decodeBase64<qint64>(descObj.value("length").toString());
+            auto beginIndex = timecodeToSamples(descObj.value("begin_time").toString(), srcSampleRate);
+            auto length = timecodeToSamples(descObj.value("duration").toString(), srcSampleRate);
             auto segmentData = kfr::univector2d<sample_process_t>(targetFormat.channels);
             for (decltype (targetFormat.channels) i = 0; i < targetFormat.channels; ++i){
                 auto& segmentChannel = segmentData[i];

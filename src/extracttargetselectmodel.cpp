@@ -1,13 +1,10 @@
 #include "extracttargetselectmodel.h"
 #include <QJsonArray>
 #include <QJsonObject>
-#include "wavtar_utils.h"
-
-using namespace wavtar_utils;
 
 namespace  {
     enum COLUMN_INDEX{
-        FILENAME = 0, BEGIN_INDEX, LENGTH
+        FILENAME = 0, BEGIN_TIME, DURATION
     };
 }
 
@@ -29,7 +26,7 @@ int ExtractTargetSelectModel::columnCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    //FileName, begin_index, length
+    //FileName, begin_time, duration
     return 3;
 }
 
@@ -41,10 +38,8 @@ QVariant ExtractTargetSelectModel::data(const QModelIndex &index, int role) cons
     auto currentObj = descArray->at(index.row()).toObject();
     auto currentSelected = currentObj.value("selected").toBool(true);
     auto currentFileName = currentObj.value("file_name").toString();
-    auto currentBeginIndex = QString("%1 samples")
-            .arg(decodeBase64<qint64>(currentObj.value("begin_index").toString()));
-    auto currentLength = QString("%1 samples")
-            .arg(decodeBase64<qint64>(currentObj.value("length").toString()));
+    auto currentBeginTime = currentObj.value("begin_time").toString();
+    auto currentDuration = currentObj.value("duration").toString();
 
     switch (index.column()) {
     case FILENAME:
@@ -52,12 +47,12 @@ QVariant ExtractTargetSelectModel::data(const QModelIndex &index, int role) cons
             return currentSelected ? Qt::Checked : Qt::Unchecked;
         if (role == Qt::DisplayRole)
             return currentFileName;
-    case BEGIN_INDEX:
+    case BEGIN_TIME:
         if (role == Qt::DisplayRole)
-            return currentBeginIndex;
-    case LENGTH:
+            return currentBeginTime;
+    case DURATION:
         if (role == Qt::DisplayRole)
-            return currentLength;
+            return currentDuration;
     }
 
     return QVariant();
@@ -116,8 +111,8 @@ QVariant ExtractTargetSelectModel::headerData(int section, Qt::Orientation orien
     {
         switch (section){
         case FILENAME: return tr("Filename");
-        case BEGIN_INDEX: return tr("Begin index");
-        case LENGTH: return tr("Length");
+        case BEGIN_TIME: return tr("Begin time");
+        case DURATION: return tr("Duration");
         }
     }
     return {};

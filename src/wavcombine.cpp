@@ -151,8 +151,7 @@ namespace WAVCombine {
                 result.push_back(srcData);
             }
 
-            //As Qt5's implementation would lose precision, we use base64 to store a int64 here.
-            descObj.insert("length", encodeBase64((qint64) result.at(0).size()));
+            descObj.insert("duration", samplesToTimecode((qint64) result.at(0).size(), targetFormat.samplerate));
 
             return {result, descObj};
         }),
@@ -165,12 +164,11 @@ namespace WAVCombine {
                 return;
             }
             auto& resultObj = result.second;
-            auto previousCount = decodeBase64<qint64>(resultObj.value("total_length").toString());
-            //We simply copy this cuz these are same...so....The first would be a empty string, though. It doesn't matter cuz we see a empty string as a 0.
-            descObj.insert("begin_index", resultObj.value("total_length").toString());
-            auto length = decodeBase64<qint64>(descObj.value("length").toString());
-            //update the total sample count
-            resultObj.insert("total_length", encodeBase64(previousCount + length));
+            //The first file gets an empty string for total_duration, which timecodeToSamples treats as 0.
+            descObj.insert("begin_time", resultObj.value("total_duration").toString());
+            auto length = timecodeToSamples(descObj.value("duration").toString(), targetFormat.samplerate);
+            auto previousCount = timecodeToSamples(resultObj.value("total_duration").toString(), targetFormat.samplerate);
+            resultObj.insert("total_duration", samplesToTimecode(previousCount + length, targetFormat.samplerate));
             auto descArray = resultObj.value("descriptions").toArray();
             descArray.append(descObj);
             resultObj.insert("descriptions", descArray);
