@@ -25,6 +25,17 @@ set_target_properties(KiraWAVTar PROPERTIES
     MACOSX_BUNDLE ON
 )
 
+if(APPLE)
+    set(app_icon "${CMAKE_SOURCE_DIR}/assets/KiraWavTar.icns")
+    target_sources(KiraWAVTar PRIVATE "${app_icon}")
+    set_source_files_properties("${app_icon}" PROPERTIES
+        MACOSX_PACKAGE_LOCATION "Resources"
+    )
+    set_target_properties(KiraWAVTar PROPERTIES
+        MACOSX_BUNDLE_ICON_FILE "KiraWavTar.icns"
+    )
+endif()
+
 # Translations - auto-generates .ts files and embeds .qm in resources at :/i18n
 qt_add_translations(KiraWAVTar
     TS_FILE_BASE KiraWavTar
