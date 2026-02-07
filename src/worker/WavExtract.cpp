@@ -184,15 +184,39 @@ QFuture<ExtractErrorDescription> startExtract(utils::AudioBufferPtr srcData,
 
                         // So targetFormat is the DESIRED output format.
                         // If "Same as Source" selected, targetFormat is Invalid/Unknown.
+                        // Individual fields can also be set to "inherit" values:
+                        // - sample rate = 0 means inherit
+                        // - sample type = unknown means inherit
+                        // - channels = 0 means inherit
 
-                        bool useOriginalFormat =
-                            (targetFormat.kfr_format.type == kfr::audio_sample_type::unknown); // Simple check
+                        bool inheritSampleRate = (targetFormat.kfr_format.samplerate < 1e-5);
+                        bool inheritSampleType = (targetFormat.kfr_format.type == kfr::audio_sample_type::unknown);
+                        bool inheritChannels = (targetFormat.kfr_format.channels == 0);
 
-                        if (useOriginalFormat) {
+                        // Determine sample rate
+                        if (inheritSampleRate) {
                             outputFormat.kfr_format.samplerate = descObj["sample_rate"].toDouble();
-                            outputFormat.kfr_format.channels = descObj["channel_count"].toInt();
-                            outputFormat.kfr_format.type = (kfr::audio_sample_type)descObj["sample_type"].toInt();
+                        } else {
+                            outputFormat.kfr_format.samplerate = targetFormat.kfr_format.samplerate;
+                        }
 
+                        // Determine sample type
+                        if (inheritSampleType) {
+                            outputFormat.kfr_format.type = (kfr::audio_sample_type)descObj["sample_type"].toInt();
+                        } else {
+                            outputFormat.kfr_format.type = targetFormat.kfr_format.type;
+                        }
+
+                        // Determine channels
+                        if (inheritChannels) {
+                            outputFormat.kfr_format.channels = descObj["channel_count"].toInt();
+                        } else {
+                            outputFormat.kfr_format.channels = targetFormat.kfr_format.channels;
+                        }
+
+                        // Determine container format (inherit if all fields are inherited)
+                        bool useOriginalFormat = inheritSampleRate && inheritSampleType && inheritChannels;
+                        if (useOriginalFormat) {
                             int wfmt = descObj["wav_format"].toInt();
                             if (wfmt == 0)
                                 outputFormat.container = AudioIO::WavAudioFormat::Container::RIFF;
@@ -203,7 +227,7 @@ QFuture<ExtractErrorDescription> startExtract(utils::AudioBufferPtr srcData,
                             else
                                 outputFormat.container = AudioIO::WavAudioFormat::Container::RIFF;
                         } else {
-                            outputFormat = targetFormat;
+                            outputFormat.container = targetFormat.container;
                         }
 
                         // Resample if needed

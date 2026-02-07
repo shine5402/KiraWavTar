@@ -11,6 +11,7 @@
 #include "dialogs/WavCombineDialog.h"
 #include "dialogs/WavExtractDialog.h"
 #include "utils/Filesystem.h"
+#include "utils/KfrHelper.h"
 #include "utils/TranslationManager.h"
 #include "utils/UpdateChecker.h"
 #include "utils/Utils.h"
@@ -230,24 +231,54 @@ void MainWindow::run()
             return;
         }
 
-        // Handle auto channel count: scan files to find max channel count
-        if (ui->combineWAVFormatWidget->isAutoChannelCount()) {
+        // Handle auto modes: scan files to find max values
+        bool needScan = ui->combineWAVFormatWidget->isAutoSampleRate() ||
+                        ui->combineWAVFormatWidget->isAutoSampleType() ||
+                        ui->combineWAVFormatWidget->isAutoChannelCount();
+
+        if (needScan) {
             auto wavFileNames = getAbsoluteWAVFileNamesUnder(rootDirName, recursive);
             if (wavFileNames.isEmpty()) {
                 QMessageBox::critical(this, {}, tr("No WAV files found in the specified folder."));
                 return;
             }
 
+            double maxSampleRate = 0;
+            int maxSampleTypePrecision = 0;
+            kfr::audio_sample_type maxSampleType = kfr::audio_sample_type::i16;
             int maxChannels = 1;
+
             for (const auto &fileName : std::as_const(wavFileNames)) {
                 try {
                     auto format = AudioIO::readWavFormat(fileName);
+
+                    // Track max sample rate
+                    maxSampleRate = std::max(maxSampleRate, format.kfr_format.samplerate);
+
+                    // Track max sample type (by precision)
+                    int precision = kfr::audio_sample_type_to_precision(format.kfr_format.type);
+                    if (precision > maxSampleTypePrecision) {
+                        maxSampleTypePrecision = precision;
+                        maxSampleType = format.kfr_format.type;
+                    }
+
+                    // Track max channels
                     maxChannels = std::max(maxChannels, static_cast<int>(format.kfr_format.channels));
                 } catch (...) {
                     // Ignore files that can't be read
                 }
             }
-            targetFormat.kfr_format.channels = maxChannels;
+
+            // Apply auto values
+            if (ui->combineWAVFormatWidget->isAutoSampleRate() && maxSampleRate > 0) {
+                targetFormat.kfr_format.samplerate = maxSampleRate;
+            }
+            if (ui->combineWAVFormatWidget->isAutoSampleType() && maxSampleTypePrecision > 0) {
+                targetFormat.kfr_format.type = maxSampleType;
+            }
+            if (ui->combineWAVFormatWidget->isAutoChannelCount()) {
+                targetFormat.kfr_format.channels = maxChannels;
+            }
         }
 
         auto dialog = new WavCombineDialog(rootDirName, recursive, targetFormat, saveFileName, this);

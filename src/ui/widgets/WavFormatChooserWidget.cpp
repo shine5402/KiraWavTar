@@ -10,12 +10,11 @@ WAVFormatChooserWidget::WAVFormatChooserWidget(QWidget *parent) : QWidget(parent
 {
     ui->setupUi(this);
 
-    // Insert separator after frequent sample rates (after index 2: 44100, 48000, 96000)
-    ui->sampleRateComboBox->insertSeparator(3);
+    // Set up sample rate combobox with auto option
+    setupSampleRateComboBox();
 
-    for (const auto &[type, name] : kfr::audio_sample_type_entries_for_ui) {
-        ui->sampleTypeComboBox->addItem(name.data());
-    }
+    // Set up sample type combobox with auto option
+    setupSampleTypeComboBox();
 
     // Set up channels combobox
     setupChannelsComboBox();
@@ -41,7 +40,14 @@ WAVFormatChooserWidget::~WAVFormatChooserWidget()
 
 decltype(kfr::audio_format::samplerate) WAVFormatChooserWidget::getSampleRate() const
 {
-    return ui->sampleRateComboBox->currentText().toDouble();
+    int index = ui->sampleRateComboBox->currentIndex();
+    if (index == m_sampleRateAutoIndex) {
+        // Auto: return the auto-detected value
+        return m_autoSampleRateValue;
+    } else {
+        // Preset: parse from text
+        return ui->sampleRateComboBox->currentText().toDouble();
+    }
 }
 
 decltype(kfr::audio_format::channels) WAVFormatChooserWidget::getChannelCount() const
@@ -62,7 +68,18 @@ decltype(kfr::audio_format::channels) WAVFormatChooserWidget::getChannelCount() 
 
 decltype(kfr::audio_format::type) WAVFormatChooserWidget::getSampleType() const
 {
-    return kfr::audio_sample_type_entries_for_ui[ui->sampleTypeComboBox->currentIndex()].first;
+    int index = ui->sampleTypeComboBox->currentIndex();
+    if (index == m_sampleTypeAutoIndex) {
+        // Auto: return the auto-detected value
+        return m_autoSampleTypeValue;
+    } else {
+        // Preset: get from entries (accounting for auto option and separator)
+        int presetIndex = index - 2; // Subtract auto option (0) and separator (1)
+        if (presetIndex >= 0 && presetIndex < static_cast<int>(kfr::audio_sample_type_entries_for_ui.size())) {
+            return kfr::audio_sample_type_entries_for_ui[presetIndex].first;
+        }
+        return kfr::audio_sample_type::f32; // Default fallback
+    }
 }
 
 AudioIO::WavAudioFormat::Container WAVFormatChooserWidget::getWAVContainerFormat() const
@@ -91,12 +108,32 @@ AudioIO::WavAudioFormat WAVFormatChooserWidget::getFormat() const
 
 void WAVFormatChooserWidget::reset()
 {
-    ui->sampleRateComboBox->setCurrentIndex(0);              // 44100
-    ui->channelsComboBox->setCurrentIndex(ChannelIndexAuto); // Auto
+    ui->sampleRateComboBox->setCurrentIndex(m_sampleRateAutoIndex); // Auto
+    ui->sampleTypeComboBox->setCurrentIndex(m_sampleTypeAutoIndex); // Auto
+    ui->channelsComboBox->setCurrentIndex(ChannelIndexAuto);        // Auto
     ui->channelsSpinBox->setValue(2);
     ui->channelsSpinBox->setVisible(false);
-    ui->sampleTypeComboBox->setCurrentIndex(2);      // 32-bit float
     ui->containerFormatComboBox->setCurrentIndex(0); // RIFF
+}
+
+bool WAVFormatChooserWidget::isAutoSampleRate() const
+{
+    return ui->sampleRateComboBox->currentIndex() == m_sampleRateAutoIndex;
+}
+
+void WAVFormatChooserWidget::setAutoSampleRateValue(double value)
+{
+    m_autoSampleRateValue = value;
+}
+
+bool WAVFormatChooserWidget::isAutoSampleType() const
+{
+    return ui->sampleTypeComboBox->currentIndex() == m_sampleTypeAutoIndex;
+}
+
+void WAVFormatChooserWidget::setAutoSampleTypeValue(kfr::audio_sample_type value)
+{
+    m_autoSampleTypeValue = value;
 }
 
 bool WAVFormatChooserWidget::isAutoChannelCount() const
@@ -115,10 +152,86 @@ void WAVFormatChooserWidget::onChannelsComboBoxChanged(int index)
     ui->channelsSpinBox->setVisible(index == m_customChannelIndex);
 }
 
-void WAVFormatChooserWidget::setAutoChannelMode(AutoChannelMode mode)
+void WAVFormatChooserWidget::setAutoMode(AutoMode mode)
 {
-    m_autoChannelMode = mode;
+    m_autoMode = mode;
+    setupSampleRateComboBox();
+    setupSampleTypeComboBox();
     setupChannelsComboBox();
+}
+
+void WAVFormatChooserWidget::setAutoChannelMode(AutoMode mode)
+{
+    // Legacy method - just call setAutoMode
+    setAutoMode(mode);
+}
+
+void WAVFormatChooserWidget::setupSampleRateComboBox()
+{
+    int currentIndex = ui->sampleRateComboBox->currentIndex();
+    ui->sampleRateComboBox->clear();
+
+    // Auto/Inherit option (index 0)
+    if (m_autoMode == AutoMode::MaxFromInput) {
+        ui->sampleRateComboBox->addItem(tr("Auto (max from input)"));
+    } else {
+        ui->sampleRateComboBox->addItem(tr("Inherit from input"));
+    }
+    m_sampleRateAutoIndex = 0;
+
+    // Separator
+    ui->sampleRateComboBox->insertSeparator(1);
+
+    // Common sample rates - frequent ones first
+    ui->sampleRateComboBox->addItem(QStringLiteral("44100"));
+    ui->sampleRateComboBox->addItem(QStringLiteral("48000"));
+    ui->sampleRateComboBox->addItem(QStringLiteral("96000"));
+
+    // Separator before less common rates
+    ui->sampleRateComboBox->insertSeparator(5);
+
+    // Less common sample rates
+    ui->sampleRateComboBox->addItem(QStringLiteral("11025"));
+    ui->sampleRateComboBox->addItem(QStringLiteral("22050"));
+    ui->sampleRateComboBox->addItem(QStringLiteral("88200"));
+    ui->sampleRateComboBox->addItem(QStringLiteral("192000"));
+    ui->sampleRateComboBox->addItem(QStringLiteral("384000"));
+
+    // Restore selection if valid
+    if (currentIndex >= 0 && currentIndex < ui->sampleRateComboBox->count()) {
+        ui->sampleRateComboBox->setCurrentIndex(currentIndex);
+    } else {
+        ui->sampleRateComboBox->setCurrentIndex(m_sampleRateAutoIndex);
+    }
+}
+
+void WAVFormatChooserWidget::setupSampleTypeComboBox()
+{
+    int currentIndex = ui->sampleTypeComboBox->currentIndex();
+    ui->sampleTypeComboBox->clear();
+
+    // Auto/Inherit option (index 0)
+    if (m_autoMode == AutoMode::MaxFromInput) {
+        ui->sampleTypeComboBox->addItem(tr("Auto (max from input)"));
+    } else {
+        ui->sampleTypeComboBox->addItem(tr("Inherit from input"));
+    }
+    m_sampleTypeAutoIndex = 0;
+
+    // Separator
+    ui->sampleTypeComboBox->insertSeparator(1);
+
+    // Sample type presets
+    for (const auto &[type, name] : kfr::audio_sample_type_entries_for_ui) {
+        ui->sampleTypeComboBox->addItem(name.data());
+    }
+
+    // Restore selection if valid
+    if (currentIndex >= 0 && currentIndex < ui->sampleTypeComboBox->count()) {
+        ui->sampleTypeComboBox->setCurrentIndex(currentIndex);
+    } else {
+        ui->sampleTypeComboBox->setCurrentIndex(m_sampleTypeAutoIndex);
+    }
 }
 
 void WAVFormatChooserWidget::setupChannelsComboBox()
@@ -126,7 +239,7 @@ void WAVFormatChooserWidget::setupChannelsComboBox()
     ui->channelsComboBox->clear();
 
     // Auto/Inherit option (index 0)
-    if (m_autoChannelMode == AutoChannelMode::MaxFromInput) {
+    if (m_autoMode == AutoMode::MaxFromInput) {
         ui->channelsComboBox->addItem(tr("Auto (max from input)"));
     } else {
         ui->channelsComboBox->addItem(tr("Inherit from input"));
