@@ -1,165 +1,162 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>WAVFormatChooserWidget</class>
- <widget class="QWidget" name="WAVFormatChooserWidget">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>756</width>
-    <height>28</height>
-   </rect>
-  </property>
-  <layout class="QHBoxLayout" name="horizontalLayout">
-   <property name="leftMargin">
-    <number>0</number>
-   </property>
-   <property name="topMargin">
-    <number>0</number>
-   </property>
-   <property name="rightMargin">
-    <number>0</number>
-   </property>
-   <property name="bottomMargin">
-    <number>0</number>
-   </property>
-   <item>
-    <widget class="QLabel" name="label_8">
-     <property name="text">
-      <string>Sample rate</string>
-     </property>
+    <class>WAVFormatChooserWidget</class>
+    <widget class="QWidget" name="WAVFormatChooserWidget">
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>756</width>
+                <height>33</height>
+            </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+            <property name="leftMargin">
+                <number>0</number>
+            </property>
+            <property name="topMargin">
+                <number>0</number>
+            </property>
+            <property name="rightMargin">
+                <number>0</number>
+            </property>
+            <property name="bottomMargin">
+                <number>0</number>
+            </property>
+            <item>
+                <widget class="QLabel" name="label_8">
+                    <property name="text">
+                        <string>Sample rate</string>
+                    </property>
+                </widget>
+            </item>
+            <item>
+                <widget class="QComboBox" name="sampleRateComboBox">
+                    <property name="currentIndex">
+                        <number>1</number>
+                    </property>
+                    <item>
+                        <property name="text">
+                            <string>44100</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>48000</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>96000</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>11025</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>22050</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>88200</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>192000</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>384000</string>
+                        </property>
+                    </item>
+                </widget>
+            </item>
+            <item>
+                <widget class="QLabel" name="label_10">
+                    <property name="text">
+                        <string>Bit depth</string>
+                    </property>
+                </widget>
+            </item>
+            <item>
+                <widget class="QComboBox" name="sampleTypeComboBox"/>
+            </item>
+            <item>
+                <widget class="QLabel" name="label_9">
+                    <property name="text">
+                        <string>Channels</string>
+                    </property>
+                </widget>
+            </item>
+            <item>
+                <widget class="QSpinBox" name="channelsSpinBox">
+                    <property name="minimum">
+                        <number>1</number>
+                    </property>
+                </widget>
+            </item>
+            <item>
+                <widget class="QCheckBox" name="use64BitCheckBox">
+                    <property name="text">
+                        <string>Use 64-bit format</string>
+                    </property>
+                </widget>
+            </item>
+            <item>
+                <widget class="QComboBox" name="wav64BitFormatComboBox">
+                    <property name="enabled">
+                        <bool>false</bool>
+                    </property>
+                    <item>
+                        <property name="text">
+                            <string>RF64</string>
+                        </property>
+                    </item>
+                    <item>
+                        <property name="text">
+                            <string>W64</string>
+                        </property>
+                    </item>
+                </widget>
+            </item>
+            <item>
+                <spacer name="horizontalSpacer_3">
+                    <property name="orientation">
+                        <enum>Qt::Orientation::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                        <size>
+                            <width>117</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+            </item>
+        </layout>
     </widget>
-   </item>
-   <item>
-    <widget class="QComboBox" name="sampleRateComboBox">
-     <property name="editable">
-      <bool>true</bool>
-     </property>
-     <property name="currentIndex">
-      <number>2</number>
-     </property>
-     <item>
-      <property name="text">
-       <string>11025</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>22050</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>44100</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>48000</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>88200</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>96000</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>176400</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>192000</string>
-      </property>
-     </item>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="label_10">
-     <property name="text">
-      <string>Bit depth</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QComboBox" name="sampleTypeComboBox"/>
-   </item>
-   <item>
-    <widget class="QLabel" name="label_9">
-     <property name="text">
-      <string>Channels</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QSpinBox" name="channelsSpinBox">
-     <property name="minimum">
-      <number>1</number>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="use64BitCheckBox">
-     <property name="text">
-      <string>Use 64-bit format</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QComboBox" name="wav64BitFormatComboBox">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <item>
-      <property name="text">
-       <string>RF64</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>W64</string>
-      </property>
-     </item>
-    </widget>
-   </item>
-   <item>
-    <spacer name="horizontalSpacer_3">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>117</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-  </layout>
- </widget>
- <resources/>
- <connections>
-  <connection>
-   <sender>use64BitCheckBox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>wav64BitFormatComboBox</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>453</x>
-     <y>17</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>561</x>
-     <y>21</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+    <resources/>
+    <connections>
+        <connection>
+            <sender>use64BitCheckBox</sender>
+            <signal>toggled(bool)</signal>
+            <receiver>wav64BitFormatComboBox</receiver>
+            <slot>setEnabled(bool)</slot>
+            <hints>
+                <hint type="sourcelabel">
+                    <x>453</x>
+                    <y>17</y>
+                </hint>
+                <hint type="destinationlabel">
+                    <x>561</x>
+                    <y>21</y>
+                </hint>
+            </hints>
+        </connection>
+    </connections>
 </ui>

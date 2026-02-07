@@ -10,8 +10,8 @@ WAVFormatChooserWidget::WAVFormatChooserWidget(QWidget *parent) : QWidget(parent
 {
     ui->setupUi(this);
 
-    auto sampleRateValidator = new QIntValidator(2, INT_MAX);
-    ui->sampleRateComboBox->setValidator(sampleRateValidator);
+    // Insert separator after frequent sample rates (after index 2: 44100, 48000, 96000)
+    ui->sampleRateComboBox->insertSeparator(3);
 
     for (const auto &[type, name] : kfr::audio_sample_type_entries) {
         ui->sampleTypeComboBox->addItem(name.data());
@@ -64,7 +64,7 @@ AudioIO::WavAudioFormat WAVFormatChooserWidget::getFormat() const
 
 void WAVFormatChooserWidget::reset()
 {
-    ui->sampleRateComboBox->setCurrentText("48000");
+    ui->sampleRateComboBox->setCurrentIndex(1); // 48000
     ui->channelsSpinBox->setValue(1);
     ui->sampleTypeComboBox->setCurrentIndex(4);
 
