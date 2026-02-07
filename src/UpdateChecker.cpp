@@ -37,7 +37,7 @@ namespace UpdateChecker {
             auto versionStr = json.value("tag_name").toString();
             versionStr.remove(0, 1);//remove "v" from "vX.x.x"
             auto latestVer = QVersionNumber::fromString(versionStr);
-            qDebug() << "[Update checker] lastest version=" << latestVer.toString() << " where tag=" << json.value("tag_name").toString();
+            qDebug() << "[Update checker] latest version=" << latestVer.toString() << " where tag=" << json.value("tag_name").toString();
             if (latestVer > current)
             {
                 auto msgBody = json.value("body").toString();
