@@ -38,12 +38,9 @@ private:
     static QNetworkAccessManager *s_networkMgr;
 };
 
-enum Schedule { EVERYRUN = 0, DAILY, WEEKLY, MONTHLY, DISABLED };
-Q_ENUM_NS(Schedule)
-
-Schedule getSchedule();
-void setSchedule(Schedule value);
-QMenu *createMenuForSchedule();
+bool getAutoCheckEnabled();
+void setAutoCheckEnabled(bool enabled);
+QAction *createAutoCheckAction();
 
 void checkManually(Checker *checker);
 void triggerScheduledCheck(Checker *checker);

@@ -17,7 +17,7 @@ QMenu *MainWindow::createHelpMenu()
     auto aboutAction = helpMenu->addAction(tr("About"));
     connect(aboutAction, &QAction::triggered, this, &MainWindow::about);
     helpMenu->addSeparator();
-    helpMenu->addMenu(UpdateChecker::createMenuForSchedule());
+    helpMenu->addAction(UpdateChecker::createAutoCheckAction());
     auto checkUpdateAction = helpMenu->addAction(tr("Check update now"));
     connect(checkUpdateAction, &QAction::triggered, this, [this]() { UpdateChecker::checkManually(m_updateChecker); });
 

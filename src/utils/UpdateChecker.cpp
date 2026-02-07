@@ -62,70 +62,36 @@ void GithubReleaseChecker::triggerUpdateCheck(QVersionNumber current)
     });
 }
 
-Schedule getSchedule()
+bool getAutoCheckEnabled()
 {
     QSettings settings;
-    return settings.value("updateSchedule", EVERYRUN).value<Schedule>();
+    // Migration: convert old schedule setting to boolean
+    // Any value other than DISABLED (4) maps to enabled
+    if (settings.contains("updateSchedule")) {
+        int oldSchedule = settings.value("updateSchedule").toInt();
+        bool enabled = (oldSchedule != 4); // 4 = DISABLED
+        settings.remove("updateSchedule");
+        settings.setValue("autoCheckEnabled", enabled);
+        return enabled;
+    }
+    return settings.value("autoCheckEnabled", true).toBool();
 }
 
-void setSchedule(Schedule value)
+void setAutoCheckEnabled(bool enabled)
 {
     QSettings settings;
-    settings.setValue("updateSchedule", value);
+    settings.setValue("autoCheckEnabled", enabled);
 }
 
-QMenu *createMenuForSchedule()
+QAction *createAutoCheckAction()
 {
-    auto menu = new QMenu(QCoreApplication::translate("UpdateChecker", "Check updates on"));
-    auto everyRunAction = menu->addAction(QCoreApplication::translate("UpdateChecker", "Every run"));
-    auto dailyAction = menu->addAction(QCoreApplication::translate("UpdateChecker", "Every day"));
-    auto weeklyAction = menu->addAction(QCoreApplication::translate("UpdateChecker", "Every week"));
-    auto monthlyAction = menu->addAction(QCoreApplication::translate("UpdateChecker", "Every month"));
-    menu->addSeparator();
-    auto disableAction = menu->addAction(QCoreApplication::translate("UpdateChecker", "Disable auto check"));
+    auto action = new QAction(QCoreApplication::translate("UpdateChecker", "Auto check update on startup"));
+    action->setCheckable(true);
+    action->setChecked(getAutoCheckEnabled());
 
-    everyRunAction->setCheckable(true);
-    dailyAction->setCheckable(true);
-    weeklyAction->setCheckable(true);
-    monthlyAction->setCheckable(true);
-    disableAction->setCheckable(true);
+    QObject::connect(action, &QAction::triggered, action, [action](bool checked) { setAutoCheckEnabled(checked); });
 
-    auto refreshCheck = [=]() {
-        auto schedule = getSchedule();
-        everyRunAction->setChecked(schedule == EVERYRUN);
-        dailyAction->setChecked(schedule == DAILY);
-        weeklyAction->setChecked(schedule == WEEKLY);
-        monthlyAction->setChecked(schedule == MONTHLY);
-        disableAction->setChecked(schedule == DISABLED);
-    };
-
-    refreshCheck();
-
-    QObject::connect(everyRunAction, &QAction::triggered, everyRunAction, [=]() {
-        setSchedule(EVERYRUN);
-        refreshCheck();
-    });
-
-    QObject::connect(dailyAction, &QAction::triggered, dailyAction, [=]() {
-        setSchedule(DAILY);
-        refreshCheck();
-    });
-
-    QObject::connect(weeklyAction, &QAction::triggered, weeklyAction, [=]() {
-        setSchedule(WEEKLY);
-        refreshCheck();
-    });
-
-    QObject::connect(monthlyAction, &QAction::triggered, monthlyAction, [=]() {
-        setSchedule(MONTHLY);
-        refreshCheck();
-    });
-
-    QObject::connect(disableAction, &QAction::triggered, disableAction, [=]() {
-        setSchedule(DISABLED);
-        refreshCheck();
-    });
-    return menu;
+    return action;
 }
 
 QDialog *getUpdateAvailableDialog(const QVersionNumber &newVersion, const QString &msgBody, const QUrl &updateUrl)
@@ -146,28 +112,7 @@ QDialog *getUpdateAvailableDialog(const QVersionNumber &newVersion, const QStrin
 
 void triggerScheduledCheck(Checker *checker)
 {
-    QSettings settings;
-    auto lastChecked = settings.value("updateLastChecked").toDateTime();
-    auto durationDays = lastChecked.daysTo(QDateTime::currentDateTime());
-    bool shouldCheck = false;
-    switch (getSchedule()) {
-    case EVERYRUN:
-        shouldCheck = true;
-        break;
-    case DAILY:
-        shouldCheck = durationDays >= 1;
-        break;
-    case WEEKLY:
-        shouldCheck = durationDays >= 7;
-        break;
-    case MONTHLY:
-        shouldCheck = durationDays >= 30;
-        break;
-    case DISABLED:
-        shouldCheck = false;
-        break;
-    }
-    if (shouldCheck) {
+    if (getAutoCheckEnabled()) {
         // To keep one responding on signal emitting,
         // we just disconnect all slots when operation done.
         QObject::connect(checker, &Checker::updateAvailable, checker,
