@@ -11,12 +11,11 @@
 #include <QtConcurrent>
 
 #include "ExtractTargetSelectModel.h"
+#include "Utils.h"
 #include "WavExtract.h"
-#include "WavTarUtils.h"
 
 using namespace WAVExtract;
-using namespace wavtar_defines;
-using namespace wavtar_utils;
+using namespace utils;
 
 WAVExtractDialog::WAVExtractDialog(QString srcWAVFileName, QString dstDirName,
                                    const AudioIO::WavAudioFormat &targetFormat, bool extractResultSelection,
@@ -63,7 +62,7 @@ using ReadSrcWAVFileFutureWatcher = QFutureWatcher<decltype(std::function(readSr
 void WAVExtractDialog::preCheckDone()
 {
     if (auto watcher = dynamic_cast<PreCheckFutureWatcher *>(QObject::sender())) {
-        if (!wavtar_utils::checkFutureExceptionAndWarn(watcher->future()))
+        if (!utils::checkFutureExceptionAndWarn(watcher->future()))
             return;
         if (watcher->isCanceled())
             return;
@@ -104,7 +103,7 @@ void WAVExtractDialog::preCheckDone()
 using ExtractWorkFutureWatcher = QFutureWatcher<ExtractErrorDescription>;
 
 // Though use SrcData as param would be better, but it will expose this internal struct in wavextractdialog.h, so..
-void WAVExtractDialog::doExtractCall(std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>> srcData,
+void WAVExtractDialog::doExtractCall(std::shared_ptr<kfr::univector2d<utils::sample_process_t>> srcData,
                                      decltype(kfr::audio_format::samplerate) samplerate, QJsonArray descArray)
 {
     label->setText(tr("Writing extracted file..."));
@@ -121,7 +120,7 @@ void WAVExtractDialog::doExtractCall(std::shared_ptr<kfr::univector2d<wavtar_def
 void WAVExtractDialog::readSrcWAVFileDone()
 {
     if (auto watcher = dynamic_cast<ReadSrcWAVFileFutureWatcher *>(QObject::sender())) {
-        if (!wavtar_utils::checkFutureExceptionAndWarn(watcher->future()))
+        if (!utils::checkFutureExceptionAndWarn(watcher->future()))
             return;
         if (watcher->isCanceled())
             return;
@@ -178,7 +177,7 @@ void WAVExtractDialog::readSrcWAVFileDone()
 void WAVExtractDialog::extractWorkDone()
 {
     if (auto watcher = dynamic_cast<ExtractWorkFutureWatcher *>(QObject::sender())) {
-        if (!wavtar_utils::checkFutureExceptionAndWarn(watcher->future()))
+        if (!utils::checkFutureExceptionAndWarn(watcher->future()))
             return;
         if (watcher->isCanceled())
             return;

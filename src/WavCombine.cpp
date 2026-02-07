@@ -11,10 +11,9 @@
 #include "AudioIO.h"
 #include "Filesystem.h"
 #include "KfrHelper.h"
-#include "WavTarUtils.h"
+#include "Utils.h"
 
-using namespace wavtar_defines;
-using namespace wavtar_utils;
+using namespace utils;
 
 namespace WAVCombine {
 
@@ -125,14 +124,14 @@ CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive
     return {CheckPassType::WARNING, warningMsg, wavFileNames};
 }
 
-QFuture<QPair<std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>>, QJsonObject>>
+QFuture<QPair<std::shared_ptr<kfr::univector2d<utils::sample_process_t>>, QJsonObject>>
 startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::WavAudioFormat targetFormat)
 {
     return QtConcurrent::mappedReduced(
         WAVFileNames,
         // Map
         std::function([rootDirName, targetFormat](const QString &fileName)
-                          -> QPair<std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>>, QJsonObject> {
+                          -> QPair<std::shared_ptr<kfr::univector2d<utils::sample_process_t>>, QJsonObject> {
             // TODO: handle exceptions
 
             auto result = AudioIO::readWavFile(fileName);
@@ -151,7 +150,7 @@ startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::
             double outputSampleRate = targetFormat.kfr_format.samplerate;
 
             // Channel mix (Truncate extra channels, or pad with zero)
-            kfr::univector2d<wavtar_defines::sample_process_t> processedData(outputChannels);
+            kfr::univector2d<utils::sample_process_t> processedData(outputChannels);
             for (size_t c = 0; c < outputChannels; ++c) {
                 if (c < inputChannels) {
                     processedData[c] = inputData[c]; // Copy existing channel
@@ -162,7 +161,7 @@ startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::
 
             // Resample if needed
             if (std::abs(inputSampleRate - outputSampleRate) > 1e-5) {
-                using T = wavtar_defines::sample_process_t;
+                using T = utils::sample_process_t;
 
                 kfr::univector2d<T> resampledData(outputChannels);
                 for (size_t c = 0; c < outputChannels; ++c) {
@@ -206,58 +205,56 @@ startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::
             // Return data and meta
             // Note: `processedData` is the data we want to keep.
             // We need to move it to shared_ptr.
-            auto retData =
-                std::make_shared<kfr::univector2d<wavtar_defines::sample_process_t>>(std::move(processedData));
+            auto retData = std::make_shared<kfr::univector2d<utils::sample_process_t>>(std::move(processedData));
 
             return {retData, metaObj};
         }),
 
         // Reduce
-        std::function(
-            [targetFormat](
-                QPair<std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>>, QJsonObject> &total,
-                const QPair<std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>>, QJsonObject> &input) {
-                // Initialization
-                if (total.first == nullptr) {
-                    total.first = std::make_shared<kfr::univector2d<wavtar_defines::sample_process_t>>(
-                        targetFormat.kfr_format.channels);
+        std::function([targetFormat](
+                          QPair<std::shared_ptr<kfr::univector2d<utils::sample_process_t>>, QJsonObject> &total,
+                          const QPair<std::shared_ptr<kfr::univector2d<utils::sample_process_t>>, QJsonObject> &input) {
+            // Initialization
+            if (total.first == nullptr) {
+                total.first =
+                    std::make_shared<kfr::univector2d<utils::sample_process_t>>(targetFormat.kfr_format.channels);
 
-                    QJsonObject jsonRoot;
-                    jsonRoot.insert("version", 3);
-                    jsonRoot.insert("sample_rate", targetFormat.kfr_format.samplerate);
-                    jsonRoot.insert("sample_type", (int)targetFormat.kfr_format.type);
-                    jsonRoot.insert("channel_count", (int)targetFormat.kfr_format.channels);
-                    jsonRoot.insert("descriptions", QJsonArray());
-                    total.second = jsonRoot;
-                }
+                QJsonObject jsonRoot;
+                jsonRoot.insert("version", utils::desc_file_version);
+                jsonRoot.insert("sample_rate", targetFormat.kfr_format.samplerate);
+                jsonRoot.insert("sample_type", (int)targetFormat.kfr_format.type);
+                jsonRoot.insert("channel_count", (int)targetFormat.kfr_format.channels);
+                jsonRoot.insert("descriptions", QJsonArray());
+                total.second = jsonRoot;
+            }
 
-                // Append Data
-                size_t nChannels = targetFormat.kfr_format.channels;
-                size_t currentSize = total.first->operator[](0).size();
-                size_t appendSize = input.first->operator[](0).size();
+            // Append Data
+            size_t nChannels = targetFormat.kfr_format.channels;
+            size_t currentSize = total.first->operator[](0).size();
+            size_t appendSize = input.first->operator[](0).size();
 
-                for (size_t c = 0; c < nChannels; ++c) {
-                    // Resize and copy
-                    total.first->operator[](c).resize(currentSize + appendSize);
-                    std::copy(input.first->operator[](c).begin(), input.first->operator[](c).end(),
-                              total.first->operator[](c).begin() + currentSize);
-                }
+            for (size_t c = 0; c < nChannels; ++c) {
+                // Resize and copy
+                total.first->operator[](c).resize(currentSize + appendSize);
+                std::copy(input.first->operator[](c).begin(), input.first->operator[](c).end(),
+                          total.first->operator[](c).begin() + currentSize);
+            }
 
-                // Append Meta
-                QJsonObject meta = input.second;
-                meta.insert("begin_time", samplesToTimecode(currentSize, targetFormat.kfr_format.samplerate));
+            // Append Meta
+            QJsonObject meta = input.second;
+            meta.insert("begin_time", samplesToTimecode(currentSize, targetFormat.kfr_format.samplerate));
 
-                QJsonArray arr = total.second["descriptions"].toArray();
-                arr.append(meta);
-                total.second.insert("descriptions", arr);
+            QJsonArray arr = total.second["descriptions"].toArray();
+            arr.append(meta);
+            total.second.insert("descriptions", arr);
 
-                // Update Total Duration
-                total.second.insert("total_duration",
-                                    samplesToTimecode(currentSize + appendSize, targetFormat.kfr_format.samplerate));
-            }));
+            // Update Total Duration
+            total.second.insert("total_duration",
+                                samplesToTimecode(currentSize + appendSize, targetFormat.kfr_format.samplerate));
+        }));
 }
 
-bool writeCombineResult(std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>> data, QJsonObject descObj,
+bool writeCombineResult(std::shared_ptr<kfr::univector2d<utils::sample_process_t>> data, QJsonObject descObj,
                         QString wavFileName, AudioIO::WavAudioFormat targetFormat)
 {
     if (!data)

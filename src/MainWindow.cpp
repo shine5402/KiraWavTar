@@ -138,8 +138,7 @@ void MainWindow::about()
 {
     QString versionStr =
         tr("<p>Version %1, <i>build on %2 %3<i></p>")
-            .arg(qApp->applicationVersion().isEmpty() ? "development version" : qApp->applicationVersion(), __DATE__,
-                 __TIME__);
+            .arg(qApp->applicationVersion().isEmpty() ? "(unknown)" : qApp->applicationVersion(), __DATE__, __TIME__);
 
     auto dialog = new CommonHtmlDialog(this);
     dialog->setAttribute(Qt::WA_DeleteOnClose);

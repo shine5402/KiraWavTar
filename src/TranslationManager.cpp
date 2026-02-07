@@ -63,7 +63,7 @@ QLocale TranslationManager::getLocaleUserSetting() const
     return settings.value("locale", QLocale::system()).value<QLocale>();
 }
 
-QVector<Translation> TranslationManager::getTranslations() const
+QList<Translation> TranslationManager::getTranslations() const
 {
     return translations;
 }

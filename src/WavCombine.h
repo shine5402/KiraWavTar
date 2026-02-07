@@ -6,7 +6,7 @@
 #include <kfr/all.hpp>
 
 #include "AudioIO.h"
-#include "WavTarUtils.h"
+#include "Utils.h"
 
 // Because we are just writing static functions, so namespace may be a better choice than class.
 namespace WAVCombine {
@@ -21,10 +21,10 @@ struct CheckResult
 
 CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive, AudioIO::WavAudioFormat targetFormat);
 
-QFuture<QPair<std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>>, QJsonObject>>
+QFuture<QPair<std::shared_ptr<kfr::univector2d<utils::sample_process_t>>, QJsonObject>>
 startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::WavAudioFormat targetFormat);
 
-bool writeCombineResult(std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>> data, QJsonObject descObj,
+bool writeCombineResult(std::shared_ptr<kfr::univector2d<utils::sample_process_t>> data, QJsonObject descObj,
                         QString wavFileName, AudioIO::WavAudioFormat targetFormat);
 }; // namespace WAVCombine
 

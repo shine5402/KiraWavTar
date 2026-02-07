@@ -8,7 +8,7 @@
 
 #include "AudioIO.h"
 #include "KfrHelper.h"
-#include "WavTarUtils.h"
+#include "Utils.h"
 
 namespace WAVExtract {
 enum class CheckPassType { OK, WARNING, CRITICAL };
@@ -24,7 +24,7 @@ CheckResult preCheck(QString srcWAVFileName, QString dstDirName);
 
 struct SrcData
 {
-    std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>> srcData;
+    std::shared_ptr<kfr::univector2d<utils::sample_process_t>> srcData;
     decltype(kfr::audio_format::samplerate) samplerate;
     QJsonArray descArray;
 };
@@ -34,13 +34,13 @@ struct ExtractErrorDescription
 {
     QString description;
     QJsonObject descObj;
-    std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>> srcData;
+    std::shared_ptr<kfr::univector2d<utils::sample_process_t>> srcData;
     decltype(kfr::audio_format::samplerate) srcSampleRate;
 };
-QFuture<ExtractErrorDescription>
-startExtract(std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>> srcData,
-             decltype(kfr::audio_format::samplerate) srcSampleRate, QJsonArray descArray, QString dstDirName,
-             AudioIO::WavAudioFormat targetFormat, bool removeDCOffset);
+QFuture<ExtractErrorDescription> startExtract(std::shared_ptr<kfr::univector2d<utils::sample_process_t>> srcData,
+                                              decltype(kfr::audio_format::samplerate) srcSampleRate,
+                                              QJsonArray descArray, QString dstDirName,
+                                              AudioIO::WavAudioFormat targetFormat, bool removeDCOffset);
 } // namespace WAVExtract
 
 Q_DECLARE_METATYPE(WAVExtract::CheckResult);

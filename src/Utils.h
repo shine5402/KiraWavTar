@@ -1,5 +1,5 @@
-#ifndef WAVTAR_UTILS_H
-#define WAVTAR_UTILS_H
+#ifndef UTILS_H
+#define UTILS_H
 
 #include <QCoreApplication>
 #include <QFuture>
@@ -7,12 +7,13 @@
 #include <QString>
 #include <QStringList>
 #include <QtMath>
+#include <kfr/all.hpp>
 class QStackedWidget;
 
-namespace wavtar_utils {
+namespace utils {
 QString getDescFileNameFrom(const QString &WAVFileName);
 
-// Convert sample count to timecode string "HH:MM:SS.ffffff" (microsecond precision)
+// Convert sample count to timecode string "HH:MM:SS.fff" (millisecond precision)
 inline QString samplesToTimecode(qint64 samples, double sampleRate)
 {
     double totalSeconds = static_cast<double>(samples) / sampleRate;
@@ -22,10 +23,10 @@ inline QString samplesToTimecode(qint64 samples, double sampleRate)
     return QString("%1:%2:%3")
         .arg(hours, 2, 10, QChar('0'))
         .arg(minutes, 2, 10, QChar('0'))
-        .arg(seconds, 9, 'f', 6, QChar('0'));
+        .arg(seconds, 6, 'f', 3, QChar('0'));
 }
 
-// Parse timecode string "HH:MM:SS.ffffff" back to sample count
+// Parse timecode string "HH:MM:SS.fff" back to sample count
 inline qint64 timecodeToSamples(const QString &timecode, double sampleRate)
 {
     if (timecode.isEmpty())
@@ -49,14 +50,11 @@ template <typename T> bool checkFutureExceptionAndWarn(QFuture<T> future)
         QMessageBox::critical(nullptr, {}, e.what());
         return false;
     } catch (...) {
-        QMessageBox::critical(nullptr, {}, QCoreApplication::translate("WAVTarUtils", "Unknown error occurred."));
+        QMessageBox::critical(nullptr, {}, QCoreApplication::translate("Utils", "Unknown error occurred."));
         return false;
     }
 }
-} // namespace wavtar_utils
 
-#include <kfr/all.hpp>
-namespace wavtar_defines {
 // TODO: make these customizable
 constexpr auto sample_process_type = kfr::audio_sample_type::f32;
 using sample_process_t = kfr::audio_sample_get_type<sample_process_type>::type;
@@ -72,13 +70,6 @@ constexpr auto reportTextStyle = R"(<style>
     color:orange;
 }
 </style>)";
-} // namespace wavtar_defines
-namespace wavtar_exceptions {
-class runtime_error : std::runtime_error
-{
-  public:
-    explicit runtime_error(QString info) : std::runtime_error(info.toStdString()) {};
-};
-} // namespace wavtar_exceptions
+} // namespace utils
 
-#endif // WAVTAR_UTILS_H
+#endif // UTILS_H

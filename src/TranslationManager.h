@@ -14,7 +14,7 @@ class TranslationManager
      */
     static TranslationManager *getManager();
 
-    QVector<Translation> getTranslations() const;
+    QList<Translation> getTranslations() const;
     Translation getTranslation(int i) const;
     Translation getTranslationFor(const QLocale &locale) const;
     int getCurrentInstalledTranslationID() const;
@@ -27,7 +27,7 @@ class TranslationManager
     TranslationManager();
     QMenu *i18nMenu = nullptr;
 
-    QVector<Translation> translations;
+    QList<Translation> translations;
 
     void setLangActionChecked(QMenu *i18nMenu, const Translation &translation) const;
     void saveUserLocaleSetting(QLocale locale) const;

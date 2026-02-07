@@ -5,7 +5,7 @@
 #include <kfr/all.hpp>
 #include <memory>
 
-#include "WavTarUtils.h"
+#include "Utils.h"
 
 namespace AudioIO {
 
@@ -20,28 +20,28 @@ struct WavAudioFormat
     qint64 getLength() const { return length; }
 };
 
-// Returns format of the WAV file. Throws wavtar_exceptions::runtime_error on failure.
+// Returns format of the WAV file. Throws std::runtime_error on failure.
 WavAudioFormat readWavFormat(const QString &fileName);
 
 // Reads the entire WAV file into univector2d.
 // Handles de-interleaving.
-// Throws wavtar_exceptions::runtime_error on failure.
+// Throws std::runtime_error on failure.
 struct ReadResult
 {
-    kfr::univector2d<wavtar_defines::sample_process_t> data;
+    kfr::univector2d<utils::sample_process_t> data;
     WavAudioFormat format;
 };
 ReadResult readWavFile(const QString &fileName);
 
 // Writes the audio data to a WAV file.
 // Handles interleaving and format conversion.
-// Throws wavtar_exceptions::runtime_error on failure.
+// Throws std::runtime_error on failure.
 // Returns number of items written (samples * channels)
-size_t writeWavFile(const QString &fileName, const kfr::univector2d<wavtar_defines::sample_process_t> &data,
+size_t writeWavFile(const QString &fileName, const kfr::univector2d<utils::sample_process_t> &data,
                     const WavAudioFormat &targetFormat);
 
 // Overload for simpler usage if container/length details are defaults/implied
-size_t writeWavFile(const QString &fileName, const kfr::univector2d<wavtar_defines::sample_process_t> &data,
+size_t writeWavFile(const QString &fileName, const kfr::univector2d<utils::sample_process_t> &data,
                     const kfr::audio_format &targetFormat);
 
 } // namespace AudioIO

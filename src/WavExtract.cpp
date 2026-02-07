@@ -9,8 +9,7 @@
 
 #include "AudioIO.h"
 
-using namespace wavtar_defines;
-using namespace wavtar_utils;
+using namespace utils;
 
 namespace WAVExtract {
 
@@ -48,8 +47,28 @@ CheckResult preCheck(QString srcWAVFileName, QString dstDirName)
                 {}};
     }
 
-    // TODO: Validate version, etc.
     auto root = doc.object();
+
+    // Validate version
+    if (!root.contains("version")) {
+        return {CheckPassType::CRITICAL,
+                QCoreApplication::translate("WAVExtract",
+                                            "<p class='critical'>Description file \"%1\" is missing version field.</p>")
+                    .arg(descFileName),
+                {}};
+    }
+
+    int version = root["version"].toInt();
+    if (version != utils::desc_file_version) {
+        return {CheckPassType::CRITICAL,
+                QCoreApplication::translate(
+                    "WAVExtract",
+                    "<p class='critical'>Description file \"%1\" has unsupported version %2. Expected version %3.</p>")
+                    .arg(descFileName)
+                    .arg(version)
+                    .arg(utils::desc_file_version),
+                {}};
+    }
 
     return {CheckPassType::OK, "", root};
 }
@@ -64,10 +83,10 @@ SrcData readSrcWAVFile(QString srcWAVFileName, QJsonObject descRoot)
     return {srcData, result.format.kfr_format.samplerate, descRoot["descriptions"].toArray()};
 }
 
-QFuture<ExtractErrorDescription>
-startExtract(std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>> srcData,
-             decltype(kfr::audio_format::samplerate) srcSampleRate, QJsonArray descArray, QString dstDirName,
-             AudioIO::WavAudioFormat targetFormat, bool removeDCOffset)
+QFuture<ExtractErrorDescription> startExtract(std::shared_ptr<kfr::univector2d<utils::sample_process_t>> srcData,
+                                              decltype(kfr::audio_format::samplerate) srcSampleRate,
+                                              QJsonArray descArray, QString dstDirName,
+                                              AudioIO::WavAudioFormat targetFormat, bool removeDCOffset)
 {
     // Process in parallel
     // We iterate over descArray
@@ -94,7 +113,7 @@ startExtract(std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>>
                 if (endSample > maxSamples)
                     endSample = maxSamples;
                 if (startSample >= maxSamples)
-                    throw wavtar_exceptions::runtime_error("Start time out of range");
+                    throw std::runtime_error("Start time out of range");
 
                 size_t realDur = endSample - startSample;
                 size_t inputChannels = srcData->size();
@@ -163,7 +182,7 @@ startExtract(std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>>
                 // Resample if needed
                 double targetRate = outputFormat.kfr_format.samplerate;
                 if (std::abs(srcSampleRate - targetRate) > 1e-5) {
-                    using T = wavtar_defines::sample_process_t;
+                    using T = utils::sample_process_t;
                     auto converter = kfr::sample_rate_converter<T>(kfr::sample_rate_conversion_quality::normal,
                                                                    (size_t)targetRate, (size_t)srcSampleRate);
 

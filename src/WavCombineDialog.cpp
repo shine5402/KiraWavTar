@@ -12,7 +12,7 @@
 #include "kfr/all.hpp"
 
 using namespace WAVCombine;
-using namespace wavtar_defines;
+using namespace utils;
 
 WAVCombineDialog::WAVCombineDialog(QString rootDirName, bool recursive, const AudioIO::WavAudioFormat &targetFormat,
                                    QString saveFileName, QWidget *parent)
@@ -54,12 +54,12 @@ void WAVCombineDialog::startWork()
 }
 
 using readAndCombineFutureWatcher =
-    QFutureWatcher<QPair<std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>>, QJsonObject>>;
+    QFutureWatcher<QPair<std::shared_ptr<kfr::univector2d<utils::sample_process_t>>, QJsonObject>>;
 
 void WAVCombineDialog::preCheckDone()
 {
     if (auto watcher = dynamic_cast<PreCheckFutureWatcher *>(QObject::sender())) {
-        if (!wavtar_utils::checkFutureExceptionAndWarn(watcher->future()))
+        if (!utils::checkFutureExceptionAndWarn(watcher->future()))
             return;
         if (watcher->isCanceled())
             return;
@@ -105,7 +105,7 @@ void WAVCombineDialog::preCheckDone()
 void WAVCombineDialog::readAndCombineWorkDone()
 {
     if (auto watcher = dynamic_cast<readAndCombineFutureWatcher *>(QObject::sender())) {
-        if (!wavtar_utils::checkFutureExceptionAndWarn(watcher->future()))
+        if (!utils::checkFutureExceptionAndWarn(watcher->future()))
             return;
         if (watcher->isCanceled())
             return;
@@ -126,7 +126,7 @@ void WAVCombineDialog::readAndCombineWorkDone()
 void WAVCombineDialog::writeResultDone()
 {
     if (auto watcher = dynamic_cast<QFutureWatcher<bool> *>(QObject::sender())) {
-        if (!wavtar_utils::checkFutureExceptionAndWarn(watcher->future()))
+        if (!utils::checkFutureExceptionAndWarn(watcher->future()))
             return;
         if (watcher->isCanceled())
             return;

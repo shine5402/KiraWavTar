@@ -5,7 +5,7 @@
 #include <kfr/all.hpp>
 
 #include "AudioIO.h"
-#include "WavTarUtils.h"
+#include "Utils.h"
 
 class QLabel;
 class QProgressBar;
@@ -29,7 +29,7 @@ class WAVExtractDialog : public QDialog
     bool extractResultSelection;
     bool removeDCOffset;
 
-    void doExtractCall(std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>> srcData,
+    void doExtractCall(std::shared_ptr<kfr::univector2d<utils::sample_process_t>> srcData,
                        decltype(kfr::audio_format::samplerate) samplerate, QJsonArray descArray);
 
   private slots:

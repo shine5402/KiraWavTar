@@ -1,5 +1,5 @@
 qt_add_executable(KiraWAVTar
-    Main.cpp
+    main.cpp
     MainWindow.cpp MainWindow.h MainWindow.ui
     WavCombine.cpp WavCombine.h
     WavCombineDialog.cpp WavCombineDialog.h
@@ -7,7 +7,7 @@ qt_add_executable(KiraWAVTar
     WavExtractDialog.cpp WavExtractDialog.h
     WavFormatChooserWidget.cpp WavFormatChooserWidget.h WavFormatChooserWidget.ui
     ExtractTargetSelectModel.cpp ExtractTargetSelectModel.h
-    WavTarUtils.cpp WavTarUtils.h
+    Utils.cpp Utils.h
     # Merged from KiraCommonUtils
     Translation.cpp Translation.h
     TranslationManager.cpp TranslationManager.h
@@ -27,4 +27,9 @@ target_link_libraries(KiraWAVTar PRIVATE
     Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Concurrent Qt6::Network
     kfr kfr_dsp
     dr_libs
+)
+
+set_target_properties(KiraWAVTar PROPERTIES
+    WIN32_EXECUTABLE ON
+    MACOSX_BUNDLE ON
 )

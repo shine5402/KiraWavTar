@@ -7,7 +7,7 @@
 
 namespace AudioIO {
 
-using namespace wavtar_defines;
+using namespace utils;
 
 // Manual implementation of f32 to s24 conversion since dr_libs doesn't export it
 static void convert_f32_to_s24(drwav_uint8 *dst, const float *src, size_t count)
@@ -56,8 +56,8 @@ WavAudioFormat readWavFormat(const QString &fileName)
 {
     drwav wav;
     if (!drwav_init_file(&wav, fileName.toUtf8().constData(), nullptr)) {
-        throw wavtar_exceptions::runtime_error(
-            QCoreApplication::translate("AudioIO", "Failed to open file: %1").arg(fileName));
+        throw std::runtime_error(
+            QCoreApplication::translate("AudioIO", "Failed to open file: %1").arg(fileName).toStdString());
     }
 
     WavAudioFormat format;
@@ -85,8 +85,8 @@ ReadResult readWavFile(const QString &fileName)
 {
     drwav wav;
     if (!drwav_init_file(&wav, fileName.toUtf8().constData(), nullptr)) {
-        throw wavtar_exceptions::runtime_error(
-            QCoreApplication::translate("AudioIO", "Failed to open file: %1").arg(fileName));
+        throw std::runtime_error(
+            QCoreApplication::translate("AudioIO", "Failed to open file: %1").arg(fileName).toStdString());
     }
 
     ReadResult result;
@@ -127,7 +127,7 @@ ReadResult readWavFile(const QString &fileName)
     return result;
 }
 
-size_t writeWavFile(const QString &fileName, const kfr::univector2d<wavtar_defines::sample_process_t> &data,
+size_t writeWavFile(const QString &fileName, const kfr::univector2d<utils::sample_process_t> &data,
                     const WavAudioFormat &targetFormat)
 {
     drwav_data_format format;
@@ -166,8 +166,8 @@ size_t writeWavFile(const QString &fileName, const kfr::univector2d<wavtar_defin
     if (!drwav_init_file_write_sequential_pcm_frames(&wav, fileName.toUtf8().constData(), &format, data[0].size(),
                                                      nullptr))
     {
-        throw wavtar_exceptions::runtime_error(
-            QCoreApplication::translate("AudioIO", "Failed to open file for writing: %1").arg(fileName));
+        throw std::runtime_error(
+            QCoreApplication::translate("AudioIO", "Failed to open file for writing: %1").arg(fileName).toStdString());
     }
 
     size_t frameCount = data[0].size();
@@ -214,7 +214,7 @@ size_t writeWavFile(const QString &fileName, const kfr::univector2d<wavtar_defin
     return written * channels;
 }
 
-size_t writeWavFile(const QString &fileName, const kfr::univector2d<wavtar_defines::sample_process_t> &data,
+size_t writeWavFile(const QString &fileName, const kfr::univector2d<utils::sample_process_t> &data,
                     const kfr::audio_format &targetFormat)
 {
     WavAudioFormat fmt;
