@@ -174,10 +174,14 @@ along with this program.  If not, see <a href="https://www.gnu.org/licenses/">ht
  files in the program, then also delete it here.</p>
 
 <h3>Acknowledgements</h3>
+<h4>Third-party libraries</h4>
 <ul>
 <li>Qt %2, The Qt Company Ltd, under LGPL v3.</li>
 <li><a href="https://www.kfrlib.com/">KFR - Fast, modern C++ DSP framework</a>, under GNU GPL v2+</li>
 </ul>
+<h4>Translators</h4>
+<p>Japanese translation was provided by Leka in previous versions. Their work continues to be partly used in the current version.
+Thanks for their contribution!</p>
 )")
                         .arg(versionStr)
                         .arg(QT_VERSION_STR));

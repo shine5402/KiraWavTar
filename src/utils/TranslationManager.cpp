@@ -2,14 +2,10 @@
 
 #include <QAction>
 #include <QCoreApplication>
-#include <QDir>
-#include <QFile>
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QObject>
 #include <QSettings>
 #include <algorithm>
+
+using namespace Qt::StringLiterals;
 
 TranslationManager *TranslationManager::s_instance = nullptr;
 
@@ -22,36 +18,67 @@ TranslationManager *TranslationManager::getManager()
 
 TranslationManager::TranslationManager()
 {
-    auto metaFilePath = QDir{qApp->applicationDirPath()}.filePath("translations/translations.json");
-    auto metaFile = QFile{metaFilePath};
-    if (!metaFile.open(QFile::Text | QFile::ReadOnly))
-        return;
-    auto metaFileContent = metaFile.readAll();
-    auto array = QJsonDocument::fromJson(metaFileContent).array();
+    // These match I18N_TRANSLATED_LANGUAGES in CMakeLists.txt
+    m_supportedLocales = {QLocale(QLocale::Chinese, QLocale::SimplifiedChineseScript, QLocale::China),
+                          QLocale(QLocale::Japanese, QLocale::Japan)};
 
-    for (const auto &value : array) {
-        auto tr = Translation::fromJson(value.toObject());
-        QStringList fullPaths;
-        for (const auto &fileName : tr.translationFilenames())
-            fullPaths.append(QDir{qApp->applicationDirPath()}.filePath("translations/" + fileName));
-        tr.setTranslationFilenames(fullPaths);
-        if (tr.isValid())
-            m_translations.append(tr);
-    }
-
-    getTranslationFor(getLocaleUserSetting()).install();
+    // Install user's preferred translation
+    installTranslation(getLocaleUserSetting());
 }
 
-void TranslationManager::setLangActionChecked(QMenu *i18nMenu, const Translation &translation) const
+QList<QLocale> TranslationManager::supportedLocales() const
+{
+    return m_supportedLocales;
+}
+
+QLocale TranslationManager::currentLocale() const
+{
+    return m_currentLocale;
+}
+
+bool TranslationManager::installTranslation(const QLocale &locale)
+{
+    // Remove previous translator if any
+    if (m_translator) {
+        qApp->removeTranslator(m_translator);
+        delete m_translator;
+        m_translator = nullptr;
+    }
+
+    // If locale is not in supported list (or is default English), keep English
+    bool isSupported = std::ranges::any_of(m_supportedLocales,
+                                           [&locale](const QLocale &l) { return l.language() == locale.language(); });
+
+    if (!isSupported) {
+        m_currentLocale = QLocale(QLocale::English);
+        return true;
+    }
+
+    // Load translation from embedded resources at :/i18n
+    m_translator = new QTranslator(qApp);
+    if (m_translator->load(locale, u"KiraWavTar"_s, u"_"_s, u":/i18n"_s)) {
+        qApp->installTranslator(m_translator);
+        m_currentLocale = locale;
+        return true;
+    } else {
+        qDebug() << "Failed to load translation for locale:" << locale.bcp47Name();
+        delete m_translator;
+        m_translator = nullptr;
+        m_currentLocale = QLocale(QLocale::English);
+        return false;
+    }
+}
+
+void TranslationManager::setLangActionChecked(QMenu *i18nMenu, const QLocale &locale) const
 {
     auto actions = i18nMenu->actions();
     for (auto action : std::as_const(actions)) {
-        auto currTr = TranslationManager::getManager()->getTranslation(action->data().toInt());
-        action->setChecked(currTr == translation);
+        auto actionLocale = action->data().value<QLocale>();
+        action->setChecked(actionLocale.language() == locale.language());
     }
 }
 
-void TranslationManager::saveUserLocaleSetting(QLocale locale) const
+void TranslationManager::saveUserLocaleSetting(const QLocale &locale) const
 {
     QSettings settings;
     settings.setValue("locale", locale);
@@ -63,65 +90,35 @@ QLocale TranslationManager::getLocaleUserSetting() const
     return settings.value("locale", QLocale::system()).value<QLocale>();
 }
 
-QList<Translation> TranslationManager::getTranslations() const
-{
-    return m_translations;
-}
-
-Translation TranslationManager::getTranslation(int i) const
-{
-    if (i == -1)
-        return {};
-    return m_translations.at(i);
-}
-
-Translation TranslationManager::getTranslationFor(const QLocale &locale) const
-{
-    auto it = std::ranges::find_if(m_translations, [&locale](const Translation &t) { return t.locale() == locale; });
-    return it != m_translations.end() ? *it : Translation{};
-}
-
-int TranslationManager::getCurrentInstalledTranslationID() const
-{
-    auto it = std::ranges::find_if(m_translations,
-                                   [](const Translation &elem) { return elem == Translation::getCurrentInstalled(); });
-    return it != m_translations.end() ? static_cast<int>(std::distance(m_translations.begin(), it)) : -1;
-}
-
-Translation TranslationManager::getCurrentInstalled() const
-{
-    return Translation::getCurrentInstalled();
-}
-
 QMenu *TranslationManager::getI18nMenu()
 {
     if (m_i18nMenu)
         return m_i18nMenu;
 
-    auto translations = TranslationManager::getManager()->getTranslations();
     m_i18nMenu = new QMenu("Language");
-    auto defaultLang = new QAction("English, built-in", m_i18nMenu);
-    defaultLang->setData(-1);
+
+    // Add default English option
+    auto defaultLang = new QAction("English (built-in)", m_i18nMenu);
+    defaultLang->setData(QVariant::fromValue(QLocale(QLocale::English)));
     defaultLang->setCheckable(true);
     m_i18nMenu->addAction(defaultLang);
 
-    for (auto i = 0; i < translations.count(); ++i) {
-        auto l = translations.at(i);
-        auto langAction =
-            new QAction(QLatin1String("%1 (%2), by %3")
-                            .arg(QLocale::languageToString(l.locale().language()), l.locale().bcp47Name(), l.author()),
-                        m_i18nMenu);
-        langAction->setData(i);
+    // Add supported translations
+    for (const auto &locale : std::as_const(m_supportedLocales)) {
+        auto langAction = new QAction(
+            QLatin1String("%1 (%2)").arg(QLocale::languageToString(locale.language()), locale.bcp47Name()), m_i18nMenu);
+        langAction->setData(QVariant::fromValue(locale));
         langAction->setCheckable(true);
         m_i18nMenu->addAction(langAction);
     }
+
     QObject::connect(m_i18nMenu, &QMenu::triggered, m_i18nMenu, [this](QAction *action) {
-        auto translation = getTranslation(action->data().toInt());
-        translation.install();
-        setLangActionChecked(m_i18nMenu, translation);
-        saveUserLocaleSetting(translation.locale());
+        auto locale = action->data().value<QLocale>();
+        installTranslation(locale);
+        setLangActionChecked(m_i18nMenu, locale);
+        saveUserLocaleSetting(locale);
     });
 
-    setLangActionChecked(m_i18nMenu, getCurrentInstalled());
+    setLangActionChecked(m_i18nMenu, m_currentLocale);
     return m_i18nMenu;
 }

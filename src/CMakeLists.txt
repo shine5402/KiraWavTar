@@ -24,3 +24,9 @@ set_target_properties(KiraWAVTar PROPERTIES
     WIN32_EXECUTABLE ON
     MACOSX_BUNDLE ON
 )
+
+# Translations - auto-generates .ts files and embeds .qm in resources at :/i18n
+qt_add_translations(KiraWAVTar
+    TS_FILE_BASE KiraWavTar
+    TS_FILE_DIR ${CMAKE_SOURCE_DIR}/translations
+)

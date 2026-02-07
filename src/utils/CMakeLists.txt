@@ -3,8 +3,6 @@ target_sources(KiraWAVTar PRIVATE
     Filesystem.cpp
     Filesystem.h
     KfrHelper.h
-    Translation.cpp
-    Translation.h
     TranslationManager.cpp
     TranslationManager.h
     UpdateChecker.cpp
