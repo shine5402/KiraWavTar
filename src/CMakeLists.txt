@@ -20,22 +20,6 @@ qt_add_executable(KiraWAVTar
     resources/icon.qrc
 )
 
-# Git info defines (equivalent to the qmake GIT_HASH/GIT_BRANCH/GIT_DESCRIBE)
-execute_process(COMMAND git rev-parse --short HEAD
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    OUTPUT_VARIABLE GIT_HASH OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
-execute_process(COMMAND git describe --tags --dirty
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    OUTPUT_VARIABLE GIT_DESCRIBE OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
-execute_process(COMMAND git rev-parse --abbrev-ref HEAD
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    OUTPUT_VARIABLE GIT_BRANCH OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
-target_compile_definitions(KiraWAVTar PRIVATE
-    GIT_HASH="${GIT_HASH}"
-    GIT_BRANCH="${GIT_BRANCH}"
-    GIT_DESCRIBE="${GIT_DESCRIBE}"
-)
-
 target_include_directories(KiraWAVTar PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(KiraWAVTar PRIVATE

@@ -142,13 +142,8 @@ void MainWindow::fillResultPath()
 
 void MainWindow::about()
 {
-    auto isBeta = QStringLiteral(GIT_BRANCH) == QStringLiteral("dev");
-    QString versionStr = tr("<p>Version %1%4, <i>branch: %2, commit: %3, build on %5 %6<i></p>")
-            .arg(qApp->applicationVersion(), GIT_BRANCH, GIT_HASH, isBeta ? "-beta" : "", __DATE__, __TIME__);
-    if (isBeta)
-        versionStr += tr("<p style=\"color:orange\">You are using a BETA build. "
-                         "<b>Use it at your own risk.</b>"
-                         " If any problems occured, please provide feedback on Github Issues.</p>");
+    QString versionStr = tr("<p>Version %1, <i>build on %2 %3<i></p>")
+            .arg(qApp->applicationVersion(), __DATE__, __TIME__);
 
     QMessageBox msgBox;
     msgBox.setIconPixmap(QPixmap(":/icon/appIcon").scaled(64,64,Qt::KeepAspectRatio, Qt::SmoothTransformation));
