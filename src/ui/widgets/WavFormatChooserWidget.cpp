@@ -75,9 +75,9 @@ AudioIO::WavAudioFormat WAVFormatChooserWidget::getFormat() const
 
 void WAVFormatChooserWidget::reset()
 {
-    ui->sampleRateComboBox->setCurrentIndex(1); // 48000
+    ui->sampleRateComboBox->setCurrentIndex(0); // 44100
     ui->channelsSpinBox->setValue(1);
-    ui->sampleTypeComboBox->setCurrentIndex(4);
+    ui->sampleTypeComboBox->setCurrentIndex(3);      // 32-bit float
     ui->containerFormatComboBox->setCurrentIndex(0); // RIFF
 }
 
