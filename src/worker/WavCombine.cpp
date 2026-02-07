@@ -7,6 +7,8 @@
 #include <QtConcurrent/QtConcurrent>
 #include <kfr/dsp/sample_rate_conversion.hpp>
 #include <memory>
+#include <type_traits>
+#include <variant>
 
 #include "AudioIO.h"
 #include "utils/Filesystem.h"
@@ -124,100 +126,108 @@ CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive
     return {CheckPassType::WARNING, warningMsg, wavFileNames};
 }
 
-QFuture<QPair<std::shared_ptr<kfr::univector2d<utils::sample_process_t>>, QJsonObject>>
+QFuture<QPair<utils::AudioBufferPtr, QJsonObject>>
 startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::WavAudioFormat targetFormat)
 {
+    const bool useDouble = utils::shouldUseDoubleInternalProcessing(targetFormat.kfr_format.type);
+
     return QtConcurrent::mappedReduced(
         WAVFileNames,
         // Map
-        std::function([rootDirName, targetFormat](const QString &fileName)
-                          -> QPair<std::shared_ptr<kfr::univector2d<utils::sample_process_t>>, QJsonObject> {
+        std::function([rootDirName, targetFormat,
+                       useDouble](const QString &fileName) -> QPair<utils::AudioBufferPtr, QJsonObject> {
             // TODO: handle exceptions
 
-            auto result = AudioIO::readWavFile(fileName);
-            // KFR has no built-in resampling in `read_file` anymore since we use `dr_wav` manually.
-            // But we must support resampling and channel mixing.
+            auto processTyped = [&](auto &&readResult) -> QPair<utils::AudioBufferPtr, QJsonObject> {
+                using T = std::decay_t<decltype(readResult.data[0][0])>;
 
-            // We read as float32/double (sample_process_t -> float).
-            // Input data is in result.data (univector2d<float>).
+                auto &inputData = readResult.data;
+                size_t inputChannels = readResult.format.kfr_format.channels;
+                size_t inputLength = readResult.format.length;
+                double inputSampleRate = readResult.format.kfr_format.samplerate;
 
-            auto &inputData = result.data;
-            size_t inputChannels = result.format.kfr_format.channels;
-            size_t inputLength = result.format.length;
-            double inputSampleRate = result.format.kfr_format.samplerate;
+                size_t outputChannels = targetFormat.kfr_format.channels;
+                double outputSampleRate = targetFormat.kfr_format.samplerate;
 
-            size_t outputChannels = targetFormat.kfr_format.channels;
-            double outputSampleRate = targetFormat.kfr_format.samplerate;
-
-            // Channel mix (Truncate extra channels, or pad with zero)
-            kfr::univector2d<utils::sample_process_t> processedData(outputChannels);
-            for (size_t c = 0; c < outputChannels; ++c) {
-                if (c < inputChannels) {
-                    processedData[c] = inputData[c]; // Copy existing channel
-                } else {
-                    processedData[c].resize(inputLength, 0.0f); // Zero pad
-                }
-            }
-
-            // Resample if needed
-            if (std::abs(inputSampleRate - outputSampleRate) > 1e-5) {
-                using T = utils::sample_process_t;
-
-                kfr::univector2d<T> resampledData(outputChannels);
+                // Channel mix (Truncate extra channels, or pad with zero)
+                kfr::univector2d<T> processedData(outputChannels);
                 for (size_t c = 0; c < outputChannels; ++c) {
-                    if (c >= processedData.size())
-                        continue;
-
-                    auto converter = kfr::sample_rate_converter<T>(kfr::sample_rate_conversion_quality::normal,
-                                                                   (size_t)outputSampleRate, (size_t)inputSampleRate);
-                    size_t outSize = converter.output_size_for_input(processedData[c].size());
-
-                    resampledData[c].resize(outSize);
-                    converter.process(resampledData[c], processedData[c]);
+                    if (c < inputChannels) {
+                        processedData[c] = inputData[c];
+                    } else {
+                        processedData[c].resize(inputLength, T(0));
+                    }
                 }
-                processedData = resampledData;
+
+                // Resample if needed
+                if (std::abs(inputSampleRate - outputSampleRate) > 1e-5) {
+                    kfr::univector2d<T> resampledData(outputChannels);
+                    for (size_t c = 0; c < outputChannels; ++c) {
+                        if (c >= processedData.size())
+                            continue;
+                        auto converter =
+                            kfr::sample_rate_converter<T>(utils::sample_rate_conversion_quality_for_process,
+                                                          (size_t)outputSampleRate, (size_t)inputSampleRate);
+                        size_t outSize = converter.output_size_for_input(processedData[c].size());
+                        resampledData[c].resize(outSize);
+                        converter.process(resampledData[c], processedData[c]);
+                    }
+                    processedData = std::move(resampledData);
+                }
+
+                // Create Meta Object
+                QJsonObject metaObj;
+                metaObj.insert("file_name", QDir(rootDirName).relativeFilePath(fileName));
+                metaObj.insert("sample_rate", readResult.format.kfr_format.samplerate);
+                metaObj.insert("sample_type", (qint64)readResult.format.kfr_format.type);
+
+                int originalWavFormat = 0; // RIFF
+                switch (readResult.format.container) {
+                case AudioIO::WavAudioFormat::Container::RIFF:
+                    originalWavFormat = 0;
+                    break;
+                case AudioIO::WavAudioFormat::Container::RF64:
+                    originalWavFormat = 2;
+                    break;
+                case AudioIO::WavAudioFormat::Container::W64:
+                    originalWavFormat = 1;
+                    break;
+                default:
+                    break;
+                }
+                metaObj.insert("wav_format", originalWavFormat);
+                metaObj.insert("channel_count", (qint64)readResult.format.kfr_format.channels);
+                metaObj.insert("duration",
+                               samplesToTimecode(readResult.format.length, readResult.format.kfr_format.samplerate));
+
+                auto retData = std::make_shared<kfr::univector2d<T>>(std::move(processedData));
+                utils::AudioBufferPtr buf;
+                if constexpr (std::is_same_v<T, float>)
+                    buf = retData;
+                else
+                    buf = retData;
+                return {buf, metaObj};
+            };
+
+            if (useDouble) {
+                auto result = AudioIO::readWavFileF64(fileName);
+                return processTyped(std::move(result));
             }
 
-            // Create Meta Object
-            QJsonObject metaObj;
-            metaObj.insert("file_name", QDir(rootDirName).relativeFilePath(fileName));
-            metaObj.insert("sample_rate", result.format.kfr_format.samplerate);
-            metaObj.insert("sample_type", (qint64)result.format.kfr_format.type);
-
-            int originalWavFormat = 0; // RIFF
-            switch (result.format.container) {
-            case AudioIO::WavAudioFormat::Container::RIFF:
-                originalWavFormat = 0;
-                break; // kfr::audio_format::riff
-            case AudioIO::WavAudioFormat::Container::RF64:
-                originalWavFormat = 2;
-                break; // kfr::audio_format::rf64
-            case AudioIO::WavAudioFormat::Container::W64:
-                originalWavFormat = 1;
-                break; // kfr::audio_format::w64
-            default:
-                break;
-            }
-            metaObj.insert("wav_format", originalWavFormat);
-            metaObj.insert("channel_count", (qint64)result.format.kfr_format.channels);
-            metaObj.insert("duration", samplesToTimecode(result.format.length, result.format.kfr_format.samplerate));
-
-            // Return data and meta
-            // Note: `processedData` is the data we want to keep.
-            // We need to move it to shared_ptr.
-            auto retData = std::make_shared<kfr::univector2d<utils::sample_process_t>>(std::move(processedData));
-
-            return {retData, metaObj};
+            auto result = AudioIO::readWavFileF32(fileName);
+            return processTyped(std::move(result));
         }),
 
         // Reduce
-        std::function([targetFormat](
-                          QPair<std::shared_ptr<kfr::univector2d<utils::sample_process_t>>, QJsonObject> &total,
-                          const QPair<std::shared_ptr<kfr::univector2d<utils::sample_process_t>>, QJsonObject> &input) {
+        std::function([targetFormat, useDouble](QPair<utils::AudioBufferPtr, QJsonObject> &total,
+                                                const QPair<utils::AudioBufferPtr, QJsonObject> &input) {
             // Initialization
-            if (total.first == nullptr) {
-                total.first =
-                    std::make_shared<kfr::univector2d<utils::sample_process_t>>(targetFormat.kfr_format.channels);
+            if (total.second.isEmpty()) {
+                if (useDouble) {
+                    total.first = std::make_shared<utils::AudioBufferF64>(targetFormat.kfr_format.channels);
+                } else {
+                    total.first = std::make_shared<utils::AudioBufferF32>(targetFormat.kfr_format.channels);
+                }
 
                 QJsonObject jsonRoot;
                 jsonRoot.insert("version", utils::desc_file_version);
@@ -228,17 +238,28 @@ startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::
                 total.second = jsonRoot;
             }
 
-            // Append Data
             size_t nChannels = targetFormat.kfr_format.channels;
-            size_t currentSize = total.first->operator[](0).size();
-            size_t appendSize = input.first->operator[](0).size();
 
-            for (size_t c = 0; c < nChannels; ++c) {
-                // Resize and copy
-                total.first->operator[](c).resize(currentSize + appendSize);
-                std::copy(input.first->operator[](c).begin(), input.first->operator[](c).end(),
-                          total.first->operator[](c).begin() + currentSize);
-            }
+            // Append Data (typed)
+            size_t currentSize = 0;
+            size_t appendSize = 0;
+            std::visit(
+                [&](auto &totalPtr, const auto &inputPtr) {
+                    using TotalPtrT = std::decay_t<decltype(totalPtr)>;
+                    using InputPtrT = std::decay_t<decltype(inputPtr)>;
+                    if constexpr (std::is_same_v<TotalPtrT, InputPtrT>) {
+                        currentSize = totalPtr->operator[](0).size();
+                        appendSize = inputPtr->operator[](0).size();
+                        for (size_t c = 0; c < nChannels; ++c) {
+                            totalPtr->operator[](c).resize(currentSize + appendSize);
+                            std::copy(inputPtr->operator[](c).begin(), inputPtr->operator[](c).end(),
+                                      totalPtr->operator[](c).begin() + currentSize);
+                        }
+                    } else {
+                        throw std::runtime_error("Internal buffer type mismatch");
+                    }
+                },
+                total.first, input.first);
 
             // Append Meta
             QJsonObject meta = input.second;
@@ -254,15 +275,23 @@ startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::
         }));
 }
 
-bool writeCombineResult(std::shared_ptr<kfr::univector2d<utils::sample_process_t>> data, QJsonObject descObj,
-                        QString wavFileName, AudioIO::WavAudioFormat targetFormat)
+bool writeCombineResult(utils::AudioBufferPtr data, QJsonObject descObj, QString wavFileName,
+                        AudioIO::WavAudioFormat targetFormat)
 {
-    if (!data)
-        return false;
-
     // Write WAV
     try {
-        AudioIO::writeWavFile(wavFileName, *data, targetFormat);
+        std::visit(
+            [&](auto &ptr) {
+                if (!ptr)
+                    throw std::runtime_error("Null audio buffer");
+                using PtrT = std::decay_t<decltype(ptr)>;
+                if constexpr (std::is_same_v<PtrT, std::shared_ptr<utils::AudioBufferF32>>) {
+                    AudioIO::writeWavFileF32(wavFileName, *ptr, targetFormat);
+                } else {
+                    AudioIO::writeWavFileF64(wavFileName, *ptr, targetFormat);
+                }
+            },
+            data);
     } catch (...) {
         return false;
     }

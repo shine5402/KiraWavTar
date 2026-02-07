@@ -26,23 +26,35 @@ WavAudioFormat readWavFormat(const QString &fileName);
 // Reads the entire WAV file into univector2d.
 // Handles de-interleaving.
 // Throws std::runtime_error on failure.
-struct ReadResult
+struct ReadResultF32
 {
-    kfr::univector2d<utils::sample_process_t> data;
+    kfr::univector2d<float> data;
     WavAudioFormat format;
 };
-ReadResult readWavFile(const QString &fileName);
+
+struct ReadResultF64
+{
+    kfr::univector2d<double> data;
+    WavAudioFormat format;
+};
+
+ReadResultF32 readWavFileF32(const QString &fileName);
+ReadResultF64 readWavFileF64(const QString &fileName);
 
 // Writes the audio data to a WAV file.
 // Handles interleaving and format conversion.
 // Throws std::runtime_error on failure.
 // Returns number of items written (samples * channels)
-size_t writeWavFile(const QString &fileName, const kfr::univector2d<utils::sample_process_t> &data,
-                    const WavAudioFormat &targetFormat);
+size_t writeWavFileF32(const QString &fileName, const kfr::univector2d<float> &data,
+                       const WavAudioFormat &targetFormat);
+size_t writeWavFileF64(const QString &fileName, const kfr::univector2d<double> &data,
+                       const WavAudioFormat &targetFormat);
 
 // Overload for simpler usage if container/length details are defaults/implied
-size_t writeWavFile(const QString &fileName, const kfr::univector2d<utils::sample_process_t> &data,
-                    const kfr::audio_format &targetFormat);
+size_t writeWavFileF32(const QString &fileName, const kfr::univector2d<float> &data,
+                       const kfr::audio_format &targetFormat);
+size_t writeWavFileF64(const QString &fileName, const kfr::univector2d<double> &data,
+                       const kfr::audio_format &targetFormat);
 
 } // namespace AudioIO
 

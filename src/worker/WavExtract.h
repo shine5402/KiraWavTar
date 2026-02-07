@@ -24,20 +24,20 @@ CheckResult preCheck(QString srcWAVFileName, QString dstDirName);
 
 struct SrcData
 {
-    std::shared_ptr<kfr::univector2d<utils::sample_process_t>> srcData;
+    utils::AudioBufferPtr srcData;
     decltype(kfr::audio_format::samplerate) samplerate;
     QJsonArray descArray;
 };
-SrcData readSrcWAVFile(QString srcWAVFileName, QJsonObject descRoot);
+SrcData readSrcWAVFile(QString srcWAVFileName, QJsonObject descRoot, AudioIO::WavAudioFormat targetFormat);
 
 struct ExtractErrorDescription
 {
     QString description;
     QJsonObject descObj;
-    std::shared_ptr<kfr::univector2d<utils::sample_process_t>> srcData;
+    utils::AudioBufferPtr srcData;
     decltype(kfr::audio_format::samplerate) srcSampleRate;
 };
-QFuture<ExtractErrorDescription> startExtract(std::shared_ptr<kfr::univector2d<utils::sample_process_t>> srcData,
+QFuture<ExtractErrorDescription> startExtract(utils::AudioBufferPtr srcData,
                                               decltype(kfr::audio_format::samplerate) srcSampleRate,
                                               QJsonArray descArray, QString dstDirName,
                                               AudioIO::WavAudioFormat targetFormat, bool removeDCOffset);

@@ -89,7 +89,7 @@ void WavExtractDialog::preCheckDone()
             }
             [[fallthrough]];
         case WAVExtract::CheckPassType::OK:
-            auto nextFuture = QtConcurrent::run(readSrcWAVFile, m_srcWAVFileName, result.descRoot);
+            auto nextFuture = QtConcurrent::run(readSrcWAVFile, m_srcWAVFileName, result.descRoot, m_targetFormat);
             auto nextWatcher = new ReadSrcWAVFileFutureWatcher(this);
             nextWatcher->setFuture(nextFuture);
             m_label->setText(tr("Reading source WAV file..."));
@@ -103,8 +103,8 @@ void WavExtractDialog::preCheckDone()
 using ExtractWorkFutureWatcher = QFutureWatcher<ExtractErrorDescription>;
 
 // Though use SrcData as param would be better, but it will expose this internal struct in wavextractdialog.h, so..
-void WavExtractDialog::doExtractCall(std::shared_ptr<kfr::univector2d<utils::sample_process_t>> srcData,
-                                     decltype(kfr::audio_format::samplerate) samplerate, QJsonArray descArray)
+void WavExtractDialog::doExtractCall(utils::AudioBufferPtr srcData, decltype(kfr::audio_format::samplerate) samplerate,
+                                     QJsonArray descArray)
 {
     m_label->setText(tr("Writing extracted file..."));
     auto nextFuture = startExtract(srcData, samplerate, descArray, m_dstDirName, m_targetFormat, m_removeDCOffset);

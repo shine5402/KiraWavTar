@@ -13,7 +13,7 @@ WAVFormatChooserWidget::WAVFormatChooserWidget(QWidget *parent) : QWidget(parent
     // Insert separator after frequent sample rates (after index 2: 44100, 48000, 96000)
     ui->sampleRateComboBox->insertSeparator(3);
 
-    for (const auto &[type, name] : kfr::audio_sample_type_entries) {
+    for (const auto &[type, name] : kfr::audio_sample_type_entries_for_ui) {
         ui->sampleTypeComboBox->addItem(name.data());
     }
 
@@ -62,7 +62,7 @@ decltype(kfr::audio_format::channels) WAVFormatChooserWidget::getChannelCount() 
 
 decltype(kfr::audio_format::type) WAVFormatChooserWidget::getSampleType() const
 {
-    return kfr::audio_sample_type_entries[ui->sampleTypeComboBox->currentIndex()].first;
+    return kfr::audio_sample_type_entries_for_ui[ui->sampleTypeComboBox->currentIndex()].first;
 }
 
 AudioIO::WavAudioFormat::Container WAVFormatChooserWidget::getWAVContainerFormat() const
@@ -95,7 +95,7 @@ void WAVFormatChooserWidget::reset()
     ui->channelsComboBox->setCurrentIndex(ChannelIndexAuto); // Auto
     ui->channelsSpinBox->setValue(2);
     ui->channelsSpinBox->setVisible(false);
-    ui->sampleTypeComboBox->setCurrentIndex(3);      // 32-bit float
+    ui->sampleTypeComboBox->setCurrentIndex(2);      // 32-bit float
     ui->containerFormatComboBox->setCurrentIndex(0); // RIFF
 }
 

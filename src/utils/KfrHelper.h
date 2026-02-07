@@ -28,6 +28,14 @@ constexpr std::array<std::pair<audio_sample_type, std::string_view>, 5> audio_sa
     {audio_sample_type::f64, "64-bit double float"},
 }};
 
+// UI options: omit 32-bit int since internal processing uses float anyway.
+constexpr std::array<std::pair<audio_sample_type, std::string_view>, 4> audio_sample_type_entries_for_ui = {{
+    {audio_sample_type::i16, "16-bit int"},
+    {audio_sample_type::i24, "24-bit int"},
+    {audio_sample_type::f32, "32-bit single float"},
+    {audio_sample_type::f64, "64-bit double float"},
+}};
+
 constexpr std::string_view audio_sample_type_to_string(audio_sample_type t)
 {
     for (const auto &[type, str] : audio_sample_type_entries)

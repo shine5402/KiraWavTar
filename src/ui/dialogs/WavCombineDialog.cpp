@@ -53,8 +53,7 @@ void WavCombineDialog::startWork()
     connect(m_buttonBox, &QDialogButtonBox::rejected, watcher, &PreCheckFutureWatcher::cancel);
 }
 
-using readAndCombineFutureWatcher =
-    QFutureWatcher<QPair<std::shared_ptr<kfr::univector2d<utils::sample_process_t>>, QJsonObject>>;
+using readAndCombineFutureWatcher = QFutureWatcher<QPair<utils::AudioBufferPtr, QJsonObject>>;
 
 void WavCombineDialog::preCheckDone()
 {

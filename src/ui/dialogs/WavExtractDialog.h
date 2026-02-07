@@ -27,8 +27,8 @@ signals:
     void opened();
 
 private:
-    void doExtractCall(std::shared_ptr<kfr::univector2d<utils::sample_process_t>> srcData,
-                       decltype(kfr::audio_format::samplerate) samplerate, QJsonArray descArray);
+    void doExtractCall(utils::AudioBufferPtr srcData, decltype(kfr::audio_format::samplerate) samplerate,
+                       QJsonArray descArray);
 
 private slots:
     void startWork();

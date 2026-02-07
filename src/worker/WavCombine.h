@@ -21,11 +21,11 @@ struct CheckResult
 
 CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive, AudioIO::WavAudioFormat targetFormat);
 
-QFuture<QPair<std::shared_ptr<kfr::univector2d<utils::sample_process_t>>, QJsonObject>>
+QFuture<QPair<utils::AudioBufferPtr, QJsonObject>>
 startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::WavAudioFormat targetFormat);
 
-bool writeCombineResult(std::shared_ptr<kfr::univector2d<utils::sample_process_t>> data, QJsonObject descObj,
-                        QString wavFileName, AudioIO::WavAudioFormat targetFormat);
+bool writeCombineResult(utils::AudioBufferPtr data, QJsonObject descObj, QString wavFileName,
+                        AudioIO::WavAudioFormat targetFormat);
 }; // namespace WAVCombine
 
 Q_DECLARE_METATYPE(WAVCombine::CheckResult);

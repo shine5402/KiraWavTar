@@ -8,6 +8,8 @@
 #include <QStringList>
 #include <QtMath>
 #include <kfr/all.hpp>
+#include <memory>
+#include <variant>
 class QStackedWidget;
 
 namespace utils {
@@ -55,9 +57,21 @@ template <typename T> bool checkFutureExceptionAndWarn(QFuture<T> future)
     }
 }
 
-// TODO: make these customizable
-constexpr auto sample_process_type = kfr::audio_sample_type::f32;
-using sample_process_t = kfr::audio_sample_get_type<sample_process_type>::type;
+// Internal processing type:
+// - Use float for most cases
+// - Switch to double only when user selects 64-bit float output
+using sample_process_f32_t = float;
+using sample_process_f64_t = double;
+
+using AudioBufferF32 = kfr::univector2d<sample_process_f32_t>;
+using AudioBufferF64 = kfr::univector2d<sample_process_f64_t>;
+using AudioBufferPtr = std::variant<std::shared_ptr<AudioBufferF32>, std::shared_ptr<AudioBufferF64>>;
+
+inline bool shouldUseDoubleInternalProcessing(kfr::audio_sample_type outputType)
+{
+    return outputType == kfr::audio_sample_type::f64;
+}
+
 constexpr auto sample_rate_conversion_quality_for_process = kfr::sample_rate_conversion_quality::normal;
 
 constexpr auto desc_file_version = 3;
