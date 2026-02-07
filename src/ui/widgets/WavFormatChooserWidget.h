@@ -28,7 +28,7 @@ public:
     void reset();
 
 public slots:
-    void warnAbout64Bit(bool checked);
+    void showFormatHelp();
 
 private:
     Ui::WAVFormatChooserWidget *ui;

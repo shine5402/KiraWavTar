@@ -102,27 +102,23 @@
                 </widget>
             </item>
             <item>
-                <widget class="QCheckBox" name="use64BitCheckBox">
+                <widget class="QLabel" name="label_11">
                     <property name="text">
-                        <string>Use 64-bit format</string>
+                        <string>Container</string>
                     </property>
                 </widget>
             </item>
             <item>
-                <widget class="QComboBox" name="wav64BitFormatComboBox">
-                    <property name="enabled">
-                        <bool>false</bool>
+                <widget class="QComboBox" name="containerFormatComboBox"/>
+            </item>
+            <item>
+                <widget class="QToolButton" name="formatHelpButton">
+                    <property name="text">
+                        <string>?</string>
                     </property>
-                    <item>
-                        <property name="text">
-                            <string>RF64</string>
-                        </property>
-                    </item>
-                    <item>
-                        <property name="text">
-                            <string>W64</string>
-                        </property>
-                    </item>
+                    <property name="toolTip">
+                        <string>Show WAV container format information</string>
+                    </property>
                 </widget>
             </item>
             <item>
@@ -143,20 +139,23 @@
     <resources/>
     <connections>
         <connection>
-            <sender>use64BitCheckBox</sender>
-            <signal>toggled(bool)</signal>
-            <receiver>wav64BitFormatComboBox</receiver>
-            <slot>setEnabled(bool)</slot>
+            <sender>formatHelpButton</sender>
+            <signal>clicked()</signal>
+            <receiver>WAVFormatChooserWidget</receiver>
+            <slot>showFormatHelp()</slot>
             <hints>
                 <hint type="sourcelabel">
-                    <x>453</x>
-                    <y>17</y>
+                    <x>595</x>
+                    <y>21</y>
                 </hint>
                 <hint type="destinationlabel">
-                    <x>561</x>
-                    <y>21</y>
+                    <x>378</x>
+                    <y>16</y>
                 </hint>
             </hints>
         </connection>
     </connections>
+    <slots>
+        <slot>showFormatHelp()</slot>
+    </slots>
 </ui>

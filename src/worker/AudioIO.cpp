@@ -71,10 +71,14 @@ WavAudioFormat readWavFormat(const QString &fileName)
     // Map container format
     if (wav.container == drwav_container_riff)
         format.container = WavAudioFormat::Container::RIFF;
+    else if (wav.container == drwav_container_rifx)
+        format.container = WavAudioFormat::Container::RIFX;
     else if (wav.container == drwav_container_w64)
         format.container = WavAudioFormat::Container::W64;
     else if (wav.container == drwav_container_rf64)
         format.container = WavAudioFormat::Container::RF64;
+    else if (wav.container == drwav_container_aiff)
+        format.container = WavAudioFormat::Container::AIFF;
     else
         format.container = WavAudioFormat::Container::Unknown;
 
@@ -98,10 +102,14 @@ ReadResult readWavFile(const QString &fileName)
 
     if (wav.container == drwav_container_riff)
         result.format.container = WavAudioFormat::Container::RIFF;
+    else if (wav.container == drwav_container_rifx)
+        result.format.container = WavAudioFormat::Container::RIFX;
     else if (wav.container == drwav_container_w64)
         result.format.container = WavAudioFormat::Container::W64;
     else if (wav.container == drwav_container_rf64)
         result.format.container = WavAudioFormat::Container::RF64;
+    else if (wav.container == drwav_container_aiff)
+        result.format.container = WavAudioFormat::Container::AIFF;
     else
         result.format.container = WavAudioFormat::Container::Unknown;
 
@@ -133,10 +141,16 @@ size_t writeWavFile(const QString &fileName, const kfr::univector2d<utils::sampl
 {
     drwav_data_format format;
     format.container = drwav_container_riff; // Default
-    if (targetFormat.container == WavAudioFormat::Container::W64)
+    if (targetFormat.container == WavAudioFormat::Container::RIFF)
+        format.container = drwav_container_riff;
+    else if (targetFormat.container == WavAudioFormat::Container::RIFX)
+        format.container = drwav_container_rifx;
+    else if (targetFormat.container == WavAudioFormat::Container::W64)
         format.container = drwav_container_w64;
-    if (targetFormat.container == WavAudioFormat::Container::RF64)
+    else if (targetFormat.container == WavAudioFormat::Container::RF64)
         format.container = drwav_container_rf64;
+    else if (targetFormat.container == WavAudioFormat::Container::AIFF)
+        format.container = drwav_container_aiff;
 
     format.format = DR_WAVE_FORMAT_PCM;
     if (targetFormat.kfr_format.type == kfr::audio_sample_type::f32 ||

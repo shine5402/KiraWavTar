@@ -14,7 +14,7 @@ struct WavAudioFormat
 {
     kfr::audio_format kfr_format;
     qint64 length = 0; // Length in samples per channel
-    enum class Container { RIFF, RF64, W64, Unknown } container = Container::Unknown;
+    enum class Container { RIFF, RIFX, W64, RF64, AIFF, Unknown } container = Container::Unknown;
 
     // Convenience accessors to behave like a flat struct if needed, or just access members directly
     qint64 getLength() const { return length; }
