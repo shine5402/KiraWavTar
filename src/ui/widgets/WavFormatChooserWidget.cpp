@@ -4,7 +4,7 @@
 #include <QMessageBox>
 #include <kfr/all.hpp>
 
-#include "KfrHelper.h"
+#include "../../utils/KfrHelper.h"
 
 WAVFormatChooserWidget::WAVFormatChooserWidget(QWidget *parent) : QWidget(parent), ui(new Ui::WAVFormatChooserWidget)
 {

@@ -8,7 +8,7 @@
 #include <QVBoxLayout>
 #include <QtConcurrent/QtConcurrent>
 
-#include "WavCombine.h"
+#include "../../worker/WavCombine.h"
 #include "kfr/all.hpp"
 
 using namespace WAVCombine;

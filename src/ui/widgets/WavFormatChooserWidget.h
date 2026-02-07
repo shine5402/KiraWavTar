@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <kfr/all.hpp>
 
-#include "AudioIO.h"
+#include "../../worker/AudioIO.h"
 
 namespace Ui {
 class WAVFormatChooserWidget;

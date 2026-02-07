@@ -6,9 +6,9 @@
 #include <QJsonObject>
 #include <QObject>
 
+#include "../utils/KfrHelper.h"
+#include "../utils/Utils.h"
 #include "AudioIO.h"
-#include "KfrHelper.h"
-#include "Utils.h"
 
 namespace WAVExtract {
 enum class CheckPassType { OK, WARNING, CRITICAL };

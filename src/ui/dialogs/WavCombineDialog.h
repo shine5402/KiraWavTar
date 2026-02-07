@@ -4,7 +4,7 @@
 #include <QDialog>
 #include <kfr/all.hpp>
 
-#include "AudioIO.h"
+#include "../../worker/AudioIO.h"
 
 class QLabel;
 class QProgressBar;

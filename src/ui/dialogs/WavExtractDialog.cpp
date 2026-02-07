@@ -10,9 +10,9 @@
 #include <QVBoxLayout>
 #include <QtConcurrent>
 
-#include "ExtractTargetSelectModel.h"
-#include "Utils.h"
-#include "WavExtract.h"
+#include "../../utils/Utils.h"
+#include "../../worker/WavExtract.h"
+#include "../models/ExtractTargetSelectModel.h"
 
 using namespace WAVExtract;
 using namespace utils;

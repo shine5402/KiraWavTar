@@ -11,7 +11,7 @@
 #include <QtCore/qnamespace.h>
 #include <QtDebug>
 
-#include "CommonHtmlDialog.h"
+#include "../ui/dialogs/CommonHtmlDialog.h"
 
 namespace UpdateChecker {
 QNetworkAccessManager *GithubReleaseChecker::networkMgr = new QNetworkAccessManager();

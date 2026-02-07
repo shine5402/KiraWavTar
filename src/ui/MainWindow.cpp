@@ -4,12 +4,12 @@
 #include <QMessageBox>
 #include <QValidator>
 
-#include "AudioIO.h"
-#include "CommonHtmlDialog.h"
-#include "TranslationManager.h"
-#include "UpdateChecker.h"
-#include "WavCombineDialog.h"
-#include "WavExtractDialog.h"
+#include "../utils/TranslationManager.h"
+#include "../utils/UpdateChecker.h"
+#include "../worker/AudioIO.h"
+#include "dialogs/CommonHtmlDialog.h"
+#include "dialogs/WavCombineDialog.h"
+#include "dialogs/WavExtractDialog.h"
 
 QMenu *MainWindow::createHelpMenu()
 {
