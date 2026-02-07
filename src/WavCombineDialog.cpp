@@ -13,7 +13,7 @@ using namespace WAVCombine;
 using namespace wavtar_defines;
 
 WAVCombineDialog::WAVCombineDialog(QString rootDirName, bool recursive,
-                                   const kfr::audio_format& targetFormat, QString saveFileName, QWidget* parent)
+                                   const AudioIO::WavAudioFormat& targetFormat, QString saveFileName, QWidget* parent)
     : QDialog(parent), rootDirName(rootDirName), recursive(recursive), targetFormat(targetFormat), saveFileName(saveFileName)
 {
     auto layout = new QVBoxLayout(this);

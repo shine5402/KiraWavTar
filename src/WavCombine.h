@@ -3,6 +3,7 @@
 
 #include <kfr/all.hpp>
 #include <QObject>
+#include "AudioIO.h"
 
 #include "WavTarUtils.h"
 #include <QFuture>
@@ -20,9 +21,11 @@ namespace WAVCombine
         QStringList wavFileNames;
     };
 
-    CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive, kfr::audio_format targetFormat);
-    QFuture<QPair<std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>>, QJsonObject>> startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, kfr::audio_format targetFormat);
-    bool writeCombineResult(std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>> data, QJsonObject descObj, QString wavFileName, kfr::audio_format targetFormat);
+    CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive, AudioIO::WavAudioFormat targetFormat);
+
+    QFuture<QPair<std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>>, QJsonObject>> startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::WavAudioFormat targetFormat);
+
+    bool writeCombineResult(std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>> data, QJsonObject descObj, QString wavFileName, AudioIO::WavAudioFormat targetFormat);
 };
 
 Q_DECLARE_METATYPE(WAVCombine::CheckResult);

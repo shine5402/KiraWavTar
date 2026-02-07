@@ -11,10 +11,16 @@ find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Concurrent Network)
 
 # --- Third-party libraries ---
 
-# KFR (audio DSP library, custom fork with RF64 support)
-set(ENABLE_DFT OFF CACHE BOOL "" FORCE)
+# KFR (audio DSP library)
+set(ENABLE_DFT ON CACHE BOOL "" FORCE)
+set(KFR_ENABLE_DFT ON CACHE BOOL "" FORCE)
+set(KFR_ENABLE_DSP ON CACHE BOOL "" FORCE)
 set(ENABLE_TESTS OFF CACHE BOOL "" FORCE)
-add_subdirectory(lib/kfr)
+add_subdirectory(3rdparty/kfr)
+
+# dr_libs
+add_library(dr_libs INTERFACE)
+target_include_directories(dr_libs INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/dr_libs)
 
 # --- Main application ---
 add_subdirectory(src)

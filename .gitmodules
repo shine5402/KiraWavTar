@@ -1,0 +1,6 @@
+[submodule "3rdparty/kfr"]
+	path = 3rdparty/kfr
+	url = https://github.com/shine5402/kfr.git
+[submodule "3rdparty/dr_libs"]
+	path = 3rdparty/dr_libs
+	url = https://github.com/mackron/dr_libs.git

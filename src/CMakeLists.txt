@@ -13,6 +13,7 @@ qt_add_executable(KiraWAVTar
     TranslationManager.cpp TranslationManager.h
     UpdateChecker.cpp UpdateChecker.h
     Filesystem.cpp Filesystem.h
+    AudioIO.cpp AudioIO.h
     KfrHelper.h
     DirNameEditWithBrowse.cpp DirNameEditWithBrowse.h
     FileNameEditWithBrowse.cpp FileNameEditWithBrowse.h FileNameEditWithBrowse.ui
@@ -24,5 +25,6 @@ target_include_directories(KiraWAVTar PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(KiraWAVTar PRIVATE
     Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Concurrent Qt6::Network
-    kfr_io
+    kfr kfr_dsp
+    dr_libs
 )

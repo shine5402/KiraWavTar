@@ -17,7 +17,7 @@ using namespace wavtar_defines;
 using namespace wavtar_utils;
 
 WAVExtractDialog::WAVExtractDialog(QString srcWAVFileName, QString dstDirName,
-                                   const kfr::audio_format& targetFormat, bool extractResultSelection, bool removeDCOffset, QWidget* parent)
+                                   const AudioIO::WavAudioFormat& targetFormat, bool extractResultSelection, bool removeDCOffset, QWidget* parent)
     : QDialog(parent), srcWAVFileName(srcWAVFileName), dstDirName(dstDirName), targetFormat(targetFormat), extractResultSelection(extractResultSelection), removeDCOffset(removeDCOffset)
 {
     auto layout = new QVBoxLayout(this);
@@ -97,7 +97,7 @@ void WAVExtractDialog::preCheckDone()
     }
 }
 
-using ExtractWorkFutureWatcher = QFutureWatcher<QList<ExtractErrorDescription>>;
+using ExtractWorkFutureWatcher = QFutureWatcher<ExtractErrorDescription>;
 
 // Though use SrcData as param would be better, but it will expose this internal struct in wavextractdialog.h, so..
 void WAVExtractDialog::doExtractCall(std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t> > srcData, decltype(kfr::audio_format::samplerate) samplerate, QJsonArray descArray)
@@ -181,8 +181,14 @@ void WAVExtractDialog::extractWorkDone()
         progressBar->setMaximum(1);
         progressBar->setMinimum(0);
         progressBar->setValue(1);
-        auto result = watcher->result();
-        if (result.isEmpty()){
+        // We accumulate errors
+        auto allResults = watcher->future().results();
+        QList<ExtractErrorDescription> errors;
+        for(const auto& res : allResults) {
+            if(!res.description.isEmpty()) errors.append(res);
+        }
+        
+        if (errors.isEmpty()){
             QMessageBox msgBox(this);
             msgBox.setIcon(QMessageBox::Icon::Information);
             msgBox.setText(tr("The wav file has been extracted."));
@@ -211,22 +217,22 @@ void WAVExtractDialog::extractWorkDone()
             QMessageBox msgBoxInfomation;
             msgBoxInfomation.setIcon(QMessageBox::Icon::Critical);
             msgBoxInfomation.setText(tr("Error occurred when extracting."));
-            msgBoxInfomation.setInformativeText(QtConcurrent::mappedReduced<QString>(result,
+            msgBoxInfomation.setInformativeText(QtConcurrent::mappedReduced<QString>(errors,
                                                                   std::function([](const ExtractErrorDescription& value)->QString{return value.description;}),
-            [](QString& result, const QString& desc){
-                                          if (result.isEmpty())
-                                            result = reportTextStyle;
-                                          result.append(QString("<p class='critical'>%1</p>").arg(desc));
+            [](QString& res, const QString& desc){
+                                          if (res.isEmpty())
+                                            res = reportTextStyle;
+                                          res.append(QString("<p class='critical'>%1</p>").arg(desc));
                                       }).result());
             msgBoxInfomation.setStandardButtons(QMessageBox::Ok);
             msgBoxInfomation.exec();
             QMessageBox msgBoxRetry;
             msgBoxRetry.setIcon(QMessageBox::Icon::Question);
             msgBoxRetry.setText(tr("Should retry extracting these?"));
-            msgBoxRetry.setInformativeText(QtConcurrent::mappedReduced<QStringList>(result,
+            msgBoxRetry.setInformativeText(QtConcurrent::mappedReduced<QStringList>(errors,
                                                                                     std::function([](const ExtractErrorDescription& value)->QString{return value.descObj.value("file_name").toString();}),
-                                                                                     [](QStringList& result, const QString& fileName){
-                                                    result.append(fileName);
+                                                                                     [](QStringList& res, const QString& fileName){
+                                                    res.append(fileName);
                                                 }).result().join("\n"));
             msgBoxRetry.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
             auto retryDialogCode = msgBoxRetry.exec();
@@ -235,11 +241,11 @@ void WAVExtractDialog::extractWorkDone()
             else
             {
                 QJsonArray descArray;
-                for (const auto& i : std::as_const(result)){
+                for (const auto& i : std::as_const(errors)){
                     descArray.append(i.descObj);
                 }
-                auto srcData = result.at(0).srcData;
-                auto srcSampleRate = result.at(0).srcSampleRate;
+                auto srcData = errors.at(0).srcData;
+                auto srcSampleRate = errors.at(0).srcSampleRate;
                 doExtractCall(srcData, srcSampleRate, descArray);
             }
         }

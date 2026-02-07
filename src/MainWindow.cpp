@@ -9,6 +9,7 @@
 #include "WavExtractDialog.h"
 #include "TranslationManager.h"
 #include "UpdateChecker.h"
+#include "AudioIO.h"
 
 QMenu* MainWindow::createHelpMenu()
 {
@@ -104,7 +105,9 @@ void MainWindow::run()
     }
     else
     {
-        constexpr auto invalidFormat = kfr::audio_format{0, kfr::audio_sample_type::unknown, 0, kfr::audio_format::riff};
+        AudioIO::WavAudioFormat invalidFormat;
+        invalidFormat.kfr_format.type = kfr::audio_sample_type::unknown;
+        
         auto targetFormat = ui->extractFormatSrcRadioButton->isChecked() ? invalidFormat : ui->extractFormatCustomChooser->getFormat();
         auto srcWAVFileName = ui->extractSrcPathWidget->fileName();
         auto dstDirName = ui->extractResultPathWidget->dirName();

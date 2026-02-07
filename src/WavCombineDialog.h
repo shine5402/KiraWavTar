@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <kfr/all.hpp>
+#include "AudioIO.h"
 
 class QLabel;
 class QProgressBar;
@@ -12,7 +13,7 @@ class WAVCombineDialog : public QDialog
 {
     Q_OBJECT
 public:
-    WAVCombineDialog(QString rootDirName, bool recursive, const kfr::audio_format& targetFormat, QString saveFileName, QWidget* parent = nullptr);
+    WAVCombineDialog(QString rootDirName, bool recursive, const AudioIO::WavAudioFormat& targetFormat, QString saveFileName, QWidget* parent = nullptr);
 
 private:
     QLabel* label;
@@ -21,7 +22,7 @@ private:
 
     QString rootDirName;
     bool recursive;
-    kfr::audio_format targetFormat;
+    AudioIO::WavAudioFormat targetFormat;
     QString saveFileName;
 
 private slots:

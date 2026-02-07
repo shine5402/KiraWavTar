@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <kfr/all.hpp>
 #include "WavTarUtils.h"
+#include "AudioIO.h"
 
 class QLabel;
 class QProgressBar;
@@ -13,7 +14,7 @@ class WAVExtractDialog : public QDialog
 {
     Q_OBJECT
 public:
-    WAVExtractDialog(QString srcWAVFileName, QString dstDirName, const kfr::audio_format& targetFormat, bool extractResultSelection, bool removeDCOffset, QWidget* parent);
+    WAVExtractDialog(QString srcWAVFileName, QString dstDirName, const AudioIO::WavAudioFormat& targetFormat, bool extractResultSelection, bool removeDCOffset, QWidget* parent);
 private:
     QLabel* label;
     QProgressBar* progressBar;
@@ -21,7 +22,7 @@ private:
 
     QString srcWAVFileName;
     QString dstDirName;
-    kfr::audio_format targetFormat;
+    AudioIO::WavAudioFormat targetFormat;
     bool extractResultSelection;
     bool removeDCOffset;
 

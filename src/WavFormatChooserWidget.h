@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <kfr/all.hpp>
+#include "AudioIO.h"
 
 namespace Ui {
     class WAVFormatChooserWidget;
@@ -18,25 +19,18 @@ public:
 
     decltype (kfr::audio_format::samplerate) getSampleRate() const;
     decltype (kfr::audio_format::channels) getChannelCount() const;
-    decltype (kfr::audio_format::type) getSampleType() const;
-    decltype (kfr::audio_format::wav_format) getWAVContainerFormat() const;
-
-    void setSampleRate(decltype(kfr::audio_format::samplerate) value);
-    void setChannelCount(decltype(kfr::audio_format::channels) value);
-    void setSampleType(decltype(kfr::audio_format::type) value);
-    void setWAVContainerFormat(decltype(kfr::audio_format::wav_format) value);
-
-    kfr::audio_format getFormat() const;
-    void setFormat(kfr::audio_format value);
+    decltype(kfr::audio_format::type) getSampleType() const;
+    AudioIO::WavAudioFormat::Container getWAVContainerFormat() const;
+    
+    AudioIO::WavAudioFormat getFormat() const;
 
     void reset();
+
+public slots:
+    void warnAbout64Bit(bool checked);
+
 private:
     Ui::WAVFormatChooserWidget *ui;
-
-private slots:
-    void warnAbout64Bit();
-protected:
-    void changeEvent(QEvent* event) override;
 };
 
 #endif // WAVFORMATCHOOSERWIDGET_H
