@@ -7,7 +7,6 @@
 #include <QCoreApplication>
 #include <QString>
 #include <QtMath>
-#include <kira/base64.h>
 class QStackedWidget;
 
 namespace wavtar_utils {

@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QJsonObject>
 #include "WavTarUtils.h"
-#include <kira/lib_helper/kfr_helper.h>
+#include "KfrHelper.h"
 #include <QFuture>
 #include <QJsonArray>
 

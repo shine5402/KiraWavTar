@@ -4,9 +4,8 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include "WavTarUtils.h"
-#include <kira/lib_helper/kfr_helper.h>
-#include <kira/base64.h>
-#include <kira/filesystem.h>
+#include "KfrHelper.h"
+#include "Filesystem.h"
 #include <QtConcurrent/QtConcurrent>
 #include <memory>
 
@@ -82,25 +81,25 @@ namespace WAVCombine {
         }
 
         auto hasLargerQuantization = QtConcurrent::filtered(formats, [targetFormat](const QPair<QString, kfr::audio_format>& info) -> bool{
-           return (kfr::audio_sample_type_precision_length.at(info.second.type) > kfr::audio_sample_type_precision_length.at(targetFormat.type)) || (kfr::audio_sample_is_float(info.second.type) && (!kfr::audio_sample_is_float(targetFormat.type)));
+           return (kfr::audio_sample_type_to_precision(info.second.type) > kfr::audio_sample_type_to_precision(targetFormat.type)) || (kfr::audio_sample_is_float(info.second.type) && (!kfr::audio_sample_is_float(targetFormat.type)));
         }).results();
 
         for (const auto& i : std::as_const(hasLargerQuantization)){
             warningMsg.append(QCoreApplication::translate("WAVCombine", "<p class='warning'>The precision could be lost a bit when processing between \"%1\" (%2) and target (%3).</p>")
                               .arg(i.first)
-                              .arg(kfr::audio_sample_type_human_string.at(i.second.type).c_str())
-                              .arg(kfr::audio_sample_type_human_string.at(targetFormat.type).c_str()));
+                              .arg(kfr::audio_sample_type_to_string(i.second.type).data())
+                              .arg(kfr::audio_sample_type_to_string(targetFormat.type).data()));
         }
 
         auto hasLargerQuantizationThanProcess = QtConcurrent::filtered(formats, [](const QPair<QString, kfr::audio_format>& info) -> bool{
-            return kfr::audio_sample_type_precision_length.at(info.second.type) > kfr::audio_sample_type_precision_length.at(sample_process_type);
+            return kfr::audio_sample_type_to_precision(info.second.type) > kfr::audio_sample_type_to_precision(sample_process_type);
          }).results();
 
         for (const auto& i : std::as_const(hasLargerQuantizationThanProcess)){
             warningMsg.append(QCoreApplication::translate("WAVCombine", "<p class='warning'>The precision could be lost a bit when processing, as we use a bit depth of \"%3\" in internal processing while source \"%1\" having \"%2\".</p>")
                               .arg(i.first)
-                              .arg(kfr::audio_sample_type_human_string.at(i.second.type).c_str())
-                              .arg(kfr::audio_sample_type_human_string.at(sample_process_type).c_str()));
+                              .arg(kfr::audio_sample_type_to_string(i.second.type).data())
+                              .arg(kfr::audio_sample_type_to_string(sample_process_type).data()));
         }
 
         if (QFileInfo{dstWAVFileName}.exists())

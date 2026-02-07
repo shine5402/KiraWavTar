@@ -118,7 +118,7 @@ template <typename... T>
 using common_type = typename std::common_type<T...>::type;
 
 template <typename T, typename... Args>
-using invoke_result = typename std::result_of<T(Args...)>::type;
+using invoke_result = std::invoke_result_t<T, Args...>;
 
 template <bool Condition, typename Type = void>
 using enable_if = typename std::enable_if<Condition, Type>::type;

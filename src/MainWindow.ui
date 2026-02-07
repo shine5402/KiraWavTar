@@ -276,13 +276,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="uiThemeButton">
-        <property name="text">
-         <string>UI Theme</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="Line" name="leftBottomButtonLine">
         <property name="frameShadow">
          <enum>QFrame::Plain</enum>
@@ -328,25 +321,25 @@
   <customwidget>
    <class>DirNameEditWithBrowse</class>
    <extends>QWidget</extends>
-   <header location="global">kira/widgets/dirnameeditwithbrowse.h</header>
+   <header>DirNameEditWithBrowse.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>FileNameEditWithBrowse</class>
    <extends>QWidget</extends>
-   <header location="global">kira/widgets/filenameeditwithbrowse.h</header>
+   <header>FileNameEditWithBrowse.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>FileNameEditWithSaveBrowse</class>
    <extends>QWidget</extends>
-   <header location="global">kira/widgets/filenameeditwithbrowse.h</header>
+   <header>FileNameEditWithBrowse.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>WAVFormatChooserWidget</class>
    <extends>QWidget</extends>
-   <header>wavformatchooserwidget.h</header>
+   <header>WavFormatChooserWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

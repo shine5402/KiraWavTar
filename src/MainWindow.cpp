@@ -4,13 +4,11 @@
 #include "WavExtract.h"
 #include <QMessageBox>
 #include <QValidator>
-#include <kira/lib_helper/kfr_helper.h>
+#include "KfrHelper.h"
 #include "WavCombineDialog.h"
 #include "WavExtractDialog.h"
-#include <QPalette>
-#include <kira/i18n/translationmanager.h>
-#include <kira/darkmode.h>
-#include <kira/updatechecker.h>
+#include "TranslationManager.h"
+#include "UpdateChecker.h"
 
 QMenu* MainWindow::createHelpMenu()
 {
@@ -44,7 +42,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->resetButton, &QPushButton::clicked, this, &MainWindow::reset);
     connect(ui->modeButtonGroup, &QButtonGroup::idClicked, this, &MainWindow::updateStackWidgetIndex);
     connect(ui->runButton, &QPushButton::clicked, this, &MainWindow::run);
-    //connect(ui->aboutButton, &QPushButton::clicked, this, &MainWindow::about);
 
     auto helpMenu = createHelpMenu();
     ui->helpButton->setMenu(helpMenu);
@@ -54,16 +51,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->extractSrcPathWidget, &FileNameEditWithBrowse::browseTriggered, this, &MainWindow::fillResultPath);
     connect(ui->extractSrcPathWidget, &FileNameEditWithBrowse::dropTriggered, this, &MainWindow::fillResultPath);
 
-    //Make line separator looks nicer
-    QPalette linePalette;
-    linePalette.setColor(QPalette::WindowText, linePalette.color(QPalette::Dark));
-    ui->leftBottomButtonLine->setPalette(linePalette);
-
     //i18n menu
     ui->langButton->setMenu(TranslationManager::getManager()->getI18nMenu());
-
-    //ui theme menu
-    ui->uiThemeButton->setMenu(DarkMode::getDarkModeSettingMenu());
 }
 
 MainWindow::~MainWindow()
@@ -198,8 +187,6 @@ along with this program.  If not, see <a href="https://www.gnu.org/licenses/">ht
 <ul>
 <li>Qt %2, The Qt Company Ltd, under LGPL v3.</li>
 <li><a href="https://www.kfrlib.com/">KFR - Fast, modern C++ DSP framework</a>, under GNU GPL v2+, <a href="https://github.com/shine5402/kfr">using our own modified version</a></li>
-<li><a href="https://github.com/shine5402/KiraCommonUtils">KiraCommonUtils</a>, shine_5402, mainly under the Apache License, Version 2.0</li>
-<li><a href="https://github.com/mapbox/eternal">eternal</a>, mapbox, under ISC License</li>
 <li>This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit. (<a href='http://www.openssl.org'>http://www.openssl.org/</a>)</li>
 </ul>
 )").arg(versionStr).arg(QT_VERSION_STR));
@@ -212,6 +199,5 @@ void MainWindow::changeEvent(QEvent* event){
         ui->retranslateUi(this);
         ui->helpButton->menu()->deleteLater();
         ui->helpButton->setMenu(createHelpMenu());
-        ui->uiThemeButton->setMenu(DarkMode::getDarkModeSettingMenu());
     }
 }

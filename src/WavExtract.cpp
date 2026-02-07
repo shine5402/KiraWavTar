@@ -7,8 +7,7 @@
 #include <algorithm>
 #include <QDir>
 #include "WavTarUtils.h"
-#include <kira/lib_helper/kfr_helper.h>
-#include <kira/base64.h>
+#include "KfrHelper.h"
 #include <QCoreApplication>
 #include <QtConcurrent>
 #include <exception>

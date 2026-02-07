@@ -1,7 +1,7 @@
 #include "WavFormatChooserWidget.h"
 #include "ui_wavformatchooserwidget.h"
 #include <kfr/all.hpp>
-#include <kira/lib_helper/kfr_helper.h>
+#include "KfrHelper.h"
 #include <QMessageBox>
 
 WAVFormatChooserWidget::WAVFormatChooserWidget(QWidget *parent) :
@@ -13,8 +13,8 @@ WAVFormatChooserWidget::WAVFormatChooserWidget(QWidget *parent) :
     auto sampleRateValidator = new QIntValidator(2, INT_MAX);
     ui->sampleRateComboBox->setValidator(sampleRateValidator);
 
-    for(const auto& item : kfr::audio_sample_type_human_string){
-        ui->sampleTypeComboBox->addItem(item.second.c_str());
+    for(const auto& [type, name] : kfr::audio_sample_type_entries){
+        ui->sampleTypeComboBox->addItem(name.data());
     }
 
     reset();
@@ -39,7 +39,7 @@ decltype (kfr::audio_format::channels) WAVFormatChooserWidget::getChannelCount()
 
 decltype(kfr::audio_format::type) WAVFormatChooserWidget::getSampleType() const
 {
-    return (kfr::audio_sample_type_human_string.begin() + ui->sampleTypeComboBox->currentIndex())->first;
+    return kfr::audio_sample_type_entries[ui->sampleTypeComboBox->currentIndex()].first;
 }
 
 decltype (kfr::audio_format::wav_format) WAVFormatChooserWidget::getWAVContainerFormat() const
@@ -66,7 +66,7 @@ void WAVFormatChooserWidget::setChannelCount(decltype (kfr::audio_format::channe
 
 void WAVFormatChooserWidget::setSampleType(decltype(kfr::audio_format::type) value)
 {
-    ui->sampleTypeComboBox->setCurrentText(kfr::audio_sample_type_human_string.at(value).c_str());
+    ui->sampleTypeComboBox->setCurrentText(kfr::audio_sample_type_to_string(value).data());
 }
 
 void WAVFormatChooserWidget::setWAVContainerFormat(decltype(kfr::audio_format::wav_format) value)
