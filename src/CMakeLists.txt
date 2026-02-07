@@ -1,3 +1,5 @@
+add_subdirectory(3rdparty)
+
 qt_add_executable(KiraWAVTar
     main.cpp
     resources.qrc

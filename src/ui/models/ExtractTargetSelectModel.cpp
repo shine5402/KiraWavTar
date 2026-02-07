@@ -8,7 +8,7 @@ enum COLUMN_INDEX { FILENAME = 0, BEGIN_TIME, DURATION };
 }
 
 ExtractTargetSelectModel::ExtractTargetSelectModel(QJsonArray *descArray, QObject *parent)
-    : QAbstractTableModel(parent), descArray(descArray)
+    : QAbstractTableModel(parent), m_descArray(descArray)
 {
 }
 
@@ -17,7 +17,7 @@ int ExtractTargetSelectModel::rowCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    return descArray->count();
+    return m_descArray->count();
 }
 
 int ExtractTargetSelectModel::columnCount(const QModelIndex &parent) const
@@ -34,7 +34,7 @@ QVariant ExtractTargetSelectModel::data(const QModelIndex &index, int role) cons
     if (!index.isValid())
         return QVariant();
 
-    auto currentObj = descArray->at(index.row()).toObject();
+    auto currentObj = m_descArray->at(index.row()).toObject();
     auto currentSelected = currentObj.value("selected").toBool(true);
     auto currentFileName = currentObj.value("file_name").toString();
     auto currentBeginTime = currentObj.value("begin_time").toString();
@@ -67,9 +67,9 @@ Qt::ItemFlags ExtractTargetSelectModel::flags(const QModelIndex &index) const
 bool ExtractTargetSelectModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (index.column() == FILENAME && role == Qt::CheckStateRole) {
-        auto currentObj = descArray->at(index.row()).toObject();
+        auto currentObj = m_descArray->at(index.row()).toObject();
         currentObj.insert("selected", value.value<Qt::CheckState>() == Qt::Checked);
-        descArray->replace(index.row(), currentObj);
+        m_descArray->replace(index.row(), currentObj);
         emit dataChanged(index, index, {Qt::CheckStateRole});
     }
     return false;

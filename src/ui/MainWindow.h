@@ -22,15 +22,15 @@ public:
 protected:
     void changeEvent(QEvent *event) override;
 
+private:
+    QMenu *createHelpMenu();
+
 private slots:
     void reset();
     void updateStackWidgetIndex();
     void run();
     void fillResultPath();
     void about();
-
-private:
-    QMenu *createHelpMenu();
 
 private:
     Ui::MainWindow *ui;

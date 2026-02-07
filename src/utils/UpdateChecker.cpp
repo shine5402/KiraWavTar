@@ -11,10 +11,10 @@
 #include <QtCore/qnamespace.h>
 #include <QtDebug>
 
-#include "../ui/dialogs/CommonHtmlDialog.h"
+#include "ui/dialogs/CommonHtmlDialog.h"
 
 namespace UpdateChecker {
-QNetworkAccessManager *GithubReleaseChecker::networkMgr = new QNetworkAccessManager();
+QNetworkAccessManager *GithubReleaseChecker::s_networkMgr = new QNetworkAccessManager();
 
 void GithubReleaseChecker::triggerUpdateCheck(QVersionNumber current)
 {
@@ -32,9 +32,9 @@ void GithubReleaseChecker::triggerUpdateCheck(QVersionNumber current)
     QNetworkRequest request;
     // Use Github v3 REST API explicitly, as recommended
     request.setRawHeader("Accept", "application/vnd.github.v3+json");
-    request.setUrl(QStringLiteral("https://api.github.com/repos/%1/%2/releases/latest").arg(owner, repo));
+    request.setUrl(QStringLiteral("https://api.github.com/repos/%1/%2/releases/latest").arg(m_owner, m_repo));
 
-    auto reply = networkMgr->get(request);
+    auto reply = s_networkMgr->get(request);
 
     connect(reply, &QNetworkReply::finished, reply, [reply, current, this]() {
         if (reply->error() != QNetworkReply::NoError) {

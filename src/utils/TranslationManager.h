@@ -23,15 +23,14 @@ public:
     QMenu *getI18nMenu();
 
 private:
-    static TranslationManager *instance;
+    static TranslationManager *s_instance;
     TranslationManager();
-    QMenu *i18nMenu = nullptr;
-
-    QList<Translation> translations;
-
     void setLangActionChecked(QMenu *i18nMenu, const Translation &translation) const;
     void saveUserLocaleSetting(QLocale locale) const;
     QLocale getLocaleUserSetting() const;
+
+    QMenu *m_i18nMenu = nullptr;
+    QList<Translation> m_translations;
 };
 
 #endif // TRANSLATIONMANAGER_H

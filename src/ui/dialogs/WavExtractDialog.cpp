@@ -10,9 +10,9 @@
 #include <QVBoxLayout>
 #include <QtConcurrent>
 
-#include "../../utils/Utils.h"
-#include "../../worker/WavExtract.h"
-#include "../models/ExtractTargetSelectModel.h"
+#include "models/ExtractTargetSelectModel.h"
+#include "utils/Utils.h"
+#include "worker/WavExtract.h"
 
 using namespace WAVExtract;
 using namespace utils;
@@ -20,25 +20,25 @@ using namespace utils;
 WavExtractDialog::WavExtractDialog(QString srcWAVFileName, QString dstDirName,
                                    const AudioIO::WavAudioFormat &targetFormat, bool extractResultSelection,
                                    bool removeDCOffset, QWidget *parent)
-    : QDialog(parent), srcWAVFileName(srcWAVFileName), dstDirName(dstDirName), targetFormat(targetFormat),
-      extractResultSelection(extractResultSelection), removeDCOffset(removeDCOffset)
+    : QDialog(parent), m_srcWAVFileName(srcWAVFileName), m_dstDirName(dstDirName), m_targetFormat(targetFormat),
+      m_extractResultSelection(extractResultSelection), m_removeDCOffset(removeDCOffset)
 {
     auto layout = new QVBoxLayout(this);
 
-    label = new QLabel(this);
-    layout->addWidget(label);
+    m_label = new QLabel(this);
+    layout->addWidget(m_label);
 
-    progressBar = new QProgressBar(this);
-    progressBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    layout->addWidget(progressBar);
+    m_progressBar = new QProgressBar(this);
+    m_progressBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    layout->addWidget(m_progressBar);
 
-    buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel, this);
-    layout->addWidget(buttonBox);
+    m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel, this);
+    layout->addWidget(m_buttonBox);
 
     setLayout(layout);
     resize(300, height());
 
-    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     connect(this, &WavExtractDialog::opened, this, &WavExtractDialog::startWork);
 }
 
@@ -46,15 +46,15 @@ using PreCheckFutureWatcher = QFutureWatcher<decltype(std::function(preCheck))::
 
 void WavExtractDialog::startWork()
 {
-    auto nextFuture = QtConcurrent::run(preCheck, srcWAVFileName, dstDirName);
-    label->setText(tr("Some preparing work..."));
+    auto nextFuture = QtConcurrent::run(preCheck, m_srcWAVFileName, m_dstDirName);
+    m_label->setText(tr("Some preparing work..."));
     // This will make progress bar show as busy indicator
-    progressBar->setMaximum(0);
-    progressBar->setMinimum(0);
+    m_progressBar->setMaximum(0);
+    m_progressBar->setMinimum(0);
     auto watcher = new PreCheckFutureWatcher(this);
     watcher->setFuture(nextFuture);
     connect(watcher, &PreCheckFutureWatcher::finished, this, &WavExtractDialog::preCheckDone);
-    connect(buttonBox, &QDialogButtonBox::rejected, watcher, &PreCheckFutureWatcher::cancel);
+    connect(m_buttonBox, &QDialogButtonBox::rejected, watcher, &PreCheckFutureWatcher::cancel);
 }
 
 using ReadSrcWAVFileFutureWatcher = QFutureWatcher<decltype(std::function(readSrcWAVFile))::result_type>;
@@ -89,12 +89,12 @@ void WavExtractDialog::preCheckDone()
             }
             [[fallthrough]];
         case WAVExtract::CheckPassType::OK:
-            auto nextFuture = QtConcurrent::run(readSrcWAVFile, srcWAVFileName, result.descRoot);
+            auto nextFuture = QtConcurrent::run(readSrcWAVFile, m_srcWAVFileName, result.descRoot);
             auto nextWatcher = new ReadSrcWAVFileFutureWatcher(this);
             nextWatcher->setFuture(nextFuture);
-            label->setText(tr("Reading source WAV file..."));
+            m_label->setText(tr("Reading source WAV file..."));
             connect(nextWatcher, &ReadSrcWAVFileFutureWatcher::finished, this, &WavExtractDialog::readSrcWAVFileDone);
-            connect(buttonBox, &QDialogButtonBox::rejected, nextWatcher, &ReadSrcWAVFileFutureWatcher::cancel);
+            connect(m_buttonBox, &QDialogButtonBox::rejected, nextWatcher, &ReadSrcWAVFileFutureWatcher::cancel);
             break;
         }
     }
@@ -106,15 +106,15 @@ using ExtractWorkFutureWatcher = QFutureWatcher<ExtractErrorDescription>;
 void WavExtractDialog::doExtractCall(std::shared_ptr<kfr::univector2d<utils::sample_process_t>> srcData,
                                      decltype(kfr::audio_format::samplerate) samplerate, QJsonArray descArray)
 {
-    label->setText(tr("Writing extracted file..."));
-    auto nextFuture = startExtract(srcData, samplerate, descArray, dstDirName, targetFormat, removeDCOffset);
+    m_label->setText(tr("Writing extracted file..."));
+    auto nextFuture = startExtract(srcData, samplerate, descArray, m_dstDirName, m_targetFormat, m_removeDCOffset);
     auto nextWatcher = new ExtractWorkFutureWatcher(this);
     nextWatcher->setFuture(nextFuture);
-    progressBar->setMinimum(nextWatcher->progressMinimum());
-    progressBar->setMaximum(nextWatcher->progressMaximum());
-    connect(nextWatcher, &QFutureWatcher<bool>::progressValueChanged, progressBar, &QProgressBar::setValue);
+    m_progressBar->setMinimum(nextWatcher->progressMinimum());
+    m_progressBar->setMaximum(nextWatcher->progressMaximum());
+    connect(nextWatcher, &QFutureWatcher<bool>::progressValueChanged, m_progressBar, &QProgressBar::setValue);
     connect(nextWatcher, &QFutureWatcher<bool>::finished, this, &WavExtractDialog::extractWorkDone);
-    connect(buttonBox, &QDialogButtonBox::rejected, nextWatcher, &QFutureWatcher<bool>::cancel);
+    connect(m_buttonBox, &QDialogButtonBox::rejected, nextWatcher, &QFutureWatcher<bool>::cancel);
 }
 
 void WavExtractDialog::readSrcWAVFileDone()
@@ -125,7 +125,7 @@ void WavExtractDialog::readSrcWAVFileDone()
         if (watcher->isCanceled())
             return;
         auto result = watcher->result();
-        if (extractResultSelection) {
+        if (m_extractResultSelection) {
             auto selectDialog = new QDialog(this);
             auto selectModel = new ExtractTargetSelectModel(&result.descArray, selectDialog);
             auto selectDialogLayout = new QVBoxLayout(selectDialog);
@@ -181,11 +181,11 @@ void WavExtractDialog::extractWorkDone()
             return;
         if (watcher->isCanceled())
             return;
-        label->setText(tr("Done"));
+        m_label->setText(tr("Done"));
         // Set progressbar as done
-        progressBar->setMaximum(1);
-        progressBar->setMinimum(0);
-        progressBar->setValue(1);
+        m_progressBar->setMaximum(1);
+        m_progressBar->setMinimum(0);
+        m_progressBar->setValue(1);
         // We accumulate errors
         auto allResults = watcher->future().results();
         QList<ExtractErrorDescription> errors;
@@ -200,15 +200,15 @@ void WavExtractDialog::extractWorkDone()
             msgBox.setText(tr("The wav file has been extracted."));
             msgBox.setInformativeText(tr("Extracted wav files has been stored at \"%1\"."
                                          "Original folder structure has been kept too.")
-                                          .arg(dstDirName));
+                                          .arg(m_dstDirName));
             auto deleteSrcButton = new QPushButton(tr("Delete source file"), &msgBox);
             connect(deleteSrcButton, &QPushButton::clicked, this, [this]() {
-                auto removeSrcWAV = QFile(srcWAVFileName).remove();
-                auto removeDescFile = QFile(getDescFileNameFrom(srcWAVFileName)).remove();
+                auto removeSrcWAV = QFile(m_srcWAVFileName).remove();
+                auto removeDescFile = QFile(getDescFileNameFrom(m_srcWAVFileName)).remove();
                 if (!removeSrcWAV)
-                    QMessageBox::critical(this, {}, tr("Can not delete %1").arg(srcWAVFileName));
+                    QMessageBox::critical(this, {}, tr("Can not delete %1").arg(m_srcWAVFileName));
                 if (!removeDescFile)
-                    QMessageBox::critical(this, {}, tr("Can not delete %1").arg(getDescFileNameFrom(srcWAVFileName)));
+                    QMessageBox::critical(this, {}, tr("Can not delete %1").arg(getDescFileNameFrom(m_srcWAVFileName)));
                 if (removeSrcWAV && removeDescFile)
                     QMessageBox::information(this, {}, tr("Source files have been deleted successfully."));
             });

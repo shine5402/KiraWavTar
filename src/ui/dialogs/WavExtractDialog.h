@@ -19,17 +19,14 @@ public:
     WavExtractDialog(QString srcWAVFileName, QString dstDirName, const AudioIO::WavAudioFormat &targetFormat,
                      bool extractResultSelection, bool removeDCOffset, QWidget *parent);
 
+public slots:
+    void open() override;
+    int exec() override;
+
+signals:
+    void opened();
+
 private:
-    QLabel *label;
-    QProgressBar *progressBar;
-    QDialogButtonBox *buttonBox;
-
-    QString srcWAVFileName;
-    QString dstDirName;
-    AudioIO::WavAudioFormat targetFormat;
-    bool extractResultSelection;
-    bool removeDCOffset;
-
     void doExtractCall(std::shared_ptr<kfr::univector2d<utils::sample_process_t>> srcData,
                        decltype(kfr::audio_format::samplerate) samplerate, QJsonArray descArray);
 
@@ -39,12 +36,16 @@ private slots:
     void readSrcWAVFileDone();
     void extractWorkDone();
 
-signals:
-    void opened();
+private:
+    QLabel *m_label;
+    QProgressBar *m_progressBar;
+    QDialogButtonBox *m_buttonBox;
 
-public slots:
-    void open() override;
-    int exec() override;
+    QString m_srcWAVFileName;
+    QString m_dstDirName;
+    AudioIO::WavAudioFormat m_targetFormat;
+    bool m_extractResultSelection;
+    bool m_removeDCOffset;
 };
 
 #endif // WAVEXTRACTDIALOG_H

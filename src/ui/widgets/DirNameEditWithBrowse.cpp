@@ -14,50 +14,50 @@ DirNameEditWithBrowse::DirNameEditWithBrowse(QWidget *parent) : QWidget(parent)
     auto layout = new QHBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
 
-    dirNameEdit = new QLineEdit(this);
-    layout->addWidget(dirNameEdit);
+    m_dirNameEdit = new QLineEdit(this);
+    layout->addWidget(m_dirNameEdit);
 
-    browseButton = new QPushButton(tr("Browse"), this);
-    layout->addWidget(browseButton);
+    m_browseButton = new QPushButton(tr("Browse"), this);
+    layout->addWidget(m_browseButton);
 
-    connect(browseButton, &QPushButton::clicked, this, &DirNameEditWithBrowse::onBrowse);
+    connect(m_browseButton, &QPushButton::clicked, this, &DirNameEditWithBrowse::onBrowse);
 }
 
 QString DirNameEditWithBrowse::dirName() const
 {
-    return dirNameEdit->text();
+    return m_dirNameEdit->text();
 }
 
 void DirNameEditWithBrowse::setDirName(const QString &value)
 {
-    dirNameEdit->setText(value);
+    m_dirNameEdit->setText(value);
 }
 
 QString DirNameEditWithBrowse::getCaption() const
 {
-    return caption;
+    return m_caption;
 }
 
 void DirNameEditWithBrowse::setCaption(const QString &value)
 {
-    caption = value;
+    m_caption = value;
 }
 
 QFileDialog::Options DirNameEditWithBrowse::getOptions() const
 {
-    return options;
+    return m_options;
 }
 
 void DirNameEditWithBrowse::setOptions(const QFileDialog::Options &value)
 {
-    options = value;
+    m_options = value;
 }
 
 void DirNameEditWithBrowse::onBrowse()
 {
-    auto result = QFileDialog::getExistingDirectory(this, caption, dirName(), options);
+    auto result = QFileDialog::getExistingDirectory(this, m_caption, dirName(), m_options);
     if (!result.isEmpty()) {
-        dirNameEdit->setText(result);
+        m_dirNameEdit->setText(result);
         emit browseTriggered();
     }
 }
@@ -79,7 +79,7 @@ void DirNameEditWithBrowse::dropEvent(QDropEvent *event)
             result = fileInfo.absoluteFilePath();
         else
             result = fileInfo.absoluteDir().absolutePath();
-        dirNameEdit->setText(result);
+        m_dirNameEdit->setText(result);
         emit dropTriggered();
         event->setDropAction(Qt::LinkAction);
         event->accept();
@@ -89,6 +89,6 @@ void DirNameEditWithBrowse::dropEvent(QDropEvent *event)
 void DirNameEditWithBrowse::changeEvent(QEvent *event)
 {
     if (event->type() == QEvent::LanguageChange) {
-        browseButton->setText(tr("Browse"));
+        m_browseButton->setText(tr("Browse"));
     }
 }

@@ -52,35 +52,36 @@ public:
     QString getMultipleModeSeparator() const;
     void setMultipleModeSeparator(const QString &value);
 
+signals:
+    void browseTriggered();
+    void dropTriggered();
+
 protected:
     void dragEnterEvent(QDragEnterEvent *event) override;
     void dropEvent(QDropEvent *event) override;
     void changeEvent(QEvent *event) override;
 
 private:
-    Ui::FileNameEditWithBrowse *ui;
-    Purpose purpose = Open;
-
-    bool m_multipleMode;
-    QString multipleModeSeparator = "||";
-
     void openFilePathBrowse();
     void saveFilePathBrowse();
-
-    QString caption{};
-    QString dir{};
-    QString filter{};
-    QString *selectedFilter = nullptr;
-    QFileDialog::Options options = QFileDialog::Options();
 
     QString processFileName(const QString &fileName) const;
 
 private slots:
     void browse();
 
-signals:
-    void browseTriggered();
-    void dropTriggered();
+private:
+    Ui::FileNameEditWithBrowse *ui;
+    Purpose m_purpose = Open;
+
+    bool m_multipleMode;
+    QString m_multipleModeSeparator = "||";
+
+    QString m_caption{};
+    QString m_dir{};
+    QString m_filter{};
+    QString *m_selectedFilter = nullptr;
+    QFileDialog::Options m_options = QFileDialog::Options();
 };
 
 class FileNameEditWithOpenBrowse : public FileNameEditWithBrowse

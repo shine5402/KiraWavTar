@@ -33,12 +33,12 @@ public:
     bool operator==(const Translation &other) const;
 
 private:
+    static QList<QTranslator *> s_installedTranslators;
+    static Translation s_currentInstalled;
+
     QLocale m_locale = QLocale("en_US");
     QStringList m_translationFilenames;
     QString m_author;
-
-    static QList<QTranslator *> s_installedTranslators;
-    static Translation s_currentInstalled;
 };
 
 #endif // TRANSLATION_H

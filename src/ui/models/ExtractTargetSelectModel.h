@@ -23,7 +23,7 @@ public:
     void reverseSelect();
 
 private:
-    QJsonArray *descArray;
+    QJsonArray *m_descArray;
 };
 
 #endif // EXTRACTTARGETSELECTMODEL_H

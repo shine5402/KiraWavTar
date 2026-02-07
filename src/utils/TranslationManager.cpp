@@ -11,13 +11,13 @@
 #include <QSettings>
 #include <algorithm>
 
-TranslationManager *TranslationManager::instance = nullptr;
+TranslationManager *TranslationManager::s_instance = nullptr;
 
 TranslationManager *TranslationManager::getManager()
 {
-    if (!instance)
-        instance = new TranslationManager;
-    return instance;
+    if (!s_instance)
+        s_instance = new TranslationManager;
+    return s_instance;
 }
 
 TranslationManager::TranslationManager()
@@ -36,7 +36,7 @@ TranslationManager::TranslationManager()
             fullPaths.append(QDir{qApp->applicationDirPath()}.filePath("translations/" + fileName));
         tr.setTranslationFilenames(fullPaths);
         if (tr.isValid())
-            translations.append(tr);
+            m_translations.append(tr);
     }
 
     getTranslationFor(getLocaleUserSetting()).install();
@@ -65,27 +65,27 @@ QLocale TranslationManager::getLocaleUserSetting() const
 
 QList<Translation> TranslationManager::getTranslations() const
 {
-    return translations;
+    return m_translations;
 }
 
 Translation TranslationManager::getTranslation(int i) const
 {
     if (i == -1)
         return {};
-    return translations.at(i);
+    return m_translations.at(i);
 }
 
 Translation TranslationManager::getTranslationFor(const QLocale &locale) const
 {
-    auto it = std::ranges::find_if(translations, [&locale](const Translation &t) { return t.locale() == locale; });
-    return it != translations.end() ? *it : Translation{};
+    auto it = std::ranges::find_if(m_translations, [&locale](const Translation &t) { return t.locale() == locale; });
+    return it != m_translations.end() ? *it : Translation{};
 }
 
 int TranslationManager::getCurrentInstalledTranslationID() const
 {
-    auto it = std::ranges::find_if(translations,
+    auto it = std::ranges::find_if(m_translations,
                                    [](const Translation &elem) { return elem == Translation::getCurrentInstalled(); });
-    return it != translations.end() ? static_cast<int>(std::distance(translations.begin(), it)) : -1;
+    return it != m_translations.end() ? static_cast<int>(std::distance(m_translations.begin(), it)) : -1;
 }
 
 Translation TranslationManager::getCurrentInstalled() const
@@ -95,33 +95,33 @@ Translation TranslationManager::getCurrentInstalled() const
 
 QMenu *TranslationManager::getI18nMenu()
 {
-    if (i18nMenu)
-        return i18nMenu;
+    if (m_i18nMenu)
+        return m_i18nMenu;
 
     auto translations = TranslationManager::getManager()->getTranslations();
-    i18nMenu = new QMenu("Language");
-    auto defaultLang = new QAction("English, built-in", i18nMenu);
+    m_i18nMenu = new QMenu("Language");
+    auto defaultLang = new QAction("English, built-in", m_i18nMenu);
     defaultLang->setData(-1);
     defaultLang->setCheckable(true);
-    i18nMenu->addAction(defaultLang);
+    m_i18nMenu->addAction(defaultLang);
 
     for (auto i = 0; i < translations.count(); ++i) {
         auto l = translations.at(i);
         auto langAction =
             new QAction(QLatin1String("%1 (%2), by %3")
                             .arg(QLocale::languageToString(l.locale().language()), l.locale().bcp47Name(), l.author()),
-                        i18nMenu);
+                        m_i18nMenu);
         langAction->setData(i);
         langAction->setCheckable(true);
-        i18nMenu->addAction(langAction);
+        m_i18nMenu->addAction(langAction);
     }
-    QObject::connect(i18nMenu, &QMenu::triggered, i18nMenu, [this](QAction *action) {
+    QObject::connect(m_i18nMenu, &QMenu::triggered, m_i18nMenu, [this](QAction *action) {
         auto translation = getTranslation(action->data().toInt());
         translation.install();
-        setLangActionChecked(i18nMenu, translation);
+        setLangActionChecked(m_i18nMenu, translation);
         saveUserLocaleSetting(translation.locale());
     });
 
-    setLangActionChecked(i18nMenu, getCurrentInstalled());
-    return i18nMenu;
+    setLangActionChecked(m_i18nMenu, getCurrentInstalled());
+    return m_i18nMenu;
 }

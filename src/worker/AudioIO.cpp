@@ -1,9 +1,10 @@
 #include "AudioIO.h"
-#define DR_WAV_IMPLEMENTATION
+
 #include <QCoreApplication>
 #include <QFile>
 
-#include "../3rdparty/dr_libs/dr_wav.h"
+#define DR_WAV_IMPLEMENTATION
+#include "3rdparty/dr_libs/dr_wav.h"
 
 namespace AudioIO {
 

@@ -8,10 +8,10 @@
 #include <kfr/dsp/sample_rate_conversion.hpp>
 #include <memory>
 
-#include "../utils/Filesystem.h"
-#include "../utils/KfrHelper.h"
-#include "../utils/Utils.h"
 #include "AudioIO.h"
+#include "utils/Filesystem.h"
+#include "utils/KfrHelper.h"
+#include "utils/Utils.h"
 
 using namespace utils;
 

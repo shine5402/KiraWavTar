@@ -22,21 +22,23 @@ public:
     QFileDialog::Options getOptions() const;
     void setOptions(const QFileDialog::Options &value);
 
-private:
-    QLineEdit *dirNameEdit;
-    QString caption{};
-    QFileDialog::Options options = QFileDialog::ShowDirsOnly;
-    QPushButton *browseButton;
-private slots:
-    void onBrowse();
 signals:
     void browseTriggered();
     void dropTriggered();
-    // QWidget interface
+
 protected:
     void dragEnterEvent(QDragEnterEvent *event) override;
     void dropEvent(QDropEvent *event) override;
     void changeEvent(QEvent *event) override;
+
+private slots:
+    void onBrowse();
+
+private:
+    QLineEdit *m_dirNameEdit;
+    QString m_caption{};
+    QFileDialog::Options m_options = QFileDialog::ShowDirsOnly;
+    QPushButton *m_browseButton;
 };
 
 #endif // DIRNAMEEDITWITHBROWSE_H

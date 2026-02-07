@@ -29,13 +29,13 @@ class GithubReleaseChecker : public Checker
     Q_OBJECT
 public:
     GithubReleaseChecker(QString owner, QString repo, QObject *parent = nullptr)
-        : Checker(parent), owner(std::move(owner)), repo(std::move(repo)) {};
+        : Checker(parent), m_owner(std::move(owner)), m_repo(std::move(repo)) {};
     virtual void triggerUpdateCheck(QVersionNumber current = {});
 
 private:
-    QString owner;
-    QString repo;
-    static QNetworkAccessManager *networkMgr;
+    QString m_owner;
+    QString m_repo;
+    static QNetworkAccessManager *s_networkMgr;
 };
 
 enum Schedule { EVERYRUN = 0, DAILY, WEEKLY, MONTHLY, DISABLED };

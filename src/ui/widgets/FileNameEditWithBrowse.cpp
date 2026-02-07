@@ -35,7 +35,7 @@ QString FileNameEditWithBrowse::fileName() const
     if (!isMultipleMode())
         fileName = ui->fileNameEdit->text();
     else
-        fileName = ui->fileNameEdit->text().split(multipleModeSeparator, Qt::SkipEmptyParts).value(0);
+        fileName = ui->fileNameEdit->text().split(m_multipleModeSeparator, Qt::SkipEmptyParts).value(0);
 
     fileName = processFileName(fileName);
     return fileName;
@@ -50,35 +50,35 @@ QStringList FileNameEditWithBrowse::fileNames() const
 {
     Q_ASSERT(isMultipleMode());
 
-    return ui->fileNameEdit->text().split(multipleModeSeparator, Qt::SkipEmptyParts);
+    return ui->fileNameEdit->text().split(m_multipleModeSeparator, Qt::SkipEmptyParts);
 }
 
 void FileNameEditWithBrowse::setFileNames(const QStringList &value)
 {
-    ui->fileNameEdit->setText(value.join(multipleModeSeparator));
+    ui->fileNameEdit->setText(value.join(m_multipleModeSeparator));
 }
 
 FileNameEditWithBrowse::Purpose FileNameEditWithBrowse::getPurpose() const
 {
-    return purpose;
+    return m_purpose;
 }
 
 void FileNameEditWithBrowse::setPurpose(const Purpose &value)
 {
-    purpose = value;
+    m_purpose = value;
 }
 
 void FileNameEditWithBrowse::openFilePathBrowse()
 {
     if (!isMultipleMode()) {
-        auto fileName = QFileDialog::getOpenFileName(this, caption, dir, filter, selectedFilter, options);
+        auto fileName = QFileDialog::getOpenFileName(this, m_caption, m_dir, m_filter, m_selectedFilter, m_options);
         if (!fileName.isEmpty())
             ui->fileNameEdit->setText(fileName);
         emit browseTriggered();
     } else {
-        auto fileNames = QFileDialog::getOpenFileNames(this, caption, dir, filter, selectedFilter, options);
+        auto fileNames = QFileDialog::getOpenFileNames(this, m_caption, m_dir, m_filter, m_selectedFilter, m_options);
         if (!fileNames.isEmpty()) {
-            ui->fileNameEdit->setText(fileNames.join(multipleModeSeparator));
+            ui->fileNameEdit->setText(fileNames.join(m_multipleModeSeparator));
             emit browseTriggered();
         }
     }
@@ -87,7 +87,7 @@ void FileNameEditWithBrowse::openFilePathBrowse()
 void FileNameEditWithBrowse::saveFilePathBrowse()
 {
     Q_ASSERT(!isMultipleMode());
-    auto fileName = QFileDialog::getSaveFileName(this, caption, dir, filter, selectedFilter, options);
+    auto fileName = QFileDialog::getSaveFileName(this, m_caption, m_dir, m_filter, m_selectedFilter, m_options);
     if (!fileName.isEmpty()) {
         ui->fileNameEdit->setText(fileName);
         emit browseTriggered();
@@ -96,12 +96,12 @@ void FileNameEditWithBrowse::saveFilePathBrowse()
 
 QString *FileNameEditWithBrowse::getSelectedFilter() const
 {
-    return selectedFilter;
+    return m_selectedFilter;
 }
 
 void FileNameEditWithBrowse::setSelectedFilter(QString *value)
 {
-    selectedFilter = value;
+    m_selectedFilter = value;
 }
 
 void FileNameEditWithBrowse::dragEnterEvent(QDragEnterEvent *event)
@@ -123,7 +123,7 @@ void FileNameEditWithBrowse::dropEvent(QDropEvent *event)
             for (const auto &url : urls) {
                 fileNames.append(url.toLocalFile());
             }
-            ui->fileNameEdit->setText(fileNames.join(multipleModeSeparator));
+            ui->fileNameEdit->setText(fileNames.join(m_multipleModeSeparator));
         }
 
         emit dropTriggered();
@@ -141,12 +141,12 @@ void FileNameEditWithBrowse::changeEvent(QEvent *event)
 
 QString FileNameEditWithBrowse::getMultipleModeSeparator() const
 {
-    return multipleModeSeparator;
+    return m_multipleModeSeparator;
 }
 
 void FileNameEditWithBrowse::setMultipleModeSeparator(const QString &value)
 {
-    multipleModeSeparator = value;
+    m_multipleModeSeparator = value;
 }
 
 bool FileNameEditWithBrowse::isMultipleMode() const
@@ -161,12 +161,12 @@ void FileNameEditWithBrowse::setMultipleMode(bool multipleMode)
 
 QFileDialog::Options FileNameEditWithBrowse::getOptions() const
 {
-    return options;
+    return m_options;
 }
 
 void FileNameEditWithBrowse::setOptions(const QFileDialog::Options &value)
 {
-    options = value;
+    m_options = value;
 }
 
 void FileNameEditWithBrowse::setParameters(const QString &caption, const QString &dir, const QString &filter,
@@ -181,37 +181,37 @@ void FileNameEditWithBrowse::setParameters(const QString &caption, const QString
 
 QString FileNameEditWithBrowse::getFilter() const
 {
-    return filter;
+    return m_filter;
 }
 
 void FileNameEditWithBrowse::setFilter(const QString &value)
 {
-    filter = value;
+    m_filter = value;
 }
 
 QString FileNameEditWithBrowse::getDir() const
 {
-    return dir;
+    return m_dir;
 }
 
 void FileNameEditWithBrowse::setDir(const QString &value)
 {
-    dir = value;
+    m_dir = value;
 }
 
 QString FileNameEditWithBrowse::getCaption() const
 {
-    return caption;
+    return m_caption;
 }
 
 void FileNameEditWithBrowse::setCaption(const QString &value)
 {
-    caption = value;
+    m_caption = value;
 }
 
 void FileNameEditWithBrowse::browse()
 {
-    switch (purpose) {
+    switch (m_purpose) {
     case Open:
         openFilePathBrowse();
         break;

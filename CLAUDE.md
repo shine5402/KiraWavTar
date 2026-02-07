@@ -1,6 +1,6 @@
 # AI Coding Agent Guideline
 
-This file provides guidance to AI coding agents when working with code in this repository.
+This file provides guidance to AI coding agents when working with code in this repository. Ensure all code modifications follow the [Code Style Guidelines](docs/CODING_STYLE.md).
 
 ## Project Overview
 

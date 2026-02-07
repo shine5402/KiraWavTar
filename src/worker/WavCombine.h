@@ -5,8 +5,8 @@
 #include <QObject>
 #include <kfr/all.hpp>
 
-#include "../utils/Utils.h"
 #include "AudioIO.h"
+#include "utils/Utils.h"
 
 // Because we are just writing static functions, so namespace may be a better choice than class.
 namespace WAVCombine {

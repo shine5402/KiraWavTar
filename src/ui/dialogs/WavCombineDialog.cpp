@@ -8,8 +8,8 @@
 #include <QVBoxLayout>
 #include <QtConcurrent/QtConcurrent>
 
-#include "../../worker/WavCombine.h"
 #include "kfr/all.hpp"
+#include "worker/WavCombine.h"
 
 using namespace WAVCombine;
 using namespace utils;
