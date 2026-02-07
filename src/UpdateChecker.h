@@ -48,7 +48,7 @@ namespace UpdateChecker
     void setSchedule(Schedule value);
     QMenu* createMenuForSchedule();
 
-    void checkManully(Checker* checker);
+    void checkManually(Checker* checker);
     void triggerScheduledCheck(Checker* checker);
 };
 

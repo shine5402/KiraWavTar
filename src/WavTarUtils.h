@@ -55,7 +55,7 @@ namespace wavtar_utils {
 
 #include <kfr/all.hpp>
 namespace wavtar_defines {
-    //TODO: make these customizeable
+    //TODO: make these customizable
     constexpr auto sample_process_type = kfr::audio_sample_type::f32;
     using sample_process_t = kfr::audio_sample_get_type<sample_process_type>::type;
     constexpr auto sample_rate_conversion_quality_for_process = kfr::sample_rate_conversion_quality::normal;

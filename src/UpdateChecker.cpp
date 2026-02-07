@@ -184,7 +184,7 @@ namespace UpdateChecker {
         }
     }
 
-    void checkManully(Checker* checker)
+    void checkManually(Checker* checker)
     {
         // To keep one responding on signal emitting,
         // we just disconnect all slots when operation done.

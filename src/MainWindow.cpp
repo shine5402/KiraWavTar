@@ -1,10 +1,9 @@
 #include "MainWindow.h"
 #include "ui_mainwindow.h"
-#include "WavCombine.h"
-#include "WavExtract.h"
+
 #include <QMessageBox>
 #include <QValidator>
-#include "KfrHelper.h"
+
 #include "WavCombineDialog.h"
 #include "WavExtractDialog.h"
 #include "TranslationManager.h"
@@ -21,7 +20,7 @@ QMenu* MainWindow::createHelpMenu()
     helpMenu->addMenu(UpdateChecker::createMenuForSchedule());
     auto checkUpdateAction = helpMenu->addAction(tr("Check update now"));
     connect(checkUpdateAction, &QAction::triggered, this, [this](){
-        UpdateChecker::checkManully(updateChecker);
+        UpdateChecker::checkManually(updateChecker);
     });
 
     return helpMenu;
