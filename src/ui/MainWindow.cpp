@@ -3,12 +3,15 @@
 
 #include <QMessageBox>
 #include <QValidator>
+#include <QtConcurrent/QtConcurrent>
 
 #include "dialogs/CommonHtmlDialog.h"
 #include "dialogs/WavCombineDialog.h"
 #include "dialogs/WavExtractDialog.h"
+#include "utils/Filesystem.h"
 #include "utils/TranslationManager.h"
 #include "utils/UpdateChecker.h"
+#include "widgets/WavFormatChooserWidget.h"
 #include "worker/AudioIO.h"
 
 QMenu *MainWindow::createHelpMenu()
@@ -46,6 +49,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->combineDirPathWidget, &DirNameEditWithBrowse::dropTriggered, this, &MainWindow::fillResultPath);
     connect(ui->extractSrcPathWidget, &FileNameEditWithBrowse::browseTriggered, this, &MainWindow::fillResultPath);
     connect(ui->extractSrcPathWidget, &FileNameEditWithBrowse::dropTriggered, this, &MainWindow::fillResultPath);
+
+    // Set extract format widget to use "Inherit from input" mode
+    ui->extractFormatCustomChooser->setAutoChannelMode(WAVFormatChooserWidget::AutoChannelMode::InheritFromInput);
 
     // i18n menu
     ui->langButton->setMenu(TranslationManager::getManager()->getI18nMenu());
@@ -91,6 +97,26 @@ void MainWindow::run()
         if (rootDirName.isEmpty() || saveFileName.isEmpty()) {
             QMessageBox::critical(this, {}, tr("Needed paths are empty. Please check your input and try again."));
             return;
+        }
+
+        // Handle auto channel count: scan files to find max channel count
+        if (ui->combineWAVFormatWidget->isAutoChannelCount()) {
+            auto wavFileNames = getAbsoluteWAVFileNamesUnder(rootDirName, recursive);
+            if (wavFileNames.isEmpty()) {
+                QMessageBox::critical(this, {}, tr("No WAV files found in the specified folder."));
+                return;
+            }
+
+            int maxChannels = 1;
+            for (const auto &fileName : std::as_const(wavFileNames)) {
+                try {
+                    auto format = AudioIO::readWavFormat(fileName);
+                    maxChannels = std::max(maxChannels, static_cast<int>(format.kfr_format.channels));
+                } catch (...) {
+                    // Ignore files that can't be read
+                }
+            }
+            targetFormat.kfr_format.channels = maxChannels;
         }
 
         auto dialog = new WavCombineDialog(rootDirName, recursive, targetFormat, saveFileName, this);

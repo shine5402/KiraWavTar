@@ -17,6 +17,11 @@ WAVFormatChooserWidget::WAVFormatChooserWidget(QWidget *parent) : QWidget(parent
         ui->sampleTypeComboBox->addItem(name.data());
     }
 
+    // Set up channels combobox
+    setupChannelsComboBox();
+    connect(ui->channelsComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+            &WAVFormatChooserWidget::onChannelsComboBoxChanged);
+
     // Set up container format combobox
     // First section: RIFF (default), RF64
     ui->containerFormatComboBox->addItem(tr("RIFF (Standard WAV)"));
@@ -41,7 +46,18 @@ decltype(kfr::audio_format::samplerate) WAVFormatChooserWidget::getSampleRate() 
 
 decltype(kfr::audio_format::channels) WAVFormatChooserWidget::getChannelCount() const
 {
-    return ui->channelsSpinBox->value();
+    int index = ui->channelsComboBox->currentIndex();
+    if (index == ChannelIndexAuto) {
+        // Auto: return the auto-detected value
+        return m_autoChannelValue;
+    } else if (index == m_customChannelIndex) {
+        // Custom: return from spinbox
+        return ui->channelsSpinBox->value();
+    } else {
+        // Preset: extract the number before the space/parenthesis
+        QString text = ui->channelsComboBox->currentText();
+        return text.split(' ').first().toInt();
+    }
 }
 
 decltype(kfr::audio_format::type) WAVFormatChooserWidget::getSampleType() const
@@ -75,10 +91,65 @@ AudioIO::WavAudioFormat WAVFormatChooserWidget::getFormat() const
 
 void WAVFormatChooserWidget::reset()
 {
-    ui->sampleRateComboBox->setCurrentIndex(0); // 44100
-    ui->channelsSpinBox->setValue(1);
+    ui->sampleRateComboBox->setCurrentIndex(0);              // 44100
+    ui->channelsComboBox->setCurrentIndex(ChannelIndexAuto); // Auto
+    ui->channelsSpinBox->setValue(2);
+    ui->channelsSpinBox->setVisible(false);
     ui->sampleTypeComboBox->setCurrentIndex(3);      // 32-bit float
     ui->containerFormatComboBox->setCurrentIndex(0); // RIFF
+}
+
+bool WAVFormatChooserWidget::isAutoChannelCount() const
+{
+    return ui->channelsComboBox->currentIndex() == ChannelIndexAuto;
+}
+
+void WAVFormatChooserWidget::setAutoChannelCountValue(int value)
+{
+    m_autoChannelValue = value;
+}
+
+void WAVFormatChooserWidget::onChannelsComboBoxChanged(int index)
+{
+    // Show spinbox only when "Custom..." is selected
+    ui->channelsSpinBox->setVisible(index == m_customChannelIndex);
+}
+
+void WAVFormatChooserWidget::setAutoChannelMode(AutoChannelMode mode)
+{
+    m_autoChannelMode = mode;
+    setupChannelsComboBox();
+}
+
+void WAVFormatChooserWidget::setupChannelsComboBox()
+{
+    ui->channelsComboBox->clear();
+
+    // Auto/Inherit option (index 0)
+    if (m_autoChannelMode == AutoChannelMode::MaxFromInput) {
+        ui->channelsComboBox->addItem(tr("Auto (max from input)"));
+    } else {
+        ui->channelsComboBox->addItem(tr("Inherit from input"));
+    }
+
+    // Separator
+    ui->channelsComboBox->insertSeparator(1);
+
+    // Common presets
+    ui->channelsComboBox->addItem(tr("1 (Mono)"));
+    ui->channelsComboBox->addItem(tr("2 (Stereo)"));
+    ui->channelsComboBox->addItem(tr("6 (5.1 Surround)"));
+    ui->channelsComboBox->addItem(tr("8 (7.1 Surround)"));
+
+    // Separator before custom
+    ui->channelsComboBox->insertSeparator(6);
+
+    // Custom option
+    ui->channelsComboBox->addItem(tr("Custom..."));
+    m_customChannelIndex = 7; // After separator
+
+    // Hide spinbox initially
+    ui->channelsSpinBox->setVisible(false);
 }
 
 void WAVFormatChooserWidget::showFormatHelp()
