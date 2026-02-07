@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AI Coding Agent Guideline
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to AI coding agents when working with code in this repository.
 
 ## Project Overview
 
@@ -43,7 +43,7 @@ There are no tests. No linter is configured.
 - **`Filesystem.h/cpp`** — `getAbsoluteWAVFileNamesUnder()` for recursive WAV file discovery.
 - **`DirNameEditWithBrowse.h/cpp`** — Widget: line edit + browse button for directory selection, with drag-drop support.
 - **`FileNameEditWithBrowse.h/cpp`** — Widget: line edit + browse button for file selection (open/save), with drag-drop support.
-- **`ShowHTMLDialog.h/cpp`** — Dialog for displaying HTML/Markdown content (used by update checker).
+- **`CommonHtmlDialog.h/cpp`** — Dialog for displaying HTML/Markdown content (used by update checker).
 
 ### Description File Format (version 3)
 
@@ -76,13 +76,7 @@ Each entry in `descriptions`:
 
 Timecodes use microsecond precision (6 decimal places). They are sample-rate-independent — if the combined WAV is resampled in a DAW, the timecodes remain valid. Conversion helpers live in `WavTarUtils.h`: `samplesToTimecode()` and `timecodeToSamples()`.
 
-### Third-Party Libraries (vendored in `lib/`)
+### Third-Party Libraries (vendored in `3rdparty/`)
 
-- **KFR** (`lib/kfr/`) — Custom fork (shine5402/kfr, dev branch) of the KFR DSP library with RF64 large-file support. Provides WAV I/O, resampling, and DC removal. DFT and tests are disabled. Key types: `kfr::audio_reader_wav`, `kfr::audio_writer_wav`, `kfr::univector2d`.
-
-## KFR Fork Patches
-
-If modifying the vendored KFR:
-- `lib/kfr/CMakeLists.txt`: `stdc++` linking guarded with `IOS OR APPLE`; `-mstackrealign` guarded with `NOT IOS AND X86`
-- `lib/kfr/include/kfr/simd/vec.hpp`: Fix in non-scalar compile-time `set()` using local union trick
-- `lib/kfr/include/kfr/cometa.hpp`: `invoke_result` updated from `std::result_of` to `std::invoke_result_t` for C++23 compatibility
+- **KFR** (`3rdparty/kfr/`) — Custom fork (shine5402/kfr, dev branch) of the KFR DSP library. It now aligns closely with upstream, providing resampling, DC removal and other DSP features.
+- **dr_libs** (`3rdparty/dr_libs`) — Provides WAV audio loader and writer, it supports 64bit wav file formats also.

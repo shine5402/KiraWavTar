@@ -1,28 +1,27 @@
-#ifndef SHOWHTMLDIALOG_H
-#define SHOWHTMLDIALOG_H
+#ifndef COMMONHTMLDIALOG_H
+#define COMMONHTMLDIALOG_H
 
 #include <QDialog>
 #include <QDialogButtonBox>
 
 namespace Ui {
-class ShowHTMLDialog;
+class CommonHtmlDialog;
 }
 
-class ShowHTMLDialog : public QDialog
+class CommonHtmlDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit ShowHTMLDialog(QWidget *parent = nullptr);
-    ~ShowHTMLDialog();
+    explicit CommonHtmlDialog(QWidget *parent = nullptr);
+    ~CommonHtmlDialog();
 
-    void setTitle(const QString& title);
     void setLabel(const QString& text);
     void setHTML(const QString& html);
     void setMarkdown(const QString& markdown);
     void setStandardButtons(QDialogButtonBox::StandardButtons buttons);
 private:
-    Ui::ShowHTMLDialog *ui;
+    Ui::CommonHtmlDialog *ui;
 };
 
-#endif // SHOWHTMLDIALOG_H
+#endif // COMMONHTMLDIALOG_H

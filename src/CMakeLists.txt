@@ -17,7 +17,7 @@ qt_add_executable(KiraWAVTar
     KfrHelper.h
     DirNameEditWithBrowse.cpp DirNameEditWithBrowse.h
     FileNameEditWithBrowse.cpp FileNameEditWithBrowse.h FileNameEditWithBrowse.ui
-    ShowHTMLDialog.cpp ShowHTMLDialog.h ShowHTMLDialog.ui
+    CommonHtmlDialog.cpp CommonHtmlDialog.h CommonHtmlDialog.ui
     resources/icon.qrc
 )
 

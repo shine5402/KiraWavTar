@@ -5,9 +5,10 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QSettings>
-#include "ShowHTMLDialog.h"
+#include "CommonHtmlDialog.h"
 #include <QDesktopServices>
 #include <QMessageBox>
+#include <QtCore/qnamespace.h>
 #include <QtDebug>
 
 namespace UpdateChecker {
@@ -20,6 +21,12 @@ namespace UpdateChecker {
             current = current.fromString(qApp->applicationVersion());
         }
 
+        if (current.isNull()) {
+            // If still null, it means that we are in development version, so we can skip the check
+            qDebug() << "[Update checker] Current version is null, skip update check";
+            return;
+        }
+
         QNetworkRequest request;
         //Use Github v3 REST API explicitly, as recommended
         request.setRawHeader("Accept", "application/vnd.github.v3+json");
@@ -29,9 +36,11 @@ namespace UpdateChecker {
 
         connect(reply, &QNetworkReply::finished, reply, [reply, current, this](){
             if (reply->error() != QNetworkReply::NoError){
+                emit errorOccurred(QCoreApplication::translate("UpdateChecker", "Network error occurred: %1").arg(reply->errorString()));
                 reply->deleteLater();
                 return;
             }
+
             QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
             auto json = jsonDoc.object();
             auto versionStr = json.value("tag_name").toString();
@@ -47,11 +56,6 @@ namespace UpdateChecker {
             else
                 emit alreadyUpToDate();
 
-            reply->deleteLater();
-        });
-
-        connect(reply, &QNetworkReply::errorOccurred, reply, [reply, this](){
-            emit errorOccurred(reply->errorString());
             reply->deleteLater();
         });
     }
@@ -125,8 +129,9 @@ namespace UpdateChecker {
     QDialog* getUpdateAvailableDialog(const QVersionNumber& newVersion,
                                       const QString& msgBody,
                                       const QUrl& updateUrl){
-        auto dialog = new ShowHTMLDialog;
-        dialog->setTitle(QCoreApplication::translate("UpdateChecker", "Update available"));
+        auto dialog = new CommonHtmlDialog;
+        dialog->setAttribute(Qt::WA_DeleteOnClose);
+        dialog->setWindowTitle(QCoreApplication::translate("UpdateChecker", "Update available"));
         dialog->setLabel(QCoreApplication::translate("UpdateChecker", "New version \"%1\" of \"%2\" is available. "
                                                                       "Currently you are at \"%3\".\n"
                                                                       "Open download page?")
@@ -137,9 +142,6 @@ namespace UpdateChecker {
         dialog->setWindowModality(Qt::ApplicationModal);
         QObject::connect(dialog, &QDialog::accepted, [=](){
             QDesktopServices::openUrl(updateUrl);
-        });
-        QObject::connect(dialog, &QDialog::finished, dialog, [dialog](){
-            dialog->deleteLater();
         });
         return dialog;
     };

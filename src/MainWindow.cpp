@@ -10,6 +10,7 @@
 #include "TranslationManager.h"
 #include "UpdateChecker.h"
 #include "AudioIO.h"
+#include "CommonHtmlDialog.h"
 
 QMenu* MainWindow::createHelpMenu()
 {
@@ -146,14 +147,16 @@ void MainWindow::fillResultPath()
 void MainWindow::about()
 {
     QString versionStr = tr("<p>Version %1, <i>build on %2 %3<i></p>")
-            .arg(qApp->applicationVersion(), __DATE__, __TIME__);
+            .arg(qApp->applicationVersion().isEmpty() ? "development version" : qApp->applicationVersion()
+            , __DATE__, __TIME__);
 
-    QMessageBox msgBox;
-    msgBox.setIconPixmap(QPixmap(":/icon/appIcon").scaled(64,64,Qt::KeepAspectRatio, Qt::SmoothTransformation));
-    msgBox.setWindowTitle(tr("About"));
-    msgBox.setText(tr(
-                       R"(<h2>KiraWAVTar</h2>
-<p>Copyright 2021-2022 <a href="https://shine5402.top/about-me">shine_5402</a></p>
+    auto dialog = new CommonHtmlDialog(this);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowTitle(tr("About"));
+    dialog->setHTML(tr(
+                       R"(<p style="text-align: left;"><img src=":/icon/appIcon" width="64"/></p>
+<h2>KiraWAVTar</h2>
+<p>Copyright 2021-present <a href="https://shine5402.top/about-me">shine_5402</a></p>
 %1
 <h3>About</h3>
 <p>A fast and easy-to-use WAV combine/extract tool.</p>
@@ -181,14 +184,14 @@ along with this program.  If not, see <a href="https://www.gnu.org/licenses/">ht
  version.  If you delete this exception statement from all source
  files in the program, then also delete it here.</p>
 
-<h3>3rd party libraries used by this project</h3>
+<h3>Acknowledgements</h3>
 <ul>
 <li>Qt %2, The Qt Company Ltd, under LGPL v3.</li>
-<li><a href="https://www.kfrlib.com/">KFR - Fast, modern C++ DSP framework</a>, under GNU GPL v2+, <a href="https://github.com/shine5402/kfr">using our own modified version</a></li>
-<li>This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit. (<a href='http://www.openssl.org'>http://www.openssl.org/</a>)</li>
+<li><a href="https://www.kfrlib.com/">KFR - Fast, modern C++ DSP framework</a>, under GNU GPL v2+</li>
 </ul>
 )").arg(versionStr).arg(QT_VERSION_STR));
-    msgBox.exec();
+    dialog->setStandardButtons(QDialogButtonBox::Ok);
+    dialog->exec();
 }
 
 void MainWindow::changeEvent(QEvent* event){
