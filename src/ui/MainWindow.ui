@@ -6,14 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>881</width>
-    <height>262</height>
+    <width>852</width>
+    <height>255</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>KiraWavTar</string>
   </property>
   <widget class="QWidget" name="centralwidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
@@ -50,7 +56,7 @@
       <item>
        <spacer name="horizontalSpacer_2">
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -75,6 +81,12 @@
       </property>
       <widget class="QWidget" name="combineOptionPage">
        <layout class="QGridLayout" name="gridLayout" columnstretch="0,1">
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
         <item row="3" column="0">
          <widget class="QLabel" name="label_3">
           <property name="text">
@@ -118,7 +130,7 @@
         <item row="5" column="0" colspan="2">
          <spacer name="verticalSpacer_2">
           <property name="orientation">
-           <enum>Qt::Vertical</enum>
+           <enum>Qt::Orientation::Vertical</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
@@ -134,7 +146,7 @@
         <item row="0" column="0" colspan="2">
          <spacer name="verticalSpacer_3">
           <property name="orientation">
-           <enum>Qt::Vertical</enum>
+           <enum>Qt::Orientation::Vertical</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
@@ -148,6 +160,12 @@
       </widget>
       <widget class="QWidget" name="extractOptionPage">
        <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,1">
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
         <item row="1" column="1">
          <widget class="FileNameEditWithBrowse" name="extractSrcPathWidget" native="true"/>
         </item>
@@ -161,7 +179,7 @@
         <item row="7" column="0" colspan="2">
          <spacer name="verticalSpacer">
           <property name="orientation">
-           <enum>Qt::Vertical</enum>
+           <enum>Qt::Orientation::Vertical</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
@@ -172,11 +190,35 @@
          </spacer>
         </item>
         <item row="5" column="0" colspan="2">
-         <widget class="QCheckBox" name="extractSelectionCheckBox">
-          <property name="text">
-           <string>Choose which ones to extract...</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="extractCheckboxesLayout">
+          <item>
+           <widget class="QCheckBox" name="extractSelectionCheckBox">
+            <property name="text">
+             <string>Choose which ones to extract...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="removeDCCheckBox">
+            <property name="text">
+             <string>Remove DC offset also</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Orientation::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
         </item>
         <item row="2" column="1">
          <widget class="DirNameEditWithBrowse" name="extractResultPathWidget" native="true"/>
@@ -198,7 +240,7 @@
         <item row="0" column="0" colspan="2">
          <spacer name="verticalSpacer_4">
           <property name="orientation">
-           <enum>Qt::Vertical</enum>
+           <enum>Qt::Orientation::Vertical</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
@@ -248,13 +290,6 @@
           </item>
          </layout>
         </item>
-        <item row="6" column="0">
-         <widget class="QCheckBox" name="removeDCCheckBox">
-          <property name="text">
-           <string>Remove DC offset also</string>
-          </property>
-         </widget>
-        </item>
        </layout>
       </widget>
      </widget>
@@ -278,10 +313,10 @@
       <item>
        <widget class="Line" name="leftBottomButtonLine">
         <property name="frameShadow">
-         <enum>QFrame::Plain</enum>
+         <enum>QFrame::Shadow::Plain</enum>
         </property>
         <property name="orientation">
-         <enum>Qt::Vertical</enum>
+         <enum>Qt::Orientation::Vertical</enum>
         </property>
        </widget>
       </item>
@@ -295,7 +330,7 @@
       <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
