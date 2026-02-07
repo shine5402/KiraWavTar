@@ -72,7 +72,9 @@ inline bool shouldUseDoubleInternalProcessing(kfr::audio_sample_type outputType)
     return outputType == kfr::audio_sample_type::f64;
 }
 
-constexpr auto sample_rate_conversion_quality_for_process = kfr::sample_rate_conversion_quality::normal;
+// Sample rate conversion quality is configurable via UI.
+kfr::sample_rate_conversion_quality getSampleRateConversionQuality();
+void setSampleRateConversionQuality(kfr::sample_rate_conversion_quality quality);
 
 constexpr auto desc_file_version = 3;
 

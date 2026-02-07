@@ -165,7 +165,8 @@ ReadResultF64 readWavFileF64(const QString &fileName)
     for (size_t i = 0; i < interleavedF64.size(); ++i)
         interleavedF64[i] = static_cast<double>(interleavedF32[i]);
 
-    deinterleaveTo(result.data, interleavedF64.data(), static_cast<size_t>(framesRead), result.format.kfr_format.channels);
+    deinterleaveTo(result.data, interleavedF64.data(), static_cast<size_t>(framesRead),
+                   result.format.kfr_format.channels);
     return result;
 }
 

@@ -24,6 +24,7 @@ protected:
 
 private:
     QMenu *createHelpMenu();
+    void syncSrcQualityMenu();
 
 private slots:
     void reset();

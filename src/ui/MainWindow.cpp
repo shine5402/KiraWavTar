@@ -1,7 +1,9 @@
 #include "MainWindow.h"
 #include "ui_mainwindow.h"
 
+#include <QActionGroup>
 #include <QMessageBox>
+#include <QSettings>
 #include <QValidator>
 #include <QtConcurrent/QtConcurrent>
 
@@ -11,8 +13,21 @@
 #include "utils/Filesystem.h"
 #include "utils/TranslationManager.h"
 #include "utils/UpdateChecker.h"
+#include "utils/Utils.h"
 #include "widgets/WavFormatChooserWidget.h"
 #include "worker/AudioIO.h"
+
+namespace {
+constexpr const char *kSettingsGroupAudio = "audio";
+constexpr const char *kSettingsKeySrcQuality = "sampleRateConversionQuality";
+
+inline bool isValidSrcQualityInt(int v)
+{
+    using Q = kfr::sample_rate_conversion_quality;
+    return v == static_cast<int>(Q::draft) || v == static_cast<int>(Q::low) || v == static_cast<int>(Q::normal) ||
+           v == static_cast<int>(Q::high) || v == static_cast<int>(Q::perfect);
+}
+} // namespace
 
 QMenu *MainWindow::createHelpMenu()
 {
@@ -55,6 +70,78 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     // i18n menu
     ui->langButton->setMenu(TranslationManager::getManager()->getI18nMenu());
+
+    // Sample rate conversion quality menu
+    {
+        auto menu = new QMenu(this);
+        auto group = new QActionGroup(this);
+        group->setExclusive(true);
+
+        auto qualityToText = [this](kfr::sample_rate_conversion_quality quality) -> QString {
+            switch (quality) {
+            case kfr::sample_rate_conversion_quality::draft:
+                return tr("Draft");
+            case kfr::sample_rate_conversion_quality::low:
+                return tr("Low");
+            case kfr::sample_rate_conversion_quality::normal:
+                return tr("Normal");
+            case kfr::sample_rate_conversion_quality::high:
+                return tr("High");
+            case kfr::sample_rate_conversion_quality::perfect:
+                return tr("Perfect");
+            }
+            return tr("Normal");
+        };
+
+        auto addQualityAction = [&](const QString &text, kfr::sample_rate_conversion_quality quality) {
+            auto action = menu->addAction(text);
+            action->setCheckable(true);
+            action->setData(static_cast<int>(quality));
+            group->addAction(action);
+            return action;
+        };
+
+        addQualityAction(tr("Draft"), kfr::sample_rate_conversion_quality::draft);
+        addQualityAction(tr("Low"), kfr::sample_rate_conversion_quality::low);
+        addQualityAction(tr("Normal"), kfr::sample_rate_conversion_quality::normal);
+        addQualityAction(tr("High"), kfr::sample_rate_conversion_quality::high);
+        addQualityAction(tr("Perfect"), kfr::sample_rate_conversion_quality::perfect);
+
+        // Load persisted setting (default: Normal)
+        {
+            QSettings settings;
+            settings.beginGroup(kSettingsGroupAudio);
+            const int stored =
+                settings.value(kSettingsKeySrcQuality, static_cast<int>(kfr::sample_rate_conversion_quality::normal))
+                    .toInt();
+            settings.endGroup();
+            const int effective =
+                isValidSrcQualityInt(stored) ? stored : static_cast<int>(kfr::sample_rate_conversion_quality::normal);
+            utils::setSampleRateConversionQuality(static_cast<kfr::sample_rate_conversion_quality>(effective));
+        }
+
+        connect(group, &QActionGroup::triggered, this, [this](QAction *action) {
+            bool ok = false;
+            const int qualityInt = action->data().toInt(&ok);
+            if (!ok)
+                return;
+            utils::setSampleRateConversionQuality(static_cast<kfr::sample_rate_conversion_quality>(qualityInt));
+
+            QSettings settings;
+            settings.beginGroup(kSettingsGroupAudio);
+            settings.setValue(kSettingsKeySrcQuality, qualityInt);
+            settings.endGroup();
+
+            syncSrcQualityMenu();
+        });
+
+        ui->srcQualityButton->setMenu(menu);
+        syncSrcQualityMenu();
+
+        // Ensure button text shows current mode immediately
+        ui->srcQualityButton->setText(
+            tr("SRC Quality: %1").arg(qualityToText(utils::getSampleRateConversionQuality())));
+    }
 }
 
 MainWindow::~MainWindow()
@@ -74,6 +161,50 @@ void MainWindow::reset()
     ui->extractFormatSrcRadioButton->setChecked(true);
     ui->extractFormatCustomChooser->reset();
     ui->extractSelectionCheckBox->setChecked(false);
+
+    utils::setSampleRateConversionQuality(kfr::sample_rate_conversion_quality::normal);
+
+    QSettings settings;
+    settings.beginGroup(kSettingsGroupAudio);
+    settings.setValue(kSettingsKeySrcQuality, static_cast<int>(kfr::sample_rate_conversion_quality::normal));
+    settings.endGroup();
+
+    syncSrcQualityMenu();
+}
+
+void MainWindow::syncSrcQualityMenu()
+{
+    if (!ui->srcQualityButton || !ui->srcQualityButton->menu())
+        return;
+
+    auto qualityToText = [this](kfr::sample_rate_conversion_quality quality) -> QString {
+        switch (quality) {
+        case kfr::sample_rate_conversion_quality::draft:
+            return tr("Draft");
+        case kfr::sample_rate_conversion_quality::low:
+            return tr("Low");
+        case kfr::sample_rate_conversion_quality::normal:
+            return tr("Normal");
+        case kfr::sample_rate_conversion_quality::high:
+            return tr("High");
+        case kfr::sample_rate_conversion_quality::perfect:
+            return tr("Perfect");
+        }
+        return tr("Normal");
+    };
+
+    const auto currentQuality = utils::getSampleRateConversionQuality();
+    const int current = static_cast<int>(currentQuality);
+    for (auto *action : ui->srcQualityButton->menu()->actions()) {
+        bool ok = false;
+        const int actionValue = action->data().toInt(&ok);
+        if (ok) {
+            action->setText(qualityToText(static_cast<kfr::sample_rate_conversion_quality>(actionValue)));
+            action->setChecked(actionValue == current);
+        }
+    }
+
+    ui->srcQualityButton->setText(tr("SRC Quality: %1").arg(qualityToText(currentQuality)));
 }
 
 void MainWindow::updateStackWidgetIndex()
@@ -222,5 +353,8 @@ void MainWindow::changeEvent(QEvent *event)
         ui->retranslateUi(this);
         ui->helpButton->menu()->deleteLater();
         ui->helpButton->setMenu(createHelpMenu());
+
+        // Re-translate and re-sync text of SRC quality menu/button
+        syncSrcQualityMenu();
     }
 }

@@ -5,12 +5,13 @@
     <name>AudioIO</name>
     <message>
         <location filename="../src/worker/AudioIO.cpp" line="61"/>
-        <location filename="../src/worker/AudioIO.cpp" line="94"/>
+        <location filename="../src/worker/AudioIO.cpp" line="132"/>
+        <location filename="../src/worker/AudioIO.cpp" line="152"/>
         <source>Failed to open file: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/worker/AudioIO.cpp" line="185"/>
+        <location filename="../src/worker/AudioIO.cpp" line="237"/>
         <source>Failed to open file for writing: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -66,7 +67,7 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/ui/MainWindow.ui" line="14"/>
+        <location filename="../src/ui/MainWindow.ui" line="20"/>
         <source>KiraWavTar</source>
         <translation></translation>
     </message>
@@ -121,6 +122,16 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/ui/MainWindow.ui" line="316"/>
+        <source>Sample rate conversion quality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow.ui" line="319"/>
+        <source>SRC Quality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../src/ui/MainWindow.ui" line="197"/>
         <source>Choose which ones to extract...</source>
         <translation>选择要被拆分的项...</translation>
@@ -151,23 +162,71 @@
         <translation>同时移除直流偏移（DC偏移）</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="17"/>
-        <location filename="../src/ui/MainWindow.cpp" line="144"/>
+        <location filename="../src/ui/MainWindow.cpp" line="35"/>
+        <location filename="../src/ui/MainWindow.cpp" line="302"/>
         <source>About</source>
         <translation>关于</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="21"/>
+        <location filename="../src/ui/MainWindow.cpp" line="39"/>
         <source>Check update now</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="139"/>
+        <location filename="../src/ui/MainWindow.cpp" line="83"/>
+        <location filename="../src/ui/MainWindow.cpp" line="104"/>
+        <location filename="../src/ui/MainWindow.cpp" line="183"/>
+        <source>Draft</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow.cpp" line="85"/>
+        <location filename="../src/ui/MainWindow.cpp" line="105"/>
+        <location filename="../src/ui/MainWindow.cpp" line="185"/>
+        <source>Low</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow.cpp" line="87"/>
+        <location filename="../src/ui/MainWindow.cpp" line="93"/>
+        <location filename="../src/ui/MainWindow.cpp" line="106"/>
+        <location filename="../src/ui/MainWindow.cpp" line="187"/>
+        <location filename="../src/ui/MainWindow.cpp" line="193"/>
+        <source>Normal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow.cpp" line="89"/>
+        <location filename="../src/ui/MainWindow.cpp" line="107"/>
+        <location filename="../src/ui/MainWindow.cpp" line="189"/>
+        <source>High</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow.cpp" line="91"/>
+        <location filename="../src/ui/MainWindow.cpp" line="108"/>
+        <location filename="../src/ui/MainWindow.cpp" line="191"/>
+        <source>Perfect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow.cpp" line="143"/>
+        <location filename="../src/ui/MainWindow.cpp" line="207"/>
+        <source>SRC Quality: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow.cpp" line="237"/>
+        <source>No WAV files found in the specified folder.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow.cpp" line="297"/>
         <source>&lt;p&gt;Version %1, &lt;i&gt;build on %2 %3&lt;i&gt;&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="145"/>
+        <location filename="../src/ui/MainWindow.cpp" line="303"/>
         <source>&lt;p style=&quot;text-align: left;&quot;&gt;&lt;img src=&quot;:/icon/appIcon&quot; width=&quot;64&quot;/&gt;&lt;/p&gt;
 &lt;h2&gt;KiraWAVTar&lt;/h2&gt;
 &lt;p&gt;Copyright 2021-present &lt;a href=&quot;https://shine5402.top/about-me&quot;&gt;shine_5402&lt;/a&gt;&lt;/p&gt;
@@ -205,8 +264,8 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
 &lt;li&gt;&lt;a href=&quot;https://www.kfrlib.com/&quot;&gt;KFR - Fast, modern C++ DSP framework&lt;/a&gt;, under GNU GPL v2+&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h4&gt;Translators&lt;/h4&gt;
-&lt;p&gt;Japanese translation is provided by Leka in previous versions, whose work is partly used in current version.
-Thanks a lot for their contribution!&lt;/p&gt;
+&lt;p&gt;Japanese translation was provided by Leka in previous versions. Their work continues to be partly used in the current version.
+Thanks for their contribution!&lt;/p&gt;
 </source>
         <translation type="unfinished"></translation>
     </message>
@@ -220,18 +279,18 @@ Thanks a lot for their contribution!&lt;/p&gt;
         <translation type="vanished">UI 主题</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.ui" line="326"/>
+        <location filename="../src/ui/MainWindow.ui" line="336"/>
         <source>Reset</source>
         <translation>重置</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.ui" line="346"/>
+        <location filename="../src/ui/MainWindow.ui" line="356"/>
         <source>Run</source>
         <translation>运行</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="91"/>
-        <location filename="../src/ui/MainWindow.cpp" line="109"/>
+        <location filename="../src/ui/MainWindow.cpp" line="229"/>
+        <location filename="../src/ui/MainWindow.cpp" line="267"/>
         <source>Needed paths are empty. Please check your input and try again.</source>
         <translation>没有提供所有需要的路径。请检查输入之后重试。</translation>
     </message>
@@ -260,7 +319,7 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
 &lt;li&gt;&lt;a href=&quot;https://github.com/shine5402/KiraCommonUtils&quot;&gt;KiraCommonUtils&lt;/a&gt;, shine_5402, mainly under the Apache License, Version 2.0&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;https://github.com/mapbox/eternal&quot;&gt;eternal&lt;/a&gt;, mapbox, under ISC License&lt;/li&gt;
 &lt;/ul&gt;
-</source>
+            </source>
         <translation type="vanished">&lt;h2&gt;KiraWAVTar&lt;/h2&gt;
 &lt;p&gt;版权所有  2021-2022 &lt;a href=&quot;https://shine5402.top/about-me&quot;&gt;shine_5402&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;版本 %1&lt;/p&gt;
@@ -278,7 +337,7 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
 &lt;li&gt;&lt;a href=&quot;https://github.com/shine5402/KiraCommonUtils&quot;&gt;KiraCommmonUtils&lt;/a&gt;, shine_5402, mainly under the Apache License, Version 2.0&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;https://github.com/mapbox/eternal&quot;&gt;eternal&lt;/a&gt;, mapbox, under ISC License&lt;/li&gt;
 &lt;/ul&gt;
-</translation>
+            </translation>
     </message>
     <message>
         <source>&lt;h2&gt;KiraWAVTar&lt;/h2&gt;
@@ -305,7 +364,7 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
 &lt;li&gt;&lt;a href=&quot;https://github.com/shine5402/KiraCommonUtils&quot;&gt;KiraCommmonUtils&lt;/a&gt;, shine_5402, mainly under the Apache License, Version 2.0&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;https://github.com/mapbox/eternal&quot;&gt;eternal&lt;/a&gt;, mapbox, under ISC License&lt;/li&gt;
 &lt;/ul&gt;
-</source>
+            </source>
         <translation type="vanished">&lt;h2&gt;KiraWAVTar&lt;/h2&gt;
 &lt;p&gt;版权所有  2021-2022 &lt;a href=&quot;https://shine5402.top/about-me&quot;&gt;shine_5402&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;版本 %1&lt;/p&gt;
@@ -323,7 +382,7 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
 &lt;li&gt;&lt;a href=&quot;https://github.com/shine5402/KiraCommonUtils&quot;&gt;KiraCommmonUtils&lt;/a&gt;, shine_5402, mainly under the Apache License, Version 2.0&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;https://github.com/mapbox/eternal&quot;&gt;eternal&lt;/a&gt;, mapbox, under ISC License&lt;/li&gt;
 &lt;/ul&gt;
-</translation>
+            </translation>
     </message>
     <message>
         <source>&lt;h2&gt;KiraWAVTar&lt;/h2&gt;
@@ -350,7 +409,7 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
 &lt;li&gt;&lt;a href=&quot;https://github.com/shine5402/KiraCommonUtils&quot;&gt;KiraCommmonUtils&lt;/a&gt;, shine_5402, mainly under the Apache License, Version 2.0&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;https://github.com/mapbox/eternal&quot;&gt;eternal&lt;/a&gt;, mapbox, under ISC License&lt;/li&gt;
 &lt;/ul&gt;
-</source>
+            </source>
         <translation type="vanished">&lt;h2&gt;KiraWAVTar&lt;/h2&gt;
 &lt;p&gt;版权所有 2021 &lt;a href=&quot;https://shine5402.top/about-me&quot;&gt;shine_5402&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;版本 %1&lt;/p&gt;
@@ -368,7 +427,7 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
 &lt;li&gt;&lt;a href=&quot;https://github.com/shine5402/KiraCommonUtils&quot;&gt;KiraCommmonUtils&lt;/a&gt;, shine_5402, mainly under the Apache License, Version 2.0&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;https://github.com/mapbox/eternal&quot;&gt;eternal&lt;/a&gt;, mapbox, under ISC License&lt;/li&gt;
 &lt;/ul&gt;
-</translation>
+            </translation>
     </message>
 </context>
 <context>
@@ -408,7 +467,7 @@ Open download page?</source>
 <context>
     <name>Utils</name>
     <message>
-        <location filename="../src/utils/Utils.h" line="53"/>
+        <location filename="../src/utils/Utils.h" line="55"/>
         <source>Unknown error occurred.</source>
         <translation type="unfinished">发生了未知错误。</translation>
     </message>
@@ -416,7 +475,7 @@ Open download page?</source>
 <context>
     <name>WAVCombine</name>
     <message>
-        <location filename="../src/worker/WavCombine.cpp" line="27"/>
+        <location filename="../src/worker/WavCombine.cpp" line="29"/>
         <source>&lt;p class=&apos;critical&apos;&gt;There are not any wav files in the given folder. Please check the path, or if you forget to turn &quot;scan subfolders&quot; on?&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;没有在所给文件夹中找到任何wav文件。请检查提供的路径，或者忘记勾选“包含子文件夹”了？&lt;/p&gt;</translation>
     </message>
@@ -425,27 +484,27 @@ Open download page?</source>
         <translation type="vanished">&lt;p class=&apos;critical&apos;&gt;合并后的音频数据长度超过了普通WAV文件所能承载的长度，请选择使用W64格式来保存。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/WavCombine.cpp" line="54"/>
+        <location filename="../src/worker/WavCombine.cpp" line="56"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Length of the wav file combined will be too large to save in normal RIFF WAVs. Please use 64-bit WAV instead.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;合并后的音频数据长度超过了普通RIFF WAV文件所能承载的长度，请选择使用64位格式来保存。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/WavCombine.cpp" line="69"/>
+        <location filename="../src/worker/WavCombine.cpp" line="71"/>
         <source>&lt;p class=&apos;warning&apos;&gt;Can not know bit depth from &quot;%1&quot;. Maybe this file id corrupted, or error happend during openning the file.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;warning&apos;&gt;我们无法得知“%1”存储的量化类型，可能该文件已损坏，或者文件打开时出现了问题。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/WavCombine.cpp" line="82"/>
+        <location filename="../src/worker/WavCombine.cpp" line="84"/>
         <source>&lt;p class=&apos;warning&apos;&gt;There are %2 channel(s) in &quot;%1&quot;. Channels after No.%3 will be discarded.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;warning&apos;&gt;“%1”包含了%2个声道，位于%3号之后的声道数据会被丢弃。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/WavCombine.cpp" line="96"/>
+        <location filename="../src/worker/WavCombine.cpp" line="98"/>
         <source>&lt;p class=&apos;warning&apos;&gt;Sample rate (%2 Hz) of &quot;%1&quot; is larger than target (&quot;%3&quot; Hz).The precision could be lost a bit when processing.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;warning&apos;&gt;“%1”的采样率（%2 Hz）比目标（%3 Hz）要大，处理时的重采样会造成一定的精度损失。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/WavCombine.cpp" line="114"/>
+        <location filename="../src/worker/WavCombine.cpp" line="116"/>
         <source>&lt;p class=&apos;warning&apos;&gt;Bit depth (%2) of &quot;%1&quot; is larger than target.The precision could be lost a bit when processing.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -576,27 +635,27 @@ Open download page?</source>
         <translation type="vanished">文件%1写入的字节数（%2）和预期的（%3）不一致（即没有完全写入完成）。</translation>
     </message>
     <message>
-        <location filename="../src/worker/WavExtract.cpp" line="24"/>
+        <location filename="../src/worker/WavExtract.cpp" line="26"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Can not find description file &quot;%1&quot;. If you have renamed the WAV file, please also rename the desc file.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/worker/WavExtract.cpp" line="33"/>
+        <location filename="../src/worker/WavExtract.cpp" line="35"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Can not open description file &quot;%1&quot;. Check your permission.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/worker/WavExtract.cpp" line="43"/>
+        <location filename="../src/worker/WavExtract.cpp" line="45"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Failed to parse description file &quot;%1&quot;: %2&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/worker/WavExtract.cpp" line="55"/>
+        <location filename="../src/worker/WavExtract.cpp" line="57"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Description file &quot;%1&quot; is missing version field.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/worker/WavExtract.cpp" line="64"/>
+        <location filename="../src/worker/WavExtract.cpp" line="66"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Description file &quot;%1&quot; has unsupported version %2. Expected version %3.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -675,72 +734,72 @@ Open download page?</source>
 <context>
     <name>WAVFormatChooserWidget</name>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="29"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="34"/>
         <source>Sample rate</source>
         <translation>采样率</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="55"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="60"/>
         <source>11025</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="60"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="65"/>
         <source>22050</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="40"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="45"/>
         <source>44100</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="45"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="50"/>
         <source>48000</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="65"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="70"/>
         <source>88200</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="50"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="55"/>
         <source>96000</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="70"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="75"/>
         <source>192000</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="75"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="80"/>
         <source>384000</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="83"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="104"/>
         <source>Bit depth</source>
         <translation>位深度</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="93"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="131"/>
         <source>Channels</source>
         <translation>声道数</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="107"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="164"/>
         <source>Container</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="117"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="177"/>
         <source>?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="120"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="174"/>
         <source>Show WAV container format information</source>
         <translation type="unfinished"></translation>
     </message>
@@ -765,27 +824,62 @@ RF64 and W64 all have their own pros and cons, so choose what meets your need.</
 RF64格式和W64格式各有优劣，请根据自己的需要选择。</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="22"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="27"/>
         <source>RIFF (Standard WAV)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="23"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="28"/>
         <source>RF64 (RIFF 64-bit)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="27"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="32"/>
         <source>W64 (Sony Wave64)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="87"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="130"/>
+        <source>Auto (max from input)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="132"/>
+        <source>Inherit from input</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="139"/>
+        <source>1 (Mono)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="140"/>
+        <source>2 (Stereo)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="141"/>
+        <source>6 (5.1 Surround)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="142"/>
+        <source>8 (7.1 Surround)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="148"/>
+        <source>Custom...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="158"/>
         <source>WAV Container Format Information</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="88"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="159"/>
         <source>## WAV Container Formats
 
 WAV files can use different container formats, each with different limitations and compatibility:
@@ -828,47 +922,47 @@ WAV files can use different container formats, each with different limitations a
         <translation type="unfinished">一些准备工作……</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="71"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="70"/>
         <source>Critical error found. Can not continue.</source>
         <translation type="unfinished">发现了一些严重问题，操作无法继续。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="79"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="78"/>
         <source>Some problems have been found but process can continue. Should we proceed?</source>
         <translation type="unfinished">发现了一些问题，不过操作仍然可以继续。请问要继续吗？</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="92"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="91"/>
         <source>Reading WAV files and combining them...</source>
         <translation type="unfinished">读取波形文件及拼接……</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="113"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="112"/>
         <source>Writing combined file...</source>
         <translation type="unfinished">写入合并后的文件……</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="133"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="132"/>
         <source>Done</source>
         <translation type="unfinished">完成</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="141"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="140"/>
         <source>Wav files has been combined.</source>
         <translation type="unfinished">合并操作已经完成。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="143"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="142"/>
         <source>Combined file has been stored at &quot;%1&quot;.Please do not change the time when you edit it, and do not delete or modify &quot;.kirawavtar-desc.json&quot; file sharing the same name with the WAV.</source>
         <translation type="unfinished">合并后的波形文件已经存储至%1。请注意在处理时不要修改波形文件内的时值，也不要删除和修改同名的“.kirawavtar-desc.json”描述文件。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="153"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="152"/>
         <source>Error occurred when writing combined WAV.</source>
         <translation type="unfinished">写入合并结果文件时出现问题。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="154"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="153"/>
         <source>Please check potential causes and try again.</source>
         <translation type="unfinished">请排查可能问题后再试。</translation>
     </message>

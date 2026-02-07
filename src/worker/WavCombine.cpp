@@ -165,9 +165,8 @@ startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::
                     for (size_t c = 0; c < outputChannels; ++c) {
                         if (c >= processedData.size())
                             continue;
-                        auto converter =
-                            kfr::sample_rate_converter<T>(utils::sample_rate_conversion_quality_for_process,
-                                                          (size_t)outputSampleRate, (size_t)inputSampleRate);
+                        auto converter = kfr::sample_rate_converter<T>(
+                            utils::getSampleRateConversionQuality(), (size_t)outputSampleRate, (size_t)inputSampleRate);
                         size_t outSize = converter.output_size_for_input(processedData[c].size());
                         resampledData[c].resize(outSize);
                         converter.process(resampledData[c], processedData[c]);

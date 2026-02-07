@@ -209,17 +209,15 @@ QFuture<ExtractErrorDescription> startExtract(utils::AudioBufferPtr srcData,
                         // Resample if needed
                         double targetRate = outputFormat.kfr_format.samplerate;
                         if (std::abs(srcSampleRate - targetRate) > 1e-5) {
-                            auto converter =
-                                kfr::sample_rate_converter<T>(utils::sample_rate_conversion_quality_for_process,
-                                                              (size_t)targetRate, (size_t)srcSampleRate);
+                            auto converter = kfr::sample_rate_converter<T>(utils::getSampleRateConversionQuality(),
+                                                                           (size_t)targetRate, (size_t)srcSampleRate);
                             size_t originalSize = slice[0].size();
                             size_t newSize = converter.output_size_for_input(originalSize);
 
                             kfr::univector2d<T> resampledSlice(slice.size());
                             for (size_t c = 0; c < slice.size(); ++c) {
-                                auto chConverter =
-                                    kfr::sample_rate_converter<T>(utils::sample_rate_conversion_quality_for_process,
-                                                                  (size_t)targetRate, (size_t)srcSampleRate);
+                                auto chConverter = kfr::sample_rate_converter<T>(
+                                    utils::getSampleRateConversionQuality(), (size_t)targetRate, (size_t)srcSampleRate);
                                 resampledSlice[c].resize(newSize);
                                 chConverter.process(resampledSlice[c], slice[c]);
                             }
