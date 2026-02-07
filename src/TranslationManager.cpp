@@ -1,18 +1,19 @@
 #include "TranslationManager.h"
+
+#include <QAction>
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
-#include <QJsonDocument>
 #include <QJsonArray>
+#include <QJsonDocument>
 #include <QJsonObject>
-#include <QAction>
 #include <QObject>
 #include <QSettings>
 #include <algorithm>
 
-TranslationManager* TranslationManager::instance = nullptr;
+TranslationManager *TranslationManager::instance = nullptr;
 
-TranslationManager* TranslationManager::getManager()
+TranslationManager *TranslationManager::getManager()
 {
     if (!instance)
         instance = new TranslationManager;
@@ -28,10 +29,10 @@ TranslationManager::TranslationManager()
     auto metaFileContent = metaFile.readAll();
     auto array = QJsonDocument::fromJson(metaFileContent).array();
 
-    for (const auto& value : array) {
+    for (const auto &value : array) {
         auto tr = Translation::fromJson(value.toObject());
         QStringList fullPaths;
-        for (const auto& fileName : tr.translationFilenames())
+        for (const auto &fileName : tr.translationFilenames())
             fullPaths.append(QDir{qApp->applicationDirPath()}.filePath("translations/" + fileName));
         tr.setTranslationFilenames(fullPaths);
         if (tr.isValid())
@@ -41,10 +42,10 @@ TranslationManager::TranslationManager()
     getTranslationFor(getLocaleUserSetting()).install();
 }
 
-void TranslationManager::setLangActionChecked(QMenu* i18nMenu, const Translation& translation) const
+void TranslationManager::setLangActionChecked(QMenu *i18nMenu, const Translation &translation) const
 {
     auto actions = i18nMenu->actions();
-    for (auto action : std::as_const(actions)){
+    for (auto action : std::as_const(actions)) {
         auto currTr = TranslationManager::getManager()->getTranslation(action->data().toInt());
         action->setChecked(currTr == translation);
     }
@@ -74,20 +75,16 @@ Translation TranslationManager::getTranslation(int i) const
     return translations.at(i);
 }
 
-
-Translation TranslationManager::getTranslationFor(const QLocale& locale) const
+Translation TranslationManager::getTranslationFor(const QLocale &locale) const
 {
-    auto it = std::ranges::find_if(translations, [&locale](const Translation& t) {
-        return t.locale() == locale;
-    });
+    auto it = std::ranges::find_if(translations, [&locale](const Translation &t) { return t.locale() == locale; });
     return it != translations.end() ? *it : Translation{};
 }
 
 int TranslationManager::getCurrentInstalledTranslationID() const
 {
-    auto it = std::ranges::find_if(translations, [](const Translation& elem) {
-        return elem == Translation::getCurrentInstalled();
-    });
+    auto it = std::ranges::find_if(translations,
+                                   [](const Translation &elem) { return elem == Translation::getCurrentInstalled(); });
     return it != translations.end() ? static_cast<int>(std::distance(translations.begin(), it)) : -1;
 }
 
@@ -96,7 +93,7 @@ Translation TranslationManager::getCurrentInstalled() const
     return Translation::getCurrentInstalled();
 }
 
-QMenu* TranslationManager::getI18nMenu()
+QMenu *TranslationManager::getI18nMenu()
 {
     if (i18nMenu)
         return i18nMenu;
@@ -108,15 +105,17 @@ QMenu* TranslationManager::getI18nMenu()
     defaultLang->setCheckable(true);
     i18nMenu->addAction(defaultLang);
 
-    for (auto i = 0; i < translations.count(); ++i)
-    {
+    for (auto i = 0; i < translations.count(); ++i) {
         auto l = translations.at(i);
-        auto langAction = new QAction(QLatin1String("%1 (%2), by %3").arg(QLocale::languageToString(l.locale().language()),l.locale().bcp47Name(),l.author()), i18nMenu);
+        auto langAction =
+            new QAction(QLatin1String("%1 (%2), by %3")
+                            .arg(QLocale::languageToString(l.locale().language()), l.locale().bcp47Name(), l.author()),
+                        i18nMenu);
         langAction->setData(i);
         langAction->setCheckable(true);
         i18nMenu->addAction(langAction);
     }
-    QObject::connect(i18nMenu, &QMenu::triggered, i18nMenu, [this](QAction* action){
+    QObject::connect(i18nMenu, &QMenu::triggered, i18nMenu, [this](QAction *action) {
         auto translation = getTranslation(action->data().toInt());
         translation.install();
         setLangActionChecked(i18nMenu, translation);

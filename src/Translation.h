@@ -1,43 +1,43 @@
 #ifndef TRANSLATION_H
 #define TRANSLATION_H
 
-#include <QObject>
 #include <QLocale>
+#include <QObject>
 #include <QTranslator>
 
 class Translation
 {
-public:
+  public:
     Translation(QLocale locale, QStringList translationFilenames, QString author);
     Translation();
 
     QJsonObject toJson() const;
-    static Translation fromJson(const QJsonObject& jsonDoc);
+    static Translation fromJson(const QJsonObject &jsonDoc);
 
     void install() const;
     static void uninstall();
 
     QLocale locale() const;
-    void setLocale(const QLocale& value);
+    void setLocale(const QLocale &value);
 
     QStringList translationFilenames() const;
-    void setTranslationFilenames(const QStringList& value);
+    void setTranslationFilenames(const QStringList &value);
 
     QString author() const;
-    void setAuthor(const QString& value);
+    void setAuthor(const QString &value);
 
     static Translation getCurrentInstalled();
 
     bool isValid() const;
 
-    bool operator==(const Translation& other) const;
+    bool operator==(const Translation &other) const;
 
-private:
+  private:
     QLocale locale_ = QLocale("en_US");
     QStringList translationFilenames_;
     QString author_;
 
-    static QList<QTranslator*> installedTranslators;
+    static QList<QTranslator *> installedTranslators;
     static Translation currentInstalled;
 };
 

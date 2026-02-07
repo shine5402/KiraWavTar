@@ -1,20 +1,23 @@
 #include "WavCombineDialog.h"
-#include <QVBoxLayout>
-#include <QLabel>
-#include <QProgressBar>
+
 #include <QDialogButtonBox>
-#include "kfr/all.hpp"
-#include "WavCombine.h"
-#include <QtConcurrent/QtConcurrent>
 #include <QFutureWatcher>
+#include <QLabel>
 #include <QMessageBox>
+#include <QProgressBar>
+#include <QVBoxLayout>
+#include <QtConcurrent/QtConcurrent>
+
+#include "WavCombine.h"
+#include "kfr/all.hpp"
 
 using namespace WAVCombine;
 using namespace wavtar_defines;
 
-WAVCombineDialog::WAVCombineDialog(QString rootDirName, bool recursive,
-                                   const AudioIO::WavAudioFormat& targetFormat, QString saveFileName, QWidget* parent)
-    : QDialog(parent), rootDirName(rootDirName), recursive(recursive), targetFormat(targetFormat), saveFileName(saveFileName)
+WAVCombineDialog::WAVCombineDialog(QString rootDirName, bool recursive, const AudioIO::WavAudioFormat &targetFormat,
+                                   QString saveFileName, QWidget *parent)
+    : QDialog(parent), rootDirName(rootDirName), recursive(recursive), targetFormat(targetFormat),
+      saveFileName(saveFileName)
 {
     auto layout = new QVBoxLayout(this);
 
@@ -35,13 +38,13 @@ WAVCombineDialog::WAVCombineDialog(QString rootDirName, bool recursive,
     connect(this, &WAVCombineDialog::opened, this, &WAVCombineDialog::startWork);
 }
 
-using PreCheckFutureWatcher = QFutureWatcher<decltype (std::function(preCheck))::result_type>;
+using PreCheckFutureWatcher = QFutureWatcher<decltype(std::function(preCheck))::result_type>;
 
 void WAVCombineDialog::startWork()
 {
     auto nextFuture = QtConcurrent::run(preCheck, rootDirName, saveFileName, recursive, targetFormat);
     label->setText(tr("Some preparing work..."));
-    //This will make progress bar show as busy indicator
+    // This will make progress bar show as busy indicator
     progressBar->setMaximum(0);
     progressBar->setMinimum(0);
     auto watcher = new PreCheckFutureWatcher(this);
@@ -50,11 +53,12 @@ void WAVCombineDialog::startWork()
     connect(buttonBox, &QDialogButtonBox::rejected, watcher, &PreCheckFutureWatcher::cancel);
 }
 
-using readAndCombineFutureWatcher = QFutureWatcher<QPair<std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>>, QJsonObject>>;
+using readAndCombineFutureWatcher =
+    QFutureWatcher<QPair<std::shared_ptr<kfr::univector2d<wavtar_defines::sample_process_t>>, QJsonObject>>;
 
 void WAVCombineDialog::preCheckDone()
 {
-    if (auto watcher = dynamic_cast<PreCheckFutureWatcher*>(QObject::sender())){
+    if (auto watcher = dynamic_cast<PreCheckFutureWatcher *>(QObject::sender())) {
         if (!wavtar_utils::checkFutureExceptionAndWarn(watcher->future()))
             return;
         if (watcher->isCanceled())
@@ -74,8 +78,8 @@ void WAVCombineDialog::preCheckDone()
             msgBox.setIcon(QMessageBox::Warning);
             msgBox.setText(tr("Some problems have been found but process can continue. Should we proceed?"));
             msgBox.setInformativeText(reportTextStyle + result.reportString);
-            msgBox.setStandardButtons(QMessageBox::Yes|QMessageBox::No);
-            if (msgBox.exec() == QMessageBox::No){
+            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+            if (msgBox.exec() == QMessageBox::No) {
                 this->done(QDialog::Rejected);
                 this->close();
                 return;
@@ -88,8 +92,10 @@ void WAVCombineDialog::preCheckDone()
             label->setText(tr("Reading WAV files and combining them..."));
             progressBar->setMinimum(nextWatcher->progressMinimum());
             progressBar->setMaximum(nextWatcher->progressMaximum());
-            connect(nextWatcher, &readAndCombineFutureWatcher::progressValueChanged, progressBar, &QProgressBar::setValue);
-            connect(nextWatcher, &readAndCombineFutureWatcher::finished, this, &WAVCombineDialog::readAndCombineWorkDone);
+            connect(nextWatcher, &readAndCombineFutureWatcher::progressValueChanged, progressBar,
+                    &QProgressBar::setValue);
+            connect(nextWatcher, &readAndCombineFutureWatcher::finished, this,
+                    &WAVCombineDialog::readAndCombineWorkDone);
             connect(buttonBox, &QDialogButtonBox::rejected, nextWatcher, &readAndCombineFutureWatcher::cancel);
             break;
         }
@@ -98,17 +104,18 @@ void WAVCombineDialog::preCheckDone()
 
 void WAVCombineDialog::readAndCombineWorkDone()
 {
-    if (auto watcher = dynamic_cast<readAndCombineFutureWatcher*>(QObject::sender())){
+    if (auto watcher = dynamic_cast<readAndCombineFutureWatcher *>(QObject::sender())) {
         if (!wavtar_utils::checkFutureExceptionAndWarn(watcher->future()))
             return;
         if (watcher->isCanceled())
             return;
         auto result = watcher->result();
         label->setText(tr("Writing combined file..."));
-        //This will make progress bar show as busy indicator
+        // This will make progress bar show as busy indicator
         progressBar->setMaximum(0);
         progressBar->setMinimum(0);
-        auto nextFuture = QtConcurrent::run(writeCombineResult, result.first, result.second, saveFileName, targetFormat);
+        auto nextFuture =
+            QtConcurrent::run(writeCombineResult, result.first, result.second, saveFileName, targetFormat);
         auto nextWatcher = new QFutureWatcher<bool>(this);
         nextWatcher->setFuture(nextFuture);
         connect(nextWatcher, &QFutureWatcher<bool>::finished, this, &WAVCombineDialog::writeResultDone);
@@ -118,7 +125,7 @@ void WAVCombineDialog::readAndCombineWorkDone()
 
 void WAVCombineDialog::writeResultDone()
 {
-    if (auto watcher = dynamic_cast<QFutureWatcher<bool>*>(QObject::sender())){
+    if (auto watcher = dynamic_cast<QFutureWatcher<bool> *>(QObject::sender())) {
         if (!wavtar_utils::checkFutureExceptionAndWarn(watcher->future()))
             return;
         if (watcher->isCanceled())
@@ -128,19 +135,19 @@ void WAVCombineDialog::writeResultDone()
         progressBar->setMinimum(0);
         progressBar->setValue(1);
         auto result = watcher->result();
-        if (result){
+        if (result) {
             QMessageBox msgBox;
             msgBox.setIcon(QMessageBox::Icon::Information);
             msgBox.setText(tr("Wav files has been combined."));
-            msgBox.setInformativeText(tr("Combined file has been stored at \"%1\"."
-                                         "Please do not change the time when you edit it, "
-                                         "and do not delete or modify \".kirawavtar-desc.json\" file sharing the same name with the WAV.")
-                                      .arg(saveFileName));
+            msgBox.setInformativeText(
+                tr("Combined file has been stored at \"%1\"."
+                   "Please do not change the time when you edit it, "
+                   "and do not delete or modify \".kirawavtar-desc.json\" file sharing the same name with the WAV.")
+                    .arg(saveFileName));
             msgBox.setStandardButtons(QMessageBox::Ok);
             msgBox.exec();
             done(QDialog::Accepted);
-        }
-        else{
+        } else {
             QMessageBox msgBox;
             msgBox.setIcon(QMessageBox::Icon::Critical);
             msgBox.setText(tr("Error occurred when writing combined WAV."));

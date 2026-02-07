@@ -1,19 +1,19 @@
 #include "WavFormatChooserWidget.h"
 #include "ui_wavformatchooserwidget.h"
-#include <kfr/all.hpp>
-#include "KfrHelper.h"
-#include <QMessageBox>
 
-WAVFormatChooserWidget::WAVFormatChooserWidget(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::WAVFormatChooserWidget)
+#include <QMessageBox>
+#include <kfr/all.hpp>
+
+#include "KfrHelper.h"
+
+WAVFormatChooserWidget::WAVFormatChooserWidget(QWidget *parent) : QWidget(parent), ui(new Ui::WAVFormatChooserWidget)
 {
     ui->setupUi(this);
 
     auto sampleRateValidator = new QIntValidator(2, INT_MAX);
     ui->sampleRateComboBox->setValidator(sampleRateValidator);
 
-    for(const auto& [type, name] : kfr::audio_sample_type_entries){
+    for (const auto &[type, name] : kfr::audio_sample_type_entries) {
         ui->sampleTypeComboBox->addItem(name.data());
     }
 
@@ -27,12 +27,12 @@ WAVFormatChooserWidget::~WAVFormatChooserWidget()
     delete ui;
 }
 
-decltype (kfr::audio_format::samplerate) WAVFormatChooserWidget::getSampleRate() const
+decltype(kfr::audio_format::samplerate) WAVFormatChooserWidget::getSampleRate() const
 {
     return ui->sampleRateComboBox->currentText().toDouble();
 }
 
-decltype (kfr::audio_format::channels) WAVFormatChooserWidget::getChannelCount() const
+decltype(kfr::audio_format::channels) WAVFormatChooserWidget::getChannelCount() const
 {
     return ui->channelsSpinBox->value();
 }

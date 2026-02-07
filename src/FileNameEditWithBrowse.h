@@ -1,65 +1,63 @@
 #ifndef FILENAMEEDITWITHBROWSE_H
 #define FILENAMEEDITWITHBROWSE_H
 
-#include <QWidget>
 #include <QFileDialog>
+#include <QWidget>
 
 namespace Ui {
-    class FileNameEditWithBrowse;
+class FileNameEditWithBrowse;
 }
 
 class FileNameEditWithBrowse : public QWidget
 {
     Q_OBJECT
 
-public:
-    enum Purpose{Open, Save};
+  public:
+    enum Purpose { Open, Save };
     Q_ENUM(Purpose);
 
     explicit FileNameEditWithBrowse(QWidget *parent = nullptr);
     ~FileNameEditWithBrowse();
 
     QString fileName() const;
-    void setFileName(const QString& value);
+    void setFileName(const QString &value);
 
     QStringList fileNames() const;
-    void setFileNames(const QStringList& value);
+    void setFileNames(const QStringList &value);
 
     Purpose getPurpose() const;
-    void setPurpose(const Purpose& value);
+    void setPurpose(const Purpose &value);
     QString getCaption() const;
-    void setCaption(const QString& value);
+    void setCaption(const QString &value);
 
     QString getDir() const;
-    void setDir(const QString& value);
+    void setDir(const QString &value);
 
     QString getFilter() const;
-    void setFilter(const QString& value);
+    void setFilter(const QString &value);
 
     QFileDialog::Options getOptions() const;
-    void setOptions(const QFileDialog::Options& value);
+    void setOptions(const QFileDialog::Options &value);
 
-    void setParameters(const QString &caption = QString(),
-                       const QString &dir = QString(),
-                       const QString &filter = QString(),
-                       QString *selectedFilter = nullptr,
+    void setParameters(const QString &caption = QString(), const QString &dir = QString(),
+                       const QString &filter = QString(), QString *selectedFilter = nullptr,
                        QFileDialog::Options options = QFileDialog::Options());
 
-    QString* getSelectedFilter() const;
-    void setSelectedFilter(QString* value);
+    QString *getSelectedFilter() const;
+    void setSelectedFilter(QString *value);
 
     bool isMultipleMode() const;
     void setMultipleMode(bool multipleMode);
 
     QString getMultipleModeSeparator() const;
-    void setMultipleModeSeparator(const QString& value);
+    void setMultipleModeSeparator(const QString &value);
 
-protected:
+  protected:
     void dragEnterEvent(QDragEnterEvent *event) override;
     void dropEvent(QDropEvent *event) override;
-    void changeEvent(QEvent* event) override;
+    void changeEvent(QEvent *event) override;
 
-private:
+  private:
     Ui::FileNameEditWithBrowse *ui;
     Purpose purpose = Open;
 
@@ -72,29 +70,30 @@ private:
     QString caption{};
     QString dir{};
     QString filter{};
-    QString* selectedFilter = nullptr;
+    QString *selectedFilter = nullptr;
     QFileDialog::Options options = QFileDialog::Options();
 
-    QString processFileName(const QString& fileName) const;
+    QString processFileName(const QString &fileName) const;
 
-private slots:
+  private slots:
     void browse();
 
-signals:
+  signals:
     void browseTriggered();
     void dropTriggered();
 };
 
-
-class FileNameEditWithOpenBrowse : public FileNameEditWithBrowse{
+class FileNameEditWithOpenBrowse : public FileNameEditWithBrowse
+{
     Q_OBJECT
-public:
+  public:
     explicit FileNameEditWithOpenBrowse(QWidget *parent = nullptr);
 };
 
-class FileNameEditWithSaveBrowse : public FileNameEditWithBrowse{
+class FileNameEditWithSaveBrowse : public FileNameEditWithBrowse
+{
     Q_OBJECT
-public:
+  public:
     explicit FileNameEditWithSaveBrowse(QWidget *parent = nullptr);
 };
 #endif // FILENAMEEDITWITHBROWSE_H

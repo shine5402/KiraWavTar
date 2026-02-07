@@ -12,15 +12,16 @@ class CommonHtmlDialog : public QDialog
 {
     Q_OBJECT
 
-public:
+  public:
     explicit CommonHtmlDialog(QWidget *parent = nullptr);
     ~CommonHtmlDialog();
 
-    void setLabel(const QString& text);
-    void setHTML(const QString& html);
-    void setMarkdown(const QString& markdown);
+    void setLabel(const QString &text);
+    void setHTML(const QString &html);
+    void setMarkdown(const QString &markdown);
     void setStandardButtons(QDialogButtonBox::StandardButtons buttons);
-private:
+
+  private:
     Ui::CommonHtmlDialog *ui;
 };
 

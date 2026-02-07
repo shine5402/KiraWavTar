@@ -4,14 +4,14 @@
 #include <QMessageBox>
 #include <QValidator>
 
-#include "WavCombineDialog.h"
-#include "WavExtractDialog.h"
-#include "TranslationManager.h"
-#include "UpdateChecker.h"
 #include "AudioIO.h"
 #include "CommonHtmlDialog.h"
+#include "TranslationManager.h"
+#include "UpdateChecker.h"
+#include "WavCombineDialog.h"
+#include "WavExtractDialog.h"
 
-QMenu* MainWindow::createHelpMenu()
+QMenu *MainWindow::createHelpMenu()
 {
     auto helpMenu = new QMenu(this);
     auto aboutAction = helpMenu->addAction(tr("About"));
@@ -19,22 +19,17 @@ QMenu* MainWindow::createHelpMenu()
     helpMenu->addSeparator();
     helpMenu->addMenu(UpdateChecker::createMenuForSchedule());
     auto checkUpdateAction = helpMenu->addAction(tr("Check update now"));
-    connect(checkUpdateAction, &QAction::triggered, this, [this](){
-        UpdateChecker::checkManually(updateChecker);
-    });
+    connect(checkUpdateAction, &QAction::triggered, this, [this]() { UpdateChecker::checkManually(updateChecker); });
 
     return helpMenu;
 }
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
     setFixedHeight(sizeHint().height());
-    setWindowFlags(Qt::Window | Qt::CustomizeWindowHint |
-                   Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint |
+    setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint |
                    Qt::WindowCloseButtonHint);
 
     updateChecker = new UpdateChecker::GithubReleaseChecker("shine5402", "KiraWAVTar");
@@ -52,7 +47,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->extractSrcPathWidget, &FileNameEditWithBrowse::browseTriggered, this, &MainWindow::fillResultPath);
     connect(ui->extractSrcPathWidget, &FileNameEditWithBrowse::dropTriggered, this, &MainWindow::fillResultPath);
 
-    //i18n menu
+    // i18n menu
     ui->langButton->setMenu(TranslationManager::getManager()->getI18nMenu());
 }
 
@@ -78,23 +73,22 @@ void MainWindow::reset()
 void MainWindow::updateStackWidgetIndex()
 {
     if (ui->combineWAVRadioButton->isChecked())
-        ui->optionStackedWidget->setCurrentIndex(0);//Combine
+        ui->optionStackedWidget->setCurrentIndex(0); // Combine
     else
-        ui->optionStackedWidget->setCurrentIndex(1);//Extract
+        ui->optionStackedWidget->setCurrentIndex(1); // Extract
 
     reset();
 }
 
 void MainWindow::run()
 {
-    if (ui->combineWAVRadioButton->isChecked())
-    {
+    if (ui->combineWAVRadioButton->isChecked()) {
         auto rootDirName = ui->combineDirPathWidget->dirName();
         auto recursive = ui->subdirCheckBox->isChecked();
         auto targetFormat = ui->combineWAVFormatWidget->getFormat();
         auto saveFileName = ui->combineResultPathWidget->fileName();
 
-        if (rootDirName.isEmpty() || saveFileName.isEmpty()){
+        if (rootDirName.isEmpty() || saveFileName.isEmpty()) {
             QMessageBox::critical(this, {}, tr("Needed paths are empty. Please check your input and try again."));
             return;
         }
@@ -102,26 +96,25 @@ void MainWindow::run()
         auto dialog = new WAVCombineDialog(rootDirName, recursive, targetFormat, saveFileName, this);
         dialog->setAttribute(Qt::WA_DeleteOnClose, true);
         dialog->open();
-    }
-    else
-    {
+    } else {
         AudioIO::WavAudioFormat invalidFormat;
         invalidFormat.kfr_format.type = kfr::audio_sample_type::unknown;
-        
-        auto targetFormat = ui->extractFormatSrcRadioButton->isChecked() ? invalidFormat : ui->extractFormatCustomChooser->getFormat();
+
+        auto targetFormat =
+            ui->extractFormatSrcRadioButton->isChecked() ? invalidFormat : ui->extractFormatCustomChooser->getFormat();
         auto srcWAVFileName = ui->extractSrcPathWidget->fileName();
         auto dstDirName = ui->extractResultPathWidget->dirName();
         auto extractResultSelection = ui->extractSelectionCheckBox->isChecked();
         auto removeDCOffset = ui->removeDCCheckBox->isChecked();
-        if (srcWAVFileName.isEmpty() || dstDirName.isEmpty()){
+        if (srcWAVFileName.isEmpty() || dstDirName.isEmpty()) {
             QMessageBox::critical(this, {}, tr("Needed paths are empty. Please check your input and try again."));
             return;
         }
-        auto dialog = new WAVExtractDialog(srcWAVFileName, dstDirName, targetFormat, extractResultSelection, removeDCOffset, this);
+        auto dialog = new WAVExtractDialog(srcWAVFileName, dstDirName, targetFormat, extractResultSelection,
+                                           removeDCOffset, this);
         dialog->setAttribute(Qt::WA_DeleteOnClose, true);
         dialog->open();
     }
-
 }
 
 void MainWindow::fillResultPath()
@@ -133,9 +126,7 @@ void MainWindow::fillResultPath()
             dirPath.chop(1);
         }
         ui->combineResultPathWidget->setFileName(dirPath + ".wav");
-    }
-    else
-    {
+    } else {
         auto fileInfo = QFileInfo{ui->extractSrcPathWidget->fileName()};
         auto dir = fileInfo.absoluteDir();
         auto baseFileName = fileInfo.completeBaseName();
@@ -145,15 +136,16 @@ void MainWindow::fillResultPath()
 
 void MainWindow::about()
 {
-    QString versionStr = tr("<p>Version %1, <i>build on %2 %3<i></p>")
-            .arg(qApp->applicationVersion().isEmpty() ? "development version" : qApp->applicationVersion()
-            , __DATE__, __TIME__);
+    QString versionStr =
+        tr("<p>Version %1, <i>build on %2 %3<i></p>")
+            .arg(qApp->applicationVersion().isEmpty() ? "development version" : qApp->applicationVersion(), __DATE__,
+                 __TIME__);
 
     auto dialog = new CommonHtmlDialog(this);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->setWindowTitle(tr("About"));
     dialog->setHTML(tr(
-                       R"(<p style="text-align: left;"><img src=":/icon/appIcon" width="64"/></p>
+                        R"(<p style="text-align: left;"><img src=":/icon/appIcon" width="64"/></p>
 <h2>KiraWAVTar</h2>
 <p>Copyright 2021-present <a href="https://shine5402.top/about-me">shine_5402</a></p>
 %1
@@ -188,14 +180,16 @@ along with this program.  If not, see <a href="https://www.gnu.org/licenses/">ht
 <li>Qt %2, The Qt Company Ltd, under LGPL v3.</li>
 <li><a href="https://www.kfrlib.com/">KFR - Fast, modern C++ DSP framework</a>, under GNU GPL v2+</li>
 </ul>
-)").arg(versionStr).arg(QT_VERSION_STR));
+)")
+                        .arg(versionStr)
+                        .arg(QT_VERSION_STR));
     dialog->setStandardButtons(QDialogButtonBox::Ok);
     dialog->exec();
 }
 
-void MainWindow::changeEvent(QEvent* event){
-    if (event->type() == QEvent::LanguageChange)
-    {
+void MainWindow::changeEvent(QEvent *event)
+{
+    if (event->type() == QEvent::LanguageChange) {
         ui->retranslateUi(this);
         ui->helpButton->menu()->deleteLater();
         ui->helpButton->setMenu(createHelpMenu());
