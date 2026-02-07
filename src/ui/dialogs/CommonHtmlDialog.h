@@ -12,7 +12,7 @@ class CommonHtmlDialog : public QDialog
 {
     Q_OBJECT
 
-  public:
+public:
     explicit CommonHtmlDialog(QWidget *parent = nullptr);
     ~CommonHtmlDialog();
 
@@ -21,7 +21,7 @@ class CommonHtmlDialog : public QDialog
     void setMarkdown(const QString &markdown);
     void setStandardButtons(QDialogButtonBox::StandardButtons buttons);
 
-  private:
+private:
     Ui::CommonHtmlDialog *ui;
 };
 

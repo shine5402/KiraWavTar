@@ -12,7 +12,7 @@ class FileNameEditWithBrowse : public QWidget
 {
     Q_OBJECT
 
-  public:
+public:
     enum Purpose { Open, Save };
     Q_ENUM(Purpose);
 
@@ -52,12 +52,12 @@ class FileNameEditWithBrowse : public QWidget
     QString getMultipleModeSeparator() const;
     void setMultipleModeSeparator(const QString &value);
 
-  protected:
+protected:
     void dragEnterEvent(QDragEnterEvent *event) override;
     void dropEvent(QDropEvent *event) override;
     void changeEvent(QEvent *event) override;
 
-  private:
+private:
     Ui::FileNameEditWithBrowse *ui;
     Purpose purpose = Open;
 
@@ -75,10 +75,10 @@ class FileNameEditWithBrowse : public QWidget
 
     QString processFileName(const QString &fileName) const;
 
-  private slots:
+private slots:
     void browse();
 
-  signals:
+signals:
     void browseTriggered();
     void dropTriggered();
 };
@@ -86,14 +86,14 @@ class FileNameEditWithBrowse : public QWidget
 class FileNameEditWithOpenBrowse : public FileNameEditWithBrowse
 {
     Q_OBJECT
-  public:
+public:
     explicit FileNameEditWithOpenBrowse(QWidget *parent = nullptr);
 };
 
 class FileNameEditWithSaveBrowse : public FileNameEditWithBrowse
 {
     Q_OBJECT
-  public:
+public:
     explicit FileNameEditWithSaveBrowse(QWidget *parent = nullptr);
 };
 #endif // FILENAMEEDITWITHBROWSE_H

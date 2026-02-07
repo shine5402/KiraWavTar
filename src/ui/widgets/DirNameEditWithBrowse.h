@@ -10,7 +10,7 @@ class QPushButton;
 class DirNameEditWithBrowse : public QWidget
 {
     Q_OBJECT
-  public:
+public:
     explicit DirNameEditWithBrowse(QWidget *parent = nullptr);
 
     QString dirName() const;
@@ -22,18 +22,18 @@ class DirNameEditWithBrowse : public QWidget
     QFileDialog::Options getOptions() const;
     void setOptions(const QFileDialog::Options &value);
 
-  private:
+private:
     QLineEdit *dirNameEdit;
     QString caption{};
     QFileDialog::Options options = QFileDialog::ShowDirsOnly;
     QPushButton *browseButton;
-  private slots:
+private slots:
     void onBrowse();
-  signals:
+signals:
     void browseTriggered();
     void dropTriggered();
     // QWidget interface
-  protected:
+protected:
     void dragEnterEvent(QDragEnterEvent *event) override;
     void dropEvent(QDropEvent *event) override;
     void changeEvent(QEvent *event) override;

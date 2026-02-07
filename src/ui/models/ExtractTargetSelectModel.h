@@ -7,7 +7,7 @@ class ExtractTargetSelectModel : public QAbstractTableModel
 {
     Q_OBJECT
 
-  public:
+public:
     explicit ExtractTargetSelectModel(QJsonArray *descArray, QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -22,7 +22,7 @@ class ExtractTargetSelectModel : public QAbstractTableModel
     void unselectAll();
     void reverseSelect();
 
-  private:
+private:
     QJsonArray *descArray;
 };
 

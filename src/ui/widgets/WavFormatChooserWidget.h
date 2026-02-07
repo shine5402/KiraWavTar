@@ -14,7 +14,7 @@ class WAVFormatChooserWidget : public QWidget
 {
     Q_OBJECT
 
-  public:
+public:
     explicit WAVFormatChooserWidget(QWidget *parent = nullptr);
     ~WAVFormatChooserWidget();
 
@@ -27,10 +27,10 @@ class WAVFormatChooserWidget : public QWidget
 
     void reset();
 
-  public slots:
+public slots:
     void warnAbout64Bit(bool checked);
 
-  private:
+private:
     Ui::WAVFormatChooserWidget *ui;
 };
 

@@ -6,7 +6,7 @@
 
 class TranslationManager
 {
-  public:
+public:
     /*
      * TranslationManager will store user's i18n preference with default constructed QSettings.
      * And it will install user's preferred translation when getManager() being called first time.
@@ -22,7 +22,7 @@ class TranslationManager
 
     QMenu *getI18nMenu();
 
-  private:
+private:
     static TranslationManager *instance;
     TranslationManager();
     QMenu *i18nMenu = nullptr;

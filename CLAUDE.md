@@ -31,7 +31,7 @@ There are no tests. No linter is configured.
 ### UI Layer
 
 - **`MainWindow`** — Top-level window with `QStackedWidget` switching between combine/extract modes. Manages path inputs, language menu, and update checking.
-- **`WAVCombineDialog` / `WAVExtractDialog`** — Modal progress dialogs that orchestrate async operations via `QFuture`/`QFutureWatcher`. Each dialog chains its pipeline stages and reports warnings/errors.
+- **`WavCombineDialog` / `WavExtractDialog`** — Modal progress dialogs that orchestrate async operations via `QFuture`/`QFutureWatcher`. Each dialog chains its pipeline stages and reports warnings/errors.
 - **`WAVFormatChooserWidget`** — Reusable widget for selecting sample rate, channels, bit depth, and container format (RIFF/RF64/W64).
 - **`ExtractTargetSelectModel`** — `QAbstractTableModel` for selecting which files to extract.
 

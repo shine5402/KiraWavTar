@@ -3,6 +3,9 @@ BasedOnStyle: LLVM
 IndentWidth: 4
 TabWidth: 4
 UseTab: Never
+AccessModifierOffset: -4
+IndentAccessModifiers: false
+EmptyLineBeforeAccessModifier: LogicalBlock 
 BreakBeforeBraces: Custom
 BraceWrapping:
   AfterFunction: true

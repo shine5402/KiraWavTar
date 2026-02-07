@@ -14,11 +14,11 @@ Q_NAMESPACE
 class Checker : public QObject
 {
     Q_OBJECT
-  public:
+public:
     explicit Checker(QObject *parent = nullptr) : QObject(parent) {}
     virtual void triggerUpdateCheck(QVersionNumber current = {}) = 0;
 
-  signals:
+signals:
     void updateAvailable(const QVersionNumber &newVersion, const QString &msgBody, const QUrl &updateUrl);
     void alreadyUpToDate();
     void errorOccurred(const QString &msg);
@@ -27,12 +27,12 @@ class Checker : public QObject
 class GithubReleaseChecker : public Checker
 {
     Q_OBJECT
-  public:
+public:
     GithubReleaseChecker(QString owner, QString repo, QObject *parent = nullptr)
         : Checker(parent), owner(std::move(owner)), repo(std::move(repo)) {};
     virtual void triggerUpdateCheck(QVersionNumber current = {});
 
-  private:
+private:
     QString owner;
     QString repo;
     static QNetworkAccessManager *networkMgr;

@@ -3,11 +3,9 @@
 
 #include <QMainWindow>
 
-QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
 }
-QT_END_NAMESPACE
 
 namespace UpdateChecker {
 class GithubReleaseChecker;
@@ -17,24 +15,25 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
-  public:
+public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-  private:
-    Ui::MainWindow *ui;
-    UpdateChecker::GithubReleaseChecker *updateChecker;
+protected:
+    void changeEvent(QEvent *event) override;
 
-    QMenu *createHelpMenu();
-
-  private slots:
+private slots:
     void reset();
     void updateStackWidgetIndex();
     void run();
     void fillResultPath();
     void about();
 
-  protected:
-    void changeEvent(QEvent *event) override;
+private:
+    QMenu *createHelpMenu();
+
+private:
+    Ui::MainWindow *ui;
+    UpdateChecker::GithubReleaseChecker *m_updateChecker;
 };
 #endif // MAINWINDOW_H

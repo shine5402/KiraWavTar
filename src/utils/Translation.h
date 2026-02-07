@@ -7,7 +7,7 @@
 
 class Translation
 {
-  public:
+public:
     Translation(QLocale locale, QStringList translationFilenames, QString author);
     Translation();
 
@@ -32,13 +32,13 @@ class Translation
 
     bool operator==(const Translation &other) const;
 
-  private:
-    QLocale locale_ = QLocale("en_US");
-    QStringList translationFilenames_;
-    QString author_;
+private:
+    QLocale m_locale = QLocale("en_US");
+    QStringList m_translationFilenames;
+    QString m_author;
 
-    static QList<QTranslator *> installedTranslators;
-    static Translation currentInstalled;
+    static QList<QTranslator *> s_installedTranslators;
+    static Translation s_currentInstalled;
 };
 
 #endif // TRANSLATION_H

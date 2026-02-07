@@ -17,7 +17,7 @@
 using namespace WAVExtract;
 using namespace utils;
 
-WAVExtractDialog::WAVExtractDialog(QString srcWAVFileName, QString dstDirName,
+WavExtractDialog::WavExtractDialog(QString srcWAVFileName, QString dstDirName,
                                    const AudioIO::WavAudioFormat &targetFormat, bool extractResultSelection,
                                    bool removeDCOffset, QWidget *parent)
     : QDialog(parent), srcWAVFileName(srcWAVFileName), dstDirName(dstDirName), targetFormat(targetFormat),
@@ -39,12 +39,12 @@ WAVExtractDialog::WAVExtractDialog(QString srcWAVFileName, QString dstDirName,
     resize(300, height());
 
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
-    connect(this, &WAVExtractDialog::opened, this, &WAVExtractDialog::startWork);
+    connect(this, &WavExtractDialog::opened, this, &WavExtractDialog::startWork);
 }
 
 using PreCheckFutureWatcher = QFutureWatcher<decltype(std::function(preCheck))::result_type>;
 
-void WAVExtractDialog::startWork()
+void WavExtractDialog::startWork()
 {
     auto nextFuture = QtConcurrent::run(preCheck, srcWAVFileName, dstDirName);
     label->setText(tr("Some preparing work..."));
@@ -53,13 +53,13 @@ void WAVExtractDialog::startWork()
     progressBar->setMinimum(0);
     auto watcher = new PreCheckFutureWatcher(this);
     watcher->setFuture(nextFuture);
-    connect(watcher, &PreCheckFutureWatcher::finished, this, &WAVExtractDialog::preCheckDone);
+    connect(watcher, &PreCheckFutureWatcher::finished, this, &WavExtractDialog::preCheckDone);
     connect(buttonBox, &QDialogButtonBox::rejected, watcher, &PreCheckFutureWatcher::cancel);
 }
 
 using ReadSrcWAVFileFutureWatcher = QFutureWatcher<decltype(std::function(readSrcWAVFile))::result_type>;
 
-void WAVExtractDialog::preCheckDone()
+void WavExtractDialog::preCheckDone()
 {
     if (auto watcher = dynamic_cast<PreCheckFutureWatcher *>(QObject::sender())) {
         if (!utils::checkFutureExceptionAndWarn(watcher->future()))
@@ -93,7 +93,7 @@ void WAVExtractDialog::preCheckDone()
             auto nextWatcher = new ReadSrcWAVFileFutureWatcher(this);
             nextWatcher->setFuture(nextFuture);
             label->setText(tr("Reading source WAV file..."));
-            connect(nextWatcher, &ReadSrcWAVFileFutureWatcher::finished, this, &WAVExtractDialog::readSrcWAVFileDone);
+            connect(nextWatcher, &ReadSrcWAVFileFutureWatcher::finished, this, &WavExtractDialog::readSrcWAVFileDone);
             connect(buttonBox, &QDialogButtonBox::rejected, nextWatcher, &ReadSrcWAVFileFutureWatcher::cancel);
             break;
         }
@@ -103,7 +103,7 @@ void WAVExtractDialog::preCheckDone()
 using ExtractWorkFutureWatcher = QFutureWatcher<ExtractErrorDescription>;
 
 // Though use SrcData as param would be better, but it will expose this internal struct in wavextractdialog.h, so..
-void WAVExtractDialog::doExtractCall(std::shared_ptr<kfr::univector2d<utils::sample_process_t>> srcData,
+void WavExtractDialog::doExtractCall(std::shared_ptr<kfr::univector2d<utils::sample_process_t>> srcData,
                                      decltype(kfr::audio_format::samplerate) samplerate, QJsonArray descArray)
 {
     label->setText(tr("Writing extracted file..."));
@@ -113,11 +113,11 @@ void WAVExtractDialog::doExtractCall(std::shared_ptr<kfr::univector2d<utils::sam
     progressBar->setMinimum(nextWatcher->progressMinimum());
     progressBar->setMaximum(nextWatcher->progressMaximum());
     connect(nextWatcher, &QFutureWatcher<bool>::progressValueChanged, progressBar, &QProgressBar::setValue);
-    connect(nextWatcher, &QFutureWatcher<bool>::finished, this, &WAVExtractDialog::extractWorkDone);
+    connect(nextWatcher, &QFutureWatcher<bool>::finished, this, &WavExtractDialog::extractWorkDone);
     connect(buttonBox, &QDialogButtonBox::rejected, nextWatcher, &QFutureWatcher<bool>::cancel);
 }
 
-void WAVExtractDialog::readSrcWAVFileDone()
+void WavExtractDialog::readSrcWAVFileDone()
 {
     if (auto watcher = dynamic_cast<ReadSrcWAVFileFutureWatcher *>(QObject::sender())) {
         if (!utils::checkFutureExceptionAndWarn(watcher->future()))
@@ -174,7 +174,7 @@ void WAVExtractDialog::readSrcWAVFileDone()
     }
 }
 
-void WAVExtractDialog::extractWorkDone()
+void WavExtractDialog::extractWorkDone()
 {
     if (auto watcher = dynamic_cast<ExtractWorkFutureWatcher *>(QObject::sender())) {
         if (!utils::checkFutureExceptionAndWarn(watcher->future()))
@@ -261,13 +261,13 @@ void WAVExtractDialog::extractWorkDone()
     }
 }
 
-void WAVExtractDialog::open()
+void WavExtractDialog::open()
 {
     emit opened();
     QDialog::open();
 }
 
-int WAVExtractDialog::exec()
+int WavExtractDialog::exec()
 {
     emit opened();
     return QDialog::exec();

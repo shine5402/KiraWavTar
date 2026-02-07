@@ -4,41 +4,41 @@
 #include <QDialog>
 #include <kfr/all.hpp>
 
-#include "../../worker/AudioIO.h"
+#include "worker/AudioIO.h"
 
 class QLabel;
 class QProgressBar;
 class QDialogButtonBox;
 
-class WAVCombineDialog : public QDialog
+class WavCombineDialog : public QDialog
 {
     Q_OBJECT
-  public:
-    WAVCombineDialog(QString rootDirName, bool recursive, const AudioIO::WavAudioFormat &targetFormat,
+public:
+    WavCombineDialog(QString rootDirName, bool recursive, const AudioIO::WavAudioFormat &targetFormat,
                      QString saveFileName, QWidget *parent = nullptr);
 
-  private:
-    QLabel *label;
-    QProgressBar *progressBar;
-    QDialogButtonBox *buttonBox;
+public slots:
+    void open() override;
+    int exec() override;
 
-    QString rootDirName;
-    bool recursive;
-    AudioIO::WavAudioFormat targetFormat;
-    QString saveFileName;
+signals:
+    void opened();
 
-  private slots:
+private slots:
     void startWork();
     void preCheckDone();
     void readAndCombineWorkDone();
     void writeResultDone();
 
-  signals:
-    void opened();
-    // QDialog interface
-  public slots:
-    void open() override;
-    int exec() override;
+private:
+    QLabel *m_label;
+    QProgressBar *m_progressBar;
+    QDialogButtonBox *m_buttonBox;
+
+    QString m_rootDirName;
+    bool m_recursive;
+    AudioIO::WavAudioFormat m_targetFormat;
+    QString m_saveFileName;
 };
 
 #endif // WAVCOMBINEDIALOG_H

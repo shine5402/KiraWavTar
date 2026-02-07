@@ -4,21 +4,22 @@
 #include <QDialog>
 #include <kfr/all.hpp>
 
-#include "../../utils/Utils.h"
-#include "../../worker/AudioIO.h"
+#include "utils/Utils.h"
+#include "worker/AudioIO.h"
 
 class QLabel;
 class QProgressBar;
 class QDialogButtonBox;
 
-class WAVExtractDialog : public QDialog
+class WavExtractDialog : public QDialog
 {
     Q_OBJECT
-  public:
-    WAVExtractDialog(QString srcWAVFileName, QString dstDirName, const AudioIO::WavAudioFormat &targetFormat,
+
+public:
+    WavExtractDialog(QString srcWAVFileName, QString dstDirName, const AudioIO::WavAudioFormat &targetFormat,
                      bool extractResultSelection, bool removeDCOffset, QWidget *parent);
 
-  private:
+private:
     QLabel *label;
     QProgressBar *progressBar;
     QDialogButtonBox *buttonBox;
@@ -32,16 +33,16 @@ class WAVExtractDialog : public QDialog
     void doExtractCall(std::shared_ptr<kfr::univector2d<utils::sample_process_t>> srcData,
                        decltype(kfr::audio_format::samplerate) samplerate, QJsonArray descArray);
 
-  private slots:
+private slots:
     void startWork();
     void preCheckDone();
     void readSrcWAVFileDone();
     void extractWorkDone();
 
-  signals:
+signals:
     void opened();
 
-  public slots:
+public slots:
     void open() override;
     int exec() override;
 };
