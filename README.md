@@ -16,18 +16,18 @@ Softwares like Adobe Audition and iZotope RX all have their own batch processing
 
 ### How to use
 
-![KiraWAVTar workflow](rm-img/workflow.gif)
+![KiraWAVTar workflow](docs/images/workflow.gif)
 
 KiraWAVTar has an intuitive UI that doesn't need much guidance on how to use it.
 
-![KiraWAVTar UI](rm-img/ui.png)
-![KiraWAVTar UI](rm-img/ui2.png)
+![KiraWAVTar UI](docs/images/ui.png)
+![KiraWAVTar UI](docs/images/ui2.png)
 
 The basic workflow here is get your wav files ready in a folder (in which can be organized with any folder structure you like), and use combine page to combine it. Edit it in the software you like, then extract it back into separated files using extract page.
 
 By the way, you can drop folder/file into path input, like this:
 
-![KiraWAVTar drop support](rm-img/drop.gif)
+![KiraWAVTar drop support](docs/images/drop.gif)
 
 KiraWAVTar will try to give you a result path for convenience when dropping a source path. You can change it to what you like afterwards.
 
