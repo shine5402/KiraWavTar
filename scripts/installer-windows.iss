@@ -22,10 +22,11 @@ UninstallDisplayIcon={app}\bin\KiraWAVTar.exe
 OutputDir=..\build
 OutputBaseFilename=KiraWavTar-{#AppVersion}-setup
 SetupIconFile=..\assets\icon.ico
+LicenseFile=..\LICENSE
 Compression=lzma2
 SolidCompression=yes
-ArchitecturesAllowed=x64
-ArchitecturesInstallIn64BitMode=x64
+ArchitecturesAllowed=x64compatible
+ArchitecturesInstallIn64BitMode=x64compatible
 WizardStyle=modern
 
 [Files]
@@ -35,6 +36,12 @@ Source: "..\build\artifact\bin\vc_redist.x64.exe"; DestDir: "{tmp}"; Flags: dele
 [Icons]
 Name: "{group}\KiraWavTar"; Filename: "{app}\bin\KiraWAVTar.exe"
 Name: "{autodesktop}\KiraWavTar"; Filename: "{app}\bin\KiraWAVTar.exe"; Tasks: desktopicon
+
+[Languages]
+Name: "en"; MessagesFile: "compiler:Default.isl"
+Name: "zh_CN"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
+Name: "ja"; MessagesFile: "compiler:Languages\Japanese.isl"
+
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a &desktop shortcut"; GroupDescription: "Additional shortcuts:"
