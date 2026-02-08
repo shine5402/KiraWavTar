@@ -25,6 +25,11 @@ set_target_properties(KiraWAVTar PROPERTIES
     MACOSX_BUNDLE ON
 )
 
+if(WIN32)
+    configure_file(app.rc.in "${CMAKE_CURRENT_BINARY_DIR}/app.rc" @ONLY)
+    target_sources(KiraWAVTar PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/app.rc")
+endif()
+
 if(APPLE)
     set(app_icon "${CMAKE_SOURCE_DIR}/assets/KiraWavTar.icns")
     target_sources(KiraWAVTar PRIVATE "${app_icon}")
