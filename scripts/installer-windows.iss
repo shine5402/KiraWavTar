@@ -6,8 +6,10 @@
 #ifndef AppVersion
   #if FileExists(AppBinary)
     #define AppVersion GetStringFileInfo(AppBinary, "ProductVersion")
+    #define VersionInfoVersion GetVersionNumbersString(AppBinary)
   #else
     #define AppVersion "0.0.0"
+    #define VersionInfoVersion "0.0.0.0"
   #endif
 #endif
 
@@ -28,6 +30,7 @@ SolidCompression=yes
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 WizardStyle=modern
+VersionInfoVersion={#VersionInfoVersion}
 
 [Files]
 Source: "..\build\artifact\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
