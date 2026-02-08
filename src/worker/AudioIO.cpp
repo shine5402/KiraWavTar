@@ -10,6 +10,38 @@ namespace AudioIO {
 
 using namespace utils;
 
+// On Windows, drwav_init_file() uses fopen() which expects ANSI paths, not UTF-8.
+// We must use the _w (wide-char) variants on Windows for proper Unicode path support.
+#ifdef Q_OS_WIN
+static drwav_bool32 drwav_init_file_compat(drwav *pWav, const QString &fileName,
+                                            const drwav_allocation_callbacks *pAllocationCallbacks)
+{
+    return drwav_init_file_w(pWav, reinterpret_cast<const wchar_t *>(fileName.utf16()), pAllocationCallbacks);
+}
+
+static drwav_bool32 drwav_init_file_write_sequential_pcm_frames_compat(
+    drwav *pWav, const QString &fileName, const drwav_data_format *pFormat, drwav_uint64 totalPCMFrameCount,
+    const drwav_allocation_callbacks *pAllocationCallbacks)
+{
+    return drwav_init_file_write_sequential_pcm_frames_w(
+        pWav, reinterpret_cast<const wchar_t *>(fileName.utf16()), pFormat, totalPCMFrameCount, pAllocationCallbacks);
+}
+#else
+static drwav_bool32 drwav_init_file_compat(drwav *pWav, const QString &fileName,
+                                            const drwav_allocation_callbacks *pAllocationCallbacks)
+{
+    return drwav_init_file(pWav, fileName.toUtf8().constData(), pAllocationCallbacks);
+}
+
+static drwav_bool32 drwav_init_file_write_sequential_pcm_frames_compat(
+    drwav *pWav, const QString &fileName, const drwav_data_format *pFormat, drwav_uint64 totalPCMFrameCount,
+    const drwav_allocation_callbacks *pAllocationCallbacks)
+{
+    return drwav_init_file_write_sequential_pcm_frames(pWav, fileName.toUtf8().constData(), pFormat, totalPCMFrameCount,
+                                                       pAllocationCallbacks);
+}
+#endif
+
 // Manual implementation of f32 to s24 conversion since dr_libs doesn't export it
 static void convert_f32_to_s24(drwav_uint8 *dst, const float *src, size_t count)
 {
@@ -56,7 +88,7 @@ kfr::audio_sample_type mapDrWavToKfrType(drwav_uint16 formatTag, drwav_uint16 bi
 WavAudioFormat readWavFormat(const QString &fileName)
 {
     drwav wav;
-    if (!drwav_init_file(&wav, fileName.toUtf8().constData(), nullptr)) {
+    if (!drwav_init_file_compat(&wav, fileName, nullptr)) {
         throw std::runtime_error(
             QCoreApplication::translate("AudioIO", "Failed to open file: %1").arg(fileName).toStdString());
     }
@@ -127,7 +159,7 @@ static void deinterleaveTo(kfr::univector2d<T> &dst, const T *interleaved, size_
 ReadResultF32 readWavFileF32(const QString &fileName)
 {
     drwav wav;
-    if (!drwav_init_file(&wav, fileName.toUtf8().constData(), nullptr)) {
+    if (!drwav_init_file_compat(&wav, fileName, nullptr)) {
         throw std::runtime_error(
             QCoreApplication::translate("AudioIO", "Failed to open file: %1").arg(fileName).toStdString());
     }
@@ -147,7 +179,7 @@ ReadResultF32 readWavFileF32(const QString &fileName)
 ReadResultF64 readWavFileF64(const QString &fileName)
 {
     drwav wav;
-    if (!drwav_init_file(&wav, fileName.toUtf8().constData(), nullptr)) {
+    if (!drwav_init_file_compat(&wav, fileName, nullptr)) {
         throw std::runtime_error(
             QCoreApplication::translate("AudioIO", "Failed to open file: %1").arg(fileName).toStdString());
     }
@@ -231,7 +263,7 @@ template <typename T> static void interleaveFrom(std::vector<T> &dst, const kfr:
 static drwav initWriterOrThrow(drwav_data_format &format, const QString &fileName, size_t frameCount)
 {
     drwav wav;
-    if (!drwav_init_file_write_sequential_pcm_frames(&wav, fileName.toUtf8().constData(), &format, frameCount, nullptr))
+    if (!drwav_init_file_write_sequential_pcm_frames_compat(&wav, fileName, &format, frameCount, nullptr))
     {
         throw std::runtime_error(
             QCoreApplication::translate("AudioIO", "Failed to open file for writing: %1").arg(fileName).toStdString());
