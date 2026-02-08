@@ -4,14 +4,14 @@
 <context>
     <name>AudioIO</name>
     <message>
-        <location filename="../src/worker/AudioIO.cpp" line="61"/>
-        <location filename="../src/worker/AudioIO.cpp" line="132"/>
-        <location filename="../src/worker/AudioIO.cpp" line="152"/>
+        <location filename="../src/worker/AudioIO.cpp" line="93"/>
+        <location filename="../src/worker/AudioIO.cpp" line="164"/>
+        <location filename="../src/worker/AudioIO.cpp" line="184"/>
         <source>Failed to open file: %1</source>
         <translation>ファイルを開けませんでした: %1</translation>
     </message>
     <message>
-        <location filename="../src/worker/AudioIO.cpp" line="237"/>
+        <location filename="../src/worker/AudioIO.cpp" line="269"/>
         <source>Failed to open file for writing: %1</source>
         <translation>ファイルを書き込み用に開けませんでした: %1</translation>
     </message>
@@ -164,8 +164,90 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
 &lt;h4&gt;Translators&lt;/h4&gt;
 &lt;p&gt;Japanese translation was provided by Leka in previous versions. Their work continues to be partly used in the current version.
 Thanks for their contribution!&lt;/p&gt;
+</source>
+        <translation type="unfinished">&lt;p style=&quot;text-align: left;&quot;&gt;&lt;img src=&quot;:/icon/appIcon&quot; width=&quot;64&quot;/&gt;&lt;/p&gt;
+&lt;h2&gt;KiraWAVTar&lt;/h2&gt;
+&lt;p&gt;Copyright 2021-present &lt;a href=&quot;https://shine5402.top/about-me&quot;&gt;shine_5402&lt;/a&gt;&lt;/p&gt;
+%1
+&lt;h3&gt;このソフトについて&lt;/h3&gt;
+&lt;p&gt;使いやすく素早いWAVファイルの結合/抽出ツール。&lt;/p&gt;
+&lt;h3&gt;ライセンス&lt;/h3&gt;
+&lt;p&gt; This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.&lt;br&gt;
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.&lt;br&gt;
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licenses/&quot;&gt;https://www.gnu.org/licenses/&lt;/a&gt;.&lt;br&gt;
+ In addition, as a special exception, the copyright holders give
+ permission to link the code of portions of this program with the
+ OpenSSL library under certain conditions as described in each
+ individual source file, and distribute linked combinations
+ including the two.&lt;br&gt;
+ You must obey the GNU General Public License in all respects
+ for all of the code used other than OpenSSL.  If you modify
+ file(s) with this exception, you may extend this exception to your
+ version of the file(s), but you are not obligated to do so.  If you
+ do not wish to do so, delete this exception statement from your
+ version.  If you delete this exception statement from all source
+ files in the program, then also delete it here.&lt;/p&gt;
+
+&lt;h3&gt;謝辞&lt;/h3&gt;
+&lt;h4&gt;サードパーティ製ライブラリ&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;Qt %2, The Qt Company Ltd, under LGPL v3.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.kfrlib.com/&quot;&gt;KFR - Fast, modern C++ DSP framework&lt;/a&gt;, under GNU GPL v2+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;翻訳者&lt;/h4&gt;
+&lt;p&gt;日本語訳は以前のバージョンでLeka氏によって提供されました。その一部は現在のバージョンでも使用されています。
+ご協力ありがとうございました！&lt;/p&gt;
+</translation>
+    </message>
+    <message>
+        <source>&lt;p style=&quot;text-align: left;&quot;&gt;&lt;img src=&quot;:/icon/appIcon&quot; width=&quot;64&quot;/&gt;&lt;/p&gt;
+&lt;h2&gt;KiraWAVTar&lt;/h2&gt;
+&lt;p&gt;Copyright 2021-present &lt;a href=&quot;https://shine5402.top/about-me&quot;&gt;shine_5402&lt;/a&gt;&lt;/p&gt;
+%1
+&lt;h3&gt;About&lt;/h3&gt;
+&lt;p&gt;A fast and easy-to-use WAV combine/extract tool.&lt;/p&gt;
+&lt;h3&gt;License&lt;/h3&gt;
+&lt;p&gt; This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.&lt;br&gt;
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.&lt;br&gt;
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licenses/&quot;&gt;https://www.gnu.org/licenses/&lt;/a&gt;.&lt;br&gt;
+ In addition, as a special exception, the copyright holders give
+ permission to link the code of portions of this program with the
+ OpenSSL library under certain conditions as described in each
+ individual source file, and distribute linked combinations
+ including the two.&lt;br&gt;
+ You must obey the GNU General Public License in all respects
+ for all of the code used other than OpenSSL.  If you modify
+ file(s) with this exception, you may extend this exception to your
+ version of the file(s), but you are not obligated to do so.  If you
+ do not wish to do so, delete this exception statement from your
+ version.  If you delete this exception statement from all source
+ files in the program, then also delete it here.&lt;/p&gt;
+
+&lt;h3&gt;Acknowledgements&lt;/h3&gt;
+&lt;h4&gt;Third-party libraries&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;Qt %2, The Qt Company Ltd, under LGPL v3.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.kfrlib.com/&quot;&gt;KFR - Fast, modern C++ DSP framework&lt;/a&gt;, under GNU GPL v2+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;Translators&lt;/h4&gt;
+&lt;p&gt;Japanese translation was provided by Leka in previous versions. Their work continues to be partly used in the current version.
+Thanks for their contribution!&lt;/p&gt;
             </source>
-        <translation>&lt;p style=&quot;text-align: left;&quot;&gt;&lt;img src=&quot;:/icon/appIcon&quot; width=&quot;64&quot;/&gt;&lt;/p&gt;
+        <translation type="vanished">&lt;p style=&quot;text-align: left;&quot;&gt;&lt;img src=&quot;:/icon/appIcon&quot; width=&quot;64&quot;/&gt;&lt;/p&gt;
 &lt;h2&gt;KiraWAVTar&lt;/h2&gt;
 &lt;p&gt;Copyright 2021-present &lt;a href=&quot;https://shine5402.top/about-me&quot;&gt;shine_5402&lt;/a&gt;&lt;/p&gt;
 %1
@@ -729,67 +811,27 @@ Open download page?</source>
         <translation>サンプルレート</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="60"/>
-        <source>11025</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="65"/>
-        <source>22050</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="45"/>
-        <source>44100</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="50"/>
-        <source>48000</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="70"/>
-        <source>88200</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="55"/>
-        <source>96000</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="75"/>
-        <source>192000</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="80"/>
-        <source>384000</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="104"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="64"/>
         <source>Bit depth</source>
         <translation>ビット深度</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="131"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="91"/>
         <source>Channels</source>
         <translation>音声チャンネル</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="164"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="124"/>
         <source>Container</source>
         <translation>コンテナ</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="177"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="137"/>
         <source>?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="174"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="134"/>
         <source>Show WAV container format information</source>
         <translation>WAVコンテナ形式の情報を表示</translation>
     </message>
@@ -802,66 +844,66 @@ Open download page?</source>
         <translation type="vanished">W64のフォーマットを使用</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="26"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="323"/>
         <source>RIFF (Standard WAV)</source>
         <translation>RIFF (標準 WAV)</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="27"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="324"/>
         <source>RF64 (RIFF 64-bit)</source>
         <translation>RF64 (RIFF 64-bit)</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="31"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="328"/>
         <source>W64 (Sony Wave64)</source>
         <translation>W64 (Sony Wave64)</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="176"/>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="215"/>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="243"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="160"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="199"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="228"/>
         <source>Auto (max from input)</source>
         <translation>自動（入力から最大値）</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="178"/>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="217"/>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="245"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="162"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="201"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="230"/>
         <source>Inherit from input</source>
         <translation>入力から継承</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="252"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="237"/>
         <source>1 (Mono)</source>
         <translation>1 (モノラル)</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="253"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="238"/>
         <source>2 (Stereo)</source>
         <translation>2 (ステレオ)</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="254"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="239"/>
         <source>6 (5.1 Surround)</source>
         <translation>6 (5.1ch サラウンド)</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="255"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="240"/>
         <source>8 (7.1 Surround)</source>
         <translation>8 (7.1ch サラウンド)</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="261"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="246"/>
         <source>Custom...</source>
         <translation>カスタム...</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="271"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="264"/>
         <source>WAV Container Format Information</source>
         <translation>WAVコンテナ形式情報</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="272"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="265"/>
         <source>## WAV Container Formats
 
 WAV files can use different container formats, each with different limitations and compatibility:
@@ -922,52 +964,62 @@ WAVファイルは、制限や互換性が異なる複数のコンテナ形式�
 <context>
     <name>WavCombineDialog</name>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="46"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="47"/>
         <source>Some preparing work...</source>
         <translation>準備中...</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="70"/>
+        <source>Error</source>
+        <translation>エラー</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="71"/>
         <source>Critical error found. Can not continue.</source>
         <translation>致命的なエラーが発生しました。続行できません。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="78"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="80"/>
+        <source>Warning</source>
+        <translation>警告</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="81"/>
         <source>Some problems have been found but process can continue. Should we proceed?</source>
         <translation>問題が見つかりましたが、処理を続行できます。続行しますか？</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="91"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="95"/>
         <source>Reading WAV files and combining them...</source>
         <translation>WAVファイルを読み込み、結合しています...</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="112"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="116"/>
         <source>Writing combined file...</source>
         <translation>結合したファイルを書き込んでいます...</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="132"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="136"/>
         <source>Done</source>
         <translation>完了</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="140"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="144"/>
         <source>Wav files has been combined.</source>
         <translation>WAVファイルの結合が完了しました。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="142"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="146"/>
         <source>Combined file has been stored at &quot;%1&quot;.Please do not change the time when you edit it, and do not delete or modify &quot;.kirawavtar-desc.json&quot; file sharing the same name with the WAV.</source>
         <translation>結合されたファイルは「%1」に保存されました。編集時に時間を変更したり、同じ名前の description ファイル (.kirawavtar-desc.json) を削除・変更したりしないでください。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="152"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="156"/>
         <source>Error occurred when writing combined WAV.</source>
         <translation>結合WAVファイルの書き込み中にエラーが発生しました。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="153"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="157"/>
         <source>Please check potential causes and try again.</source>
         <translation>原因を確認して再試行してください。</translation>
     </message>
@@ -975,88 +1027,98 @@ WAVファイルは、制限や互換性が異なる複数のコンテナ形式�
 <context>
     <name>WavExtractDialog</name>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="50"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="51"/>
         <source>Some preparing work...</source>
         <translation>準備中...</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="74"/>
+        <source>Error</source>
+        <translation>エラー</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="75"/>
         <source>Critical error found. Can not continue.</source>
         <translation>致命的なエラーが発生しました。続行できません。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="82"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="84"/>
+        <source>Warning</source>
+        <translation>警告</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="85"/>
         <source>Some problems have been found but process can continue. Should we proceed?</source>
         <translation>問題が見つかりましたが、処理を続行できます。続行しますか？</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="95"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="99"/>
         <source>Reading source WAV file...</source>
         <translation>ソースWAVファイルを読み込んでいます...</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="109"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="113"/>
         <source>Writing extracted file...</source>
         <translation>抽出したファイルを書き込んでいます...</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="133"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="137"/>
         <source>Choose which ones to extract.</source>
         <translation>抽出するファイルを選択してください。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="144"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="148"/>
         <source>Select all</source>
         <translation>すべて選択</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="145"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="149"/>
         <source>Unselect all</source>
         <translation>すべて解除</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="146"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="150"/>
         <source>Inverse</source>
         <translation>反転</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="184"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="188"/>
         <source>Done</source>
         <translation>完了</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="200"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="204"/>
         <source>The wav file has been extracted.</source>
         <translation>WAVファイルの抽出が完了しました。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="201"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="205"/>
         <source>Extracted wav files has been stored at &quot;%1&quot;.Original folder structure has been kept too.</source>
         <translation>抽出されたWAVファイルは「%1」に保存されました。元のフォルダ構造も復元されました。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="204"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="208"/>
         <source>Delete source file</source>
         <translation>元ファイルを削除</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="209"/>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="211"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="213"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="215"/>
         <source>Can not delete %1</source>
         <translation>%1を削除できません</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="213"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="217"/>
         <source>Source files have been deleted successfully.</source>
         <translation>元ファイルを正常に削除しました。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="223"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="227"/>
         <source>Error occurred when extracting.</source>
         <translation>抽出中にエラーが発生しました。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="238"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="242"/>
         <source>Should retry extracting these?</source>
         <translation>これらのファイルの抽出を再試行しますか？</translation>
     </message>

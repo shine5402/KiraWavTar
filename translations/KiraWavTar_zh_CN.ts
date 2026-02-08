@@ -4,14 +4,14 @@
 <context>
     <name>AudioIO</name>
     <message>
-        <location filename="../src/worker/AudioIO.cpp" line="61"/>
-        <location filename="../src/worker/AudioIO.cpp" line="132"/>
-        <location filename="../src/worker/AudioIO.cpp" line="152"/>
+        <location filename="../src/worker/AudioIO.cpp" line="93"/>
+        <location filename="../src/worker/AudioIO.cpp" line="164"/>
+        <location filename="../src/worker/AudioIO.cpp" line="184"/>
         <source>Failed to open file: %1</source>
         <translation>无法打开文件：%1</translation>
     </message>
     <message>
-        <location filename="../src/worker/AudioIO.cpp" line="237"/>
+        <location filename="../src/worker/AudioIO.cpp" line="269"/>
         <source>Failed to open file for writing: %1</source>
         <translation>无法打开文件进行写入：%1</translation>
     </message>
@@ -822,67 +822,27 @@ Open download page?</source>
         <translation>采样率</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="60"/>
-        <source>11025</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="65"/>
-        <source>22050</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="45"/>
-        <source>44100</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="50"/>
-        <source>48000</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="70"/>
-        <source>88200</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="55"/>
-        <source>96000</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="75"/>
-        <source>192000</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="80"/>
-        <source>384000</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="104"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="64"/>
         <source>Bit depth</source>
         <translation>位深度</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="131"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="91"/>
         <source>Channels</source>
         <translation>声道数</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="164"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="124"/>
         <source>Container</source>
         <translation>容器</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="177"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="137"/>
         <source>?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="174"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="134"/>
         <source>Show WAV container format information</source>
         <translation>显示关于 WAV 容器格式的说明</translation>
     </message>
@@ -907,66 +867,66 @@ RF64 and W64 all have their own pros and cons, so choose what meets your need.</
 RF64格式和W64格式各有优劣，请根据自己的需要选择。</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="26"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="323"/>
         <source>RIFF (Standard WAV)</source>
         <translation>RIFF (标准 WAV 格式)</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="27"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="324"/>
         <source>RF64 (RIFF 64-bit)</source>
         <translation>RF64 (64位 RIFF 格式)</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="31"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="328"/>
         <source>W64 (Sony Wave64)</source>
         <translation>W64 (Sony Wave64)</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="176"/>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="215"/>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="243"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="160"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="199"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="228"/>
         <source>Auto (max from input)</source>
         <translation>自动（输入中的最大值）</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="178"/>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="217"/>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="245"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="162"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="201"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="230"/>
         <source>Inherit from input</source>
         <translation>和输入一致</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="252"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="237"/>
         <source>1 (Mono)</source>
         <translation>1 (单声道)</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="253"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="238"/>
         <source>2 (Stereo)</source>
         <translation>2 (双声道/立体声)</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="254"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="239"/>
         <source>6 (5.1 Surround)</source>
         <translation>6 (5.1 环绕声)</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="255"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="240"/>
         <source>8 (7.1 Surround)</source>
         <translation>8 (7.1 环绕声)</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="261"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="246"/>
         <source>Custom...</source>
         <translation>自定义...</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="271"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="264"/>
         <source>WAV Container Format Information</source>
         <translation>WAV 容器格式说明</translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="272"/>
+        <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="265"/>
         <source>## WAV Container Formats
 
 WAV files can use different container formats, each with different limitations and compatibility:
@@ -1027,52 +987,62 @@ WAV 文件可以使用不同的容器格式，每种格式都有不同的限制�
 <context>
     <name>WavCombineDialog</name>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="46"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="47"/>
         <source>Some preparing work...</source>
         <translation>一些准备工作……</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="70"/>
+        <source>Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="71"/>
         <source>Critical error found. Can not continue.</source>
         <translation>发现了一些严重问题，操作无法继续。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="78"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="80"/>
+        <source>Warning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="81"/>
         <source>Some problems have been found but process can continue. Should we proceed?</source>
         <translation>发现了一些问题，不过操作仍然可以继续。请问要继续吗？</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="91"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="95"/>
         <source>Reading WAV files and combining them...</source>
         <translation>读取波形文件及拼接……</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="112"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="116"/>
         <source>Writing combined file...</source>
         <translation>写入合并后的文件……</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="132"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="136"/>
         <source>Done</source>
         <translation>完成</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="140"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="144"/>
         <source>Wav files has been combined.</source>
         <translation>合并操作已经完成。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="142"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="146"/>
         <source>Combined file has been stored at &quot;%1&quot;.Please do not change the time when you edit it, and do not delete or modify &quot;.kirawavtar-desc.json&quot; file sharing the same name with the WAV.</source>
         <translation>合并后的波形文件已经存储至%1。请注意在处理时不要修改波形文件内的时值，也不要删除和修改同名的“.kirawavtar-desc.json”描述文件。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="152"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="156"/>
         <source>Error occurred when writing combined WAV.</source>
         <translation>写入合并结果文件时出现问题。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="153"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="157"/>
         <source>Please check potential causes and try again.</source>
         <translation>请排查可能问题后再试。</translation>
     </message>
@@ -1080,88 +1050,98 @@ WAV 文件可以使用不同的容器格式，每种格式都有不同的限制�
 <context>
     <name>WavExtractDialog</name>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="50"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="51"/>
         <source>Some preparing work...</source>
         <translation>一些准备工作……</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="74"/>
+        <source>Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="75"/>
         <source>Critical error found. Can not continue.</source>
         <translation>发现了一些严重问题，操作无法继续。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="82"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="84"/>
+        <source>Warning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="85"/>
         <source>Some problems have been found but process can continue. Should we proceed?</source>
         <translation>发现了一些问题，不过操作仍然可以继续。请问要继续吗？</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="95"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="99"/>
         <source>Reading source WAV file...</source>
         <translation>读取源波形文件……</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="109"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="113"/>
         <source>Writing extracted file...</source>
         <translation>拆分波形文件并写入……</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="133"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="137"/>
         <source>Choose which ones to extract.</source>
         <translation>请选择要被拆分的项。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="144"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="148"/>
         <source>Select all</source>
         <translation>选择全部</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="145"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="149"/>
         <source>Unselect all</source>
         <translation>取消选择全部</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="146"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="150"/>
         <source>Inverse</source>
         <translation>选择反向</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="184"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="188"/>
         <source>Done</source>
         <translation>完成</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="200"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="204"/>
         <source>The wav file has been extracted.</source>
         <translation>拆分操作已经完成。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="201"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="205"/>
         <source>Extracted wav files has been stored at &quot;%1&quot;.Original folder structure has been kept too.</source>
         <translation>拆分后的波形文件已经存储至%1，原先的文件夹结构也已经被还原（如果有）。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="204"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="208"/>
         <source>Delete source file</source>
         <translation>删除源文件</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="209"/>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="211"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="213"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="215"/>
         <source>Can not delete %1</source>
         <translation>无法删除%1</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="213"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="217"/>
         <source>Source files have been deleted successfully.</source>
         <translation>成功删除了源文件。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="223"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="227"/>
         <source>Error occurred when extracting.</source>
         <translation>拆分时出现错误。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="238"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="242"/>
         <source>Should retry extracting these?</source>
         <translation>要重试拆分这些文件吗？</translation>
     </message>
