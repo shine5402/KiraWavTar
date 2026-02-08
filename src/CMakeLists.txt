@@ -41,3 +41,20 @@ qt_add_translations(KiraWAVTar
     TS_FILE_BASE KiraWavTar
     TS_FILE_DIR ${CMAKE_SOURCE_DIR}/translations
 )
+
+# --- Install & Deploy ---
+option(KIRAWAVTAR_INSTALL "Enable install and deploy rules" ON)
+
+if(KIRAWAVTAR_INSTALL)
+    install(TARGETS KiraWAVTar
+        BUNDLE  DESTINATION .
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    )
+
+    qt_generate_deploy_app_script(
+        TARGET KiraWAVTar
+        OUTPUT_SCRIPT deploy_script
+        NO_UNSUPPORTED_PLATFORM_ERROR
+    )
+    install(SCRIPT ${deploy_script})
+endif()
