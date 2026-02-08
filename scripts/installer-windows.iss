@@ -1,8 +1,14 @@
 ; Inno Setup script for KiraWavTar
-; Compile with: iscc /DAppVersion=1.5.0 scripts\installer-windows.iss
+; Compile with: iscc scripts\installer-windows.iss
+
+#define AppBinary "..\build\artifact\bin\KiraWAVTar.exe"
 
 #ifndef AppVersion
-  #define AppVersion "0.0.0"
+  #if FileExists(AppBinary)
+    #define AppVersion GetStringFileInfo(AppBinary, "ProductVersion")
+  #else
+    #define AppVersion "0.0.0"
+  #endif
 #endif
 
 [Setup]
@@ -18,7 +24,8 @@ OutputBaseFilename=KiraWavTar-{#AppVersion}-setup
 SetupIconFile=..\assets\icon.ico
 Compression=lzma2
 SolidCompression=yes
-ArchitecturesInstallIn64BitMode=x64compatible
+ArchitecturesAllowed=x64
+ArchitecturesInstallIn64BitMode=x64
 WizardStyle=modern
 
 [Files]
