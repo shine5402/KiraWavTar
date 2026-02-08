@@ -68,8 +68,8 @@ The codebase has no platform-specific code, and all dependencies are cross-platf
 
 Official translations are available in the following languages:
 - English
-- Chinese (Simplified)
-- Japanese
+- Chinese (Simplified) [简体中文]
+- Japanese [日本語]
 
 ## By the way...
 
