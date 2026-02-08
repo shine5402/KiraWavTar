@@ -8,7 +8,7 @@ set(CMAKE_AUTORCC ON)
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Concurrent Network LinguistTools)
 
 qt_standard_project_setup(
-    I18N_TRANSLATED_LANGUAGES zh_CN ja_JP
+    I18N_TRANSLATED_LANGUAGES en zh_CN ja_JP
 )
 
 # --- Main application ---

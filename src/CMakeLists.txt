@@ -33,6 +33,21 @@ if(APPLE)
     )
     set_target_properties(KiraWAVTar PROPERTIES
         MACOSX_BUNDLE_ICON_FILE "KiraWavTar.icns"
+        MACOSX_BUNDLE_GUI_IDENTIFIER "top.shine5402.KiraWavTar"
+    )
+endif()
+
+# --- Separate Debug Info (macOS, RelWithDebInfo) ---
+if(APPLE AND OSX_SEPARATE_DEBUG_INFO AND CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+    add_custom_command(TARGET KiraWAVTar POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory
+            "$<TARGET_BUNDLE_DIR:KiraWAVTar>.dSYM/Contents/Resources/DWARF"
+        COMMAND /usr/bin/dsymutil --flat
+            -o "$<TARGET_BUNDLE_DIR:KiraWAVTar>.dSYM/Contents/Resources/DWARF/KiraWAVTar"
+            "$<TARGET_FILE:KiraWAVTar>"
+        COMMAND /usr/bin/strip -S "$<TARGET_FILE:KiraWAVTar>"
+        COMMENT "Extracting dSYM and stripping KiraWAVTar"
+        VERBATIM
     )
 endif()
 
@@ -40,6 +55,7 @@ endif()
 qt_add_translations(KiraWAVTar
     TS_FILE_BASE KiraWavTar
     TS_FILE_DIR ${CMAKE_SOURCE_DIR}/translations
+    MERGE_QT_TRANSLATIONS
 )
 
 # --- Install & Deploy ---
