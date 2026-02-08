@@ -60,6 +60,9 @@ public:
 public slots:
     void showFormatHelp();
 
+protected:
+    void changeEvent(QEvent *event);
+
 private slots:
     void onChannelsComboBoxChanged(int index);
 
@@ -67,6 +70,8 @@ private:
     void setupSampleRateComboBox();
     void setupSampleTypeComboBox();
     void setupChannelsComboBox();
+    void setupContainerFormatComboBox();
+    void refreshComboBoxes();
 
     Ui::WAVFormatChooserWidget *ui;
 

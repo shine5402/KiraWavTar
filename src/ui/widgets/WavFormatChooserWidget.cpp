@@ -10,25 +10,9 @@ WAVFormatChooserWidget::WAVFormatChooserWidget(QWidget *parent) : QWidget(parent
 {
     ui->setupUi(this);
 
-    // Set up sample rate combobox with auto option
-    setupSampleRateComboBox();
-
-    // Set up sample type combobox with auto option
-    setupSampleTypeComboBox();
-
-    // Set up channels combobox
-    setupChannelsComboBox();
+    refreshComboBoxes();
     connect(ui->channelsComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
-            &WAVFormatChooserWidget::onChannelsComboBoxChanged);
-
-    // Set up container format combobox
-    // First section: RIFF (default), RF64
-    ui->containerFormatComboBox->addItem(tr("RIFF (Standard WAV)"));
-    ui->containerFormatComboBox->addItem(tr("RF64 (RIFF 64-bit)"));
-    // Separator
-    ui->containerFormatComboBox->insertSeparator(2);
-    // Second section: W64
-    ui->containerFormatComboBox->addItem(tr("W64 (Sony Wave64)"));
+            &WAVFormatChooserWidget::onChannelsComboBoxChanged, Qt::UniqueConnection);
 
     reset();
 }
@@ -236,6 +220,7 @@ void WAVFormatChooserWidget::setupSampleTypeComboBox()
 
 void WAVFormatChooserWidget::setupChannelsComboBox()
 {
+    int currentIndex = ui->channelsComboBox->currentIndex();
     ui->channelsComboBox->clear();
 
     // Auto/Inherit option (index 0)
@@ -261,8 +246,16 @@ void WAVFormatChooserWidget::setupChannelsComboBox()
     ui->channelsComboBox->addItem(tr("Custom..."));
     m_customChannelIndex = 7; // After separator
 
-    // Hide spinbox initially
-    ui->channelsSpinBox->setVisible(false);
+    if (currentIndex == 1 || currentIndex == 6) {
+        currentIndex = ChannelIndexAuto;
+    }
+    if (currentIndex >= 0 && currentIndex < ui->channelsComboBox->count()) {
+        ui->channelsComboBox->setCurrentIndex(currentIndex);
+    } else {
+        ui->channelsComboBox->setCurrentIndex(ChannelIndexAuto);
+    }
+
+    onChannelsComboBoxChanged(ui->channelsComboBox->currentIndex());
 }
 
 void WAVFormatChooserWidget::showFormatHelp()
@@ -296,4 +289,50 @@ void WAVFormatChooserWidget::showFormatHelp()
     dialog->setStandardButtons(QDialogButtonBox::Ok);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->show();
+}
+
+void WAVFormatChooserWidget::changeEvent(QEvent *event)
+{
+    if (event->type() == QEvent::LanguageChange) {
+        ui->retranslateUi(this);
+        refreshComboBoxes();
+    }
+}
+
+void WAVFormatChooserWidget::refreshComboBoxes()
+{
+    // Set up sample rate combobox with auto option
+    setupSampleRateComboBox();
+
+    // Set up sample type combobox with auto option
+    setupSampleTypeComboBox();
+
+    // Set up channels combobox
+    setupChannelsComboBox();
+
+    // Set up container format combobox
+    setupContainerFormatComboBox();
+}
+
+void WAVFormatChooserWidget::setupContainerFormatComboBox()
+{
+    int currentIndex = ui->containerFormatComboBox->currentIndex();
+    ui->containerFormatComboBox->clear();
+
+    // First section: RIFF (default), RF64
+    ui->containerFormatComboBox->addItem(tr("RIFF (Standard WAV)"));
+    ui->containerFormatComboBox->addItem(tr("RF64 (RIFF 64-bit)"));
+    // Separator
+    ui->containerFormatComboBox->insertSeparator(2);
+    // Second section: W64
+    ui->containerFormatComboBox->addItem(tr("W64 (Sony Wave64)"));
+
+    if (currentIndex == 2) {
+        currentIndex = 0;
+    }
+    if (currentIndex >= 0 && currentIndex < ui->containerFormatComboBox->count()) {
+        ui->containerFormatComboBox->setCurrentIndex(currentIndex);
+    } else {
+        ui->containerFormatComboBox->setCurrentIndex(0);
+    }
 }

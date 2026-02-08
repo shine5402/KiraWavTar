@@ -80,5 +80,5 @@ build/
 cmake-build-*/
 CMakeUserPresets.json
 
-.claude/
+.claude/**local**
 .cache/
