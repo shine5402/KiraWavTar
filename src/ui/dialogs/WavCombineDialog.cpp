@@ -1,4 +1,5 @@
 #include "WavCombineDialog.h"
+#include "CommonHtmlDialog.h"
 
 #include <QDialogButtonBox>
 #include <QFutureWatcher>
@@ -63,26 +64,29 @@ void WavCombineDialog::preCheckDone()
         if (watcher->isCanceled())
             return;
         auto result = watcher->result();
-        QMessageBox msgBox;
         switch (result.pass) {
-        case WAVCombine::CheckPassType::CRITICAL:
-            msgBox.setIcon(QMessageBox::Critical);
-            msgBox.setText(tr("Critical error found. Can not continue."));
-            msgBox.setInformativeText(reportTextStyle + result.reportString);
-            msgBox.setStandardButtons(QMessageBox::Ok);
-            msgBox.exec();
+        case WAVCombine::CheckPassType::CRITICAL: {
+            CommonHtmlDialog dlg(this);
+            dlg.setWindowTitle(tr("Error"));
+            dlg.setLabel(tr("Critical error found. Can not continue."));
+            dlg.setHTML(reportTextStyle + result.reportString);
+            dlg.setStandardButtons(QDialogButtonBox::Ok);
+            dlg.exec();
             done(QDialog::Rejected);
             break;
-        case WAVCombine::CheckPassType::WARNING:
-            msgBox.setIcon(QMessageBox::Warning);
-            msgBox.setText(tr("Some problems have been found but process can continue. Should we proceed?"));
-            msgBox.setInformativeText(reportTextStyle + result.reportString);
-            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-            if (msgBox.exec() == QMessageBox::No) {
+        }
+        case WAVCombine::CheckPassType::WARNING: {
+            CommonHtmlDialog dlg(this);
+            dlg.setWindowTitle(tr("Warning"));
+            dlg.setLabel(tr("Some problems have been found but process can continue. Should we proceed?"));
+            dlg.setHTML(reportTextStyle + result.reportString);
+            dlg.setStandardButtons(QDialogButtonBox::Yes | QDialogButtonBox::No);
+            if (dlg.exec() != QDialog::Accepted) {
                 this->done(QDialog::Rejected);
                 this->close();
                 return;
             }
+        }
             [[fallthrough]];
         case WAVCombine::CheckPassType::OK:
             auto nextFuture = startReadAndCombineWork(result.wavFileNames, m_rootDirName, m_targetFormat);
