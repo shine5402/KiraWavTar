@@ -3,8 +3,8 @@
 ## Prerequisites
 
 - CMake 3.16+
-- Qt 6 (tested with 6.10.1)
-- C++23-capable compiler (Clang 16+ or GCC 13+)
+- Qt 6 (tested with 6.10+)
+- C++23-capable compiler
 
 ## Basic Build
 

@@ -62,7 +62,7 @@ Official prebuilt binaries are provided for:
 
 Note that the prebuilt binaries are not code-signed, so you may need to dismiss a security warning the first time you run the application. If you prefer, you can always [build from source](docs/BUILD.md) instead.
 
-The codebase has no platform-specific code, and all dependencies are cross-platform, so building and running on other platforms (such as Linux) should work without issues as long as the dependencies support it.
+The codebase has no platform-specific code, and all dependencies are cross-platform, so building and running on other platforms (such as Linux, Windows on ARM etc.) should work without issues as long as the dependencies support it.
 
 ## Translations
 
