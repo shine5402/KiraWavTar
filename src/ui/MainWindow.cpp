@@ -289,6 +289,8 @@ void MainWindow::run()
     } else {
         AudioIO::WavAudioFormat invalidFormat;
         invalidFormat.kfr_format.type = kfr::audio_sample_type::unknown;
+        invalidFormat.kfr_format.channels = 0;
+        invalidFormat.kfr_format.samplerate = 0;
 
         auto targetFormat =
             ui->extractFormatSrcRadioButton->isChecked() ? invalidFormat : ui->extractFormatCustomChooser->getFormat();
