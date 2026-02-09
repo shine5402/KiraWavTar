@@ -156,6 +156,7 @@ void MainWindow::reset()
     ui->subdirCheckBox->setChecked(true);
     ui->combineResultPathWidget->setFileName({});
     ui->combineWAVFormatWidget->reset();
+    ui->combineGapSpinBox->setValue(0);
 
     ui->extractSrcPathWidget->setFileName({});
     ui->extractResultPathWidget->setDirName({});
@@ -281,7 +282,8 @@ void MainWindow::run()
             }
         }
 
-        auto dialog = new WavCombineDialog(rootDirName, recursive, targetFormat, saveFileName, this);
+        auto gapMs = ui->combineGapSpinBox->value();
+        auto dialog = new WavCombineDialog(rootDirName, recursive, targetFormat, saveFileName, gapMs, this);
         dialog->setAttribute(Qt::WA_DeleteOnClose, true);
         dialog->open();
     } else {

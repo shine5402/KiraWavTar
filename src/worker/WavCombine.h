@@ -22,7 +22,8 @@ struct CheckResult
 CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive, AudioIO::WavAudioFormat targetFormat);
 
 QFuture<QPair<utils::AudioBufferPtr, QJsonObject>>
-startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::WavAudioFormat targetFormat);
+startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::WavAudioFormat targetFormat,
+                        int gapMs = 0);
 
 bool writeCombineResult(utils::AudioBufferPtr data, QJsonObject descObj, QString wavFileName,
                         AudioIO::WavAudioFormat targetFormat);

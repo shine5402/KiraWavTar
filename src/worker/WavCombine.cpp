@@ -127,9 +127,11 @@ CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive
 }
 
 QFuture<QPair<utils::AudioBufferPtr, QJsonObject>>
-startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::WavAudioFormat targetFormat)
+startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::WavAudioFormat targetFormat, int gapMs)
 {
     const bool useDouble = utils::shouldUseDoubleInternalProcessing(targetFormat.kfr_format.type);
+    const qint64 gapSamples =
+        qRound64(gapMs / 1000.0 * targetFormat.kfr_format.samplerate);
 
     return QtConcurrent::mappedReduced(
         WAVFileNames,
@@ -218,8 +220,8 @@ startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::
         }),
 
         // Reduce
-        std::function([targetFormat, useDouble](QPair<utils::AudioBufferPtr, QJsonObject> &total,
-                                                const QPair<utils::AudioBufferPtr, QJsonObject> &input) {
+        std::function([targetFormat, useDouble, gapSamples](QPair<utils::AudioBufferPtr, QJsonObject> &total,
+                                                            const QPair<utils::AudioBufferPtr, QJsonObject> &input) {
             // Initialization
             if (total.second.isEmpty()) {
                 if (useDouble) {
@@ -233,14 +235,34 @@ startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::
                 jsonRoot.insert("sample_rate", targetFormat.kfr_format.samplerate);
                 jsonRoot.insert("sample_type", (int)targetFormat.kfr_format.type);
                 jsonRoot.insert("channel_count", (int)targetFormat.kfr_format.channels);
+                jsonRoot.insert("gap_duration",
+                                samplesToTimecode(gapSamples, targetFormat.kfr_format.samplerate));
                 jsonRoot.insert("descriptions", QJsonArray());
                 total.second = jsonRoot;
             }
 
             size_t nChannels = targetFormat.kfr_format.channels;
 
-            // Append Data (typed)
+            // Insert leading silence padding for this entry
             size_t currentSize = 0;
+            std::visit(
+                [&](auto &totalPtr, const auto &) {
+                    currentSize = totalPtr->operator[](0).size();
+                },
+                total.first, input.first);
+
+            if (gapSamples > 0) {
+                std::visit(
+                    [&](auto &totalPtr, const auto &) {
+                        for (size_t c = 0; c < nChannels; ++c) {
+                            totalPtr->operator[](c).resize(currentSize + gapSamples, 0);
+                        }
+                    },
+                    total.first, input.first);
+                currentSize += gapSamples;
+            }
+
+            // Append Data (typed)
             size_t appendSize = 0;
             std::visit(
                 [&](auto &totalPtr, const auto &inputPtr) {
@@ -260,6 +282,19 @@ startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::
                 },
                 total.first, input.first);
 
+            // Insert trailing silence padding for this entry
+            if (gapSamples > 0) {
+                size_t sizeAfterAppend = 0;
+                std::visit(
+                    [&](auto &totalPtr, const auto &) {
+                        sizeAfterAppend = totalPtr->operator[](0).size();
+                        for (size_t c = 0; c < nChannels; ++c) {
+                            totalPtr->operator[](c).resize(sizeAfterAppend + gapSamples, 0);
+                        }
+                    },
+                    total.first, input.first);
+            }
+
             // Append Meta
             QJsonObject meta = input.second;
             meta.insert("begin_time", samplesToTimecode(currentSize, targetFormat.kfr_format.samplerate));
@@ -268,9 +303,15 @@ startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::
             arr.append(meta);
             total.second.insert("descriptions", arr);
 
-            // Update Total Duration
+            // Update Total Duration (includes trailing gap)
+            size_t finalSize = 0;
+            std::visit(
+                [&](auto &totalPtr, const auto &) {
+                    finalSize = totalPtr->operator[](0).size();
+                },
+                total.first, input.first);
             total.second.insert("total_duration",
-                                samplesToTimecode(currentSize + appendSize, targetFormat.kfr_format.samplerate));
+                                samplesToTimecode(finalSize, targetFormat.kfr_format.samplerate));
         }));
 }
 

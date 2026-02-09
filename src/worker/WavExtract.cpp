@@ -61,14 +61,13 @@ CheckResult preCheck(QString srcWAVFileName, QString dstDirName)
     }
 
     int version = root["version"].toInt();
-    if (version != utils::desc_file_version) {
+    if (version != 3 && version != 4) {
         return {CheckPassType::CRITICAL,
                 QCoreApplication::translate(
                     "WAVExtract",
-                    "<p class='critical'>Description file \"%1\" has unsupported version %2. Expected version %3.</p>")
+                    "<p class='critical'>Description file \"%1\" has unsupported version %2. Expected version 3 or 4.</p>")
                     .arg(descFileName)
-                    .arg(version)
-                    .arg(utils::desc_file_version),
+                    .arg(version),
                 {}};
     }
 
@@ -107,7 +106,8 @@ SrcData readSrcWAVFile(QString srcWAVFileName, QJsonObject descRoot, AudioIO::Wa
 QFuture<ExtractErrorDescription> startExtract(utils::AudioBufferPtr srcData,
                                               decltype(kfr::audio_format::samplerate) srcSampleRate,
                                               QJsonArray descArray, QString dstDirName,
-                                              AudioIO::WavAudioFormat targetFormat, bool removeDCOffset)
+                                              AudioIO::WavAudioFormat targetFormat, bool removeDCOffset,
+                                              ExtractGapMode gapMode, const QString &gapDurationTimecode)
 {
     // Process in parallel
     // We iterate over descArray
@@ -115,9 +115,14 @@ QFuture<ExtractErrorDescription> startExtract(utils::AudioBufferPtr srcData,
     for (auto x : descArray)
         jobs.append(x.toObject());
 
+    const qint64 gapSamples =
+        (gapMode == ExtractGapMode::IncludeSpace && !gapDurationTimecode.isEmpty())
+            ? timecodeToSamples(gapDurationTimecode, srcSampleRate)
+            : 0;
+
     return QtConcurrent::mapped(
-        jobs, std::function([srcData, srcSampleRate, dstDirName, targetFormat,
-                             removeDCOffset](const QJsonObject &descObj) -> ExtractErrorDescription {
+        jobs, std::function([srcData, srcSampleRate, dstDirName, targetFormat, removeDCOffset, gapMode,
+                             gapSamples](const QJsonObject &descObj) -> ExtractErrorDescription {
             try {
                 // Parse desc
                 QString relativePath = descObj["file_name"].toString();
@@ -126,6 +131,15 @@ QFuture<ExtractErrorDescription> startExtract(utils::AudioBufferPtr srcData,
 
                 size_t startSample = timecodeToSamples(startStr, srcSampleRate);
                 size_t durSample = timecodeToSamples(durStr, srcSampleRate);
+
+                // Adjust range if IncludeSpace mode (include full gap on each side)
+                if (gapMode == ExtractGapMode::IncludeSpace && gapSamples > 0) {
+                    size_t adjustedStart =
+                        (startSample > static_cast<size_t>(gapSamples)) ? startSample - gapSamples : 0;
+                    size_t originalEnd = startSample + durSample;
+                    startSample = adjustedStart;
+                    durSample = originalEnd + gapSamples - adjustedStart;
+                }
 
                 // Extract slice
                 // Handle potential end of file boundary

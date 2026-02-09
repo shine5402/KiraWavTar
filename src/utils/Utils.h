@@ -76,7 +76,7 @@ inline bool shouldUseDoubleInternalProcessing(kfr::audio_sample_type outputType)
 kfr::sample_rate_conversion_quality getSampleRateConversionQuality();
 void setSampleRateConversionQuality(kfr::sample_rate_conversion_quality quality);
 
-constexpr auto desc_file_version = 3;
+constexpr auto desc_file_version = 4;
 
 constexpr auto reportTextStyle = R"(<style>
 .critical{

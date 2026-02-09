@@ -92,7 +92,26 @@ void WavExtractDialog::preCheckDone()
             }
         }
             [[fallthrough]];
-        case WAVExtract::CheckPassType::OK:
+        case WAVExtract::CheckPassType::OK: {
+            // Check for gap_duration (version 4+)
+            m_gapDurationTimecode = result.descRoot.value("gap_duration").toString();
+            if (!m_gapDurationTimecode.isEmpty() && m_gapDurationTimecode != QStringLiteral("00:00:00.000")) {
+                QMessageBox gapBox(this);
+                gapBox.setWindowTitle(tr("Space Between Entries"));
+                gapBox.setText(tr("The combined file has %1 of silence padding on each side of every entry.\n"
+                                  "How would you like to extract?")
+                                   .arg(m_gapDurationTimecode));
+                auto *originalBtn = gapBox.addButton(tr("Original range"), QMessageBox::AcceptRole);
+                gapBox.addButton(tr("Include space"), QMessageBox::ActionRole);
+                gapBox.setDefaultButton(originalBtn);
+                gapBox.exec();
+                if (gapBox.clickedButton() == originalBtn) {
+                    m_extractGapMode = WAVExtract::ExtractGapMode::OriginalRange;
+                } else {
+                    m_extractGapMode = WAVExtract::ExtractGapMode::IncludeSpace;
+                }
+            }
+
             auto nextFuture = QtConcurrent::run(readSrcWAVFile, m_srcWAVFileName, result.descRoot, m_targetFormat);
             auto nextWatcher = new ReadSrcWAVFileFutureWatcher(this);
             nextWatcher->setFuture(nextFuture);
@@ -101,8 +120,10 @@ void WavExtractDialog::preCheckDone()
             connect(m_buttonBox, &QDialogButtonBox::rejected, nextWatcher, &ReadSrcWAVFileFutureWatcher::cancel);
             break;
         }
+        }
     }
 }
+
 
 using ExtractWorkFutureWatcher = QFutureWatcher<ExtractErrorDescription>;
 
@@ -111,7 +132,8 @@ void WavExtractDialog::doExtractCall(utils::AudioBufferPtr srcData, decltype(kfr
                                      QJsonArray descArray)
 {
     m_label->setText(tr("Writing extracted file..."));
-    auto nextFuture = startExtract(srcData, samplerate, descArray, m_dstDirName, m_targetFormat, m_removeDCOffset);
+    auto nextFuture = startExtract(srcData, samplerate, descArray, m_dstDirName, m_targetFormat, m_removeDCOffset,
+                                   m_extractGapMode, m_gapDurationTimecode);
     auto nextWatcher = new ExtractWorkFutureWatcher(this);
     nextWatcher->setFuture(nextFuture);
     m_progressBar->setMinimum(nextWatcher->progressMinimum());

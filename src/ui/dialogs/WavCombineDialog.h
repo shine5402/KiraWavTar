@@ -15,7 +15,7 @@ class WavCombineDialog : public QDialog
     Q_OBJECT
 public:
     WavCombineDialog(QString rootDirName, bool recursive, const AudioIO::WavAudioFormat &targetFormat,
-                     QString saveFileName, QWidget *parent = nullptr);
+                     QString saveFileName, int gapMs = 0, QWidget *parent = nullptr);
 
 public slots:
     void open() override;
@@ -39,6 +39,7 @@ private:
     bool m_recursive;
     AudioIO::WavAudioFormat m_targetFormat;
     QString m_saveFileName;
+    int m_gapMs;
 };
 
 #endif // WAVCOMBINEDIALOG_H

@@ -11,6 +11,7 @@
 #include "utils/Utils.h"
 
 namespace WAVExtract {
+enum class ExtractGapMode { OriginalRange, IncludeSpace };
 enum class CheckPassType { OK, WARNING, CRITICAL };
 
 struct CheckResult
@@ -40,7 +41,9 @@ struct ExtractErrorDescription
 QFuture<ExtractErrorDescription> startExtract(utils::AudioBufferPtr srcData,
                                               decltype(kfr::audio_format::samplerate) srcSampleRate,
                                               QJsonArray descArray, QString dstDirName,
-                                              AudioIO::WavAudioFormat targetFormat, bool removeDCOffset);
+                                              AudioIO::WavAudioFormat targetFormat, bool removeDCOffset,
+                                              ExtractGapMode gapMode = ExtractGapMode::OriginalRange,
+                                              const QString &gapDurationTimecode = {});
 } // namespace WAVExtract
 
 Q_DECLARE_METATYPE(WAVExtract::CheckResult);

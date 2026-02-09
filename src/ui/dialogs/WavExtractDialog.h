@@ -6,6 +6,7 @@
 
 #include "utils/Utils.h"
 #include "worker/AudioIO.h"
+#include "worker/WavExtract.h"
 
 class QLabel;
 class QProgressBar;
@@ -46,6 +47,8 @@ private:
     AudioIO::WavAudioFormat m_targetFormat;
     bool m_extractResultSelection;
     bool m_removeDCOffset;
+    WAVExtract::ExtractGapMode m_extractGapMode = WAVExtract::ExtractGapMode::OriginalRange;
+    QString m_gapDurationTimecode;
 };
 
 #endif // WAVEXTRACTDIALOG_H

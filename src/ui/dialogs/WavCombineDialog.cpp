@@ -16,9 +16,9 @@ using namespace WAVCombine;
 using namespace utils;
 
 WavCombineDialog::WavCombineDialog(QString rootDirName, bool recursive, const AudioIO::WavAudioFormat &targetFormat,
-                                   QString saveFileName, QWidget *parent)
+                                   QString saveFileName, int gapMs, QWidget *parent)
     : QDialog(parent), m_rootDirName(rootDirName), m_recursive(recursive), m_targetFormat(targetFormat),
-      m_saveFileName(saveFileName)
+      m_saveFileName(saveFileName), m_gapMs(gapMs)
 {
     auto layout = new QVBoxLayout(this);
 
@@ -89,7 +89,7 @@ void WavCombineDialog::preCheckDone()
         }
             [[fallthrough]];
         case WAVCombine::CheckPassType::OK:
-            auto nextFuture = startReadAndCombineWork(result.wavFileNames, m_rootDirName, m_targetFormat);
+            auto nextFuture = startReadAndCombineWork(result.wavFileNames, m_rootDirName, m_targetFormat, m_gapMs);
             auto nextWatcher = new readAndCombineFutureWatcher(this);
             nextWatcher->setFuture(nextFuture);
             m_label->setText(tr("Reading WAV files and combining them..."));
