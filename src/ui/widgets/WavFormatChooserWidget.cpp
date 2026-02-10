@@ -2,6 +2,7 @@
 #include "ui_wavformatchooserwidget.h"
 
 #include <kfr/all.hpp>
+#include <span>
 
 #include "ui/dialogs/CommonHtmlDialog.h"
 #include "utils/KfrHelper.h"
@@ -58,34 +59,43 @@ decltype(kfr::audio_format::type) WAVFormatChooserWidget::getSampleType() const
         return m_autoSampleTypeValue;
     } else {
         // Preset: get from entries (accounting for auto option and separator)
+        bool isFlac = (getContainerFormat() == AudioIO::AudioFormat::Container::FLAC);
+        using EntrySpan = std::span<const std::pair<kfr::audio_sample_type, std::string_view>>;
+        EntrySpan entries = isFlac ? EntrySpan(kfr::audio_sample_type_entries_for_flac)
+                                   : EntrySpan(kfr::audio_sample_type_entries_for_ui);
         int presetIndex = index - 2; // Subtract auto option (0) and separator (1)
-        if (presetIndex >= 0 && presetIndex < static_cast<int>(kfr::audio_sample_type_entries_for_ui.size())) {
-            return kfr::audio_sample_type_entries_for_ui[presetIndex].first;
+        if (presetIndex >= 0 && presetIndex < static_cast<int>(entries.size())) {
+            return entries[presetIndex].first;
         }
         return kfr::audio_sample_type::f32; // Default fallback
     }
 }
 
-AudioIO::WavAudioFormat::Container WAVFormatChooserWidget::getWAVContainerFormat() const
+AudioIO::AudioFormat::Container WAVFormatChooserWidget::getContainerFormat() const
 {
     int index = ui->containerFormatComboBox->currentIndex();
-    // Account for separator at index 2
-    if (index == 0)
-        return AudioIO::WavAudioFormat::Container::RIFF;
-    else if (index == 1)
-        return AudioIO::WavAudioFormat::Container::RF64;
-    else if (index == 3) // After separator
-        return AudioIO::WavAudioFormat::Container::W64;
-    return AudioIO::WavAudioFormat::Container::RIFF; // Default fallback
+    // Layout: 0=RIFF, 1=FLAC, 2=separator, 3=RF64, 4=W64
+    switch (index) {
+    case 0:
+        return AudioIO::AudioFormat::Container::RIFF;
+    case 1:
+        return AudioIO::AudioFormat::Container::FLAC;
+    case 3:
+        return AudioIO::AudioFormat::Container::RF64;
+    case 4:
+        return AudioIO::AudioFormat::Container::W64;
+    default:
+        return AudioIO::AudioFormat::Container::RIFF;
+    }
 }
 
-AudioIO::WavAudioFormat WAVFormatChooserWidget::getFormat() const
+AudioIO::AudioFormat WAVFormatChooserWidget::getFormat() const
 {
-    AudioIO::WavAudioFormat fmt;
+    AudioIO::AudioFormat fmt;
     fmt.kfr_format.channels = getChannelCount();
     fmt.kfr_format.samplerate = getSampleRate();
     fmt.kfr_format.type = getSampleType();
-    fmt.container = getWAVContainerFormat();
+    fmt.container = getContainerFormat();
     fmt.length = 0;
     return fmt;
 }
@@ -134,6 +144,12 @@ void WAVFormatChooserWidget::onChannelsComboBoxChanged(int index)
 {
     // Show spinbox only when "Custom..." is selected
     ui->channelsSpinBox->setVisible(index == m_customChannelIndex);
+}
+
+void WAVFormatChooserWidget::onContainerFormatChanged(int /*index*/)
+{
+    // Rebuild sample type combobox to reflect integer-only constraint for FLAC
+    setupSampleTypeComboBox();
 }
 
 void WAVFormatChooserWidget::setAutoMode(AutoMode mode)
@@ -205,8 +221,14 @@ void WAVFormatChooserWidget::setupSampleTypeComboBox()
     // Separator
     ui->sampleTypeComboBox->insertSeparator(1);
 
+    // Choose entries based on current container format
+    bool isFlac = (getContainerFormat() == AudioIO::AudioFormat::Container::FLAC);
+    using EntrySpan = std::span<const std::pair<kfr::audio_sample_type, std::string_view>>;
+    EntrySpan entries =
+        isFlac ? EntrySpan(kfr::audio_sample_type_entries_for_flac) : EntrySpan(kfr::audio_sample_type_entries_for_ui);
+
     // Sample type presets
-    for (const auto &[type, name] : kfr::audio_sample_type_entries_for_ui) {
+    for (const auto &[type, name] : entries) {
         ui->sampleTypeComboBox->addItem(name.data());
     }
 
@@ -261,31 +283,38 @@ void WAVFormatChooserWidget::setupChannelsComboBox()
 void WAVFormatChooserWidget::showFormatHelp()
 {
     auto dialog = new CommonHtmlDialog(this);
-    dialog->setWindowTitle(tr("WAV Container Format Information"));
-    dialog->setMarkdown(tr("## WAV Container Formats\n\n"
-                           "WAV files can use different container formats, each with different limitations and "
-                           "compatibility:\n\n"
-                           "### RIFF (Standard WAV)\n"
-                           "- **Maximum file size:** 4 GB\n"
-                           "- **Compatibility:** Universally supported by all audio software and hardware\n"
-                           "- **Use when:** File size is less than 4 GB and maximum compatibility is needed\n\n"
-                           "### RF64 (RIFF 64-bit)\n"
-                           "- **Maximum file size:** No practical limit (supports files larger than 4 GB)\n"
-                           "- **Compatibility:** Supported by many modern professional audio applications "
-                           "(Pro Tools, Reaper, Audacity, Adobe Audition, etc.), but **not universally supported**\n"
-                           "- **Standard:** EBU Tech 3306 (European Broadcasting Union standard)\n"
-                           "- **Use when:** Files exceed 4 GB and your audio software supports RF64\n\n"
-                           "### W64 (Sony Wave64)\n"
-                           "- **Maximum file size:** No practical limit (supports files larger than 4 GB)\n"
-                           "- **Compatibility:** Supported by several professional audio applications "
-                           "(Sound Forge, Vegas, Reaper, etc.), but **less widely supported than RF64**\n"
-                           "- **Origin:** Proprietary format developed by Sony\n"
-                           "- **Use when:** Files exceed 4 GB and your specific software prefers or requires W64\n\n"
-                           "---\n\n"
-                           "**Important:** Before using 64-bit formats (RF64 or W64), verify that your audio editing "
-                           "software, DAW, or playback tools support the specific format you choose. Not all players "
-                           "and editors support these extended formats. If compatibility is uncertain, test with a "
-                           "small sample file first."));
+    dialog->setWindowTitle(tr("Audio Container Format Information"));
+    dialog->setMarkdown(
+        tr("## Audio Container Formats\n\n"
+           "Audio files can use different container formats, each with different limitations and "
+           "compatibility:\n\n"
+           "### RIFF (Standard WAV)\n"
+           "- **Maximum file size:** 4 GB\n"
+           "- **Compatibility:** Universally supported by all audio software and hardware\n"
+           "- **Use when:** File size is less than 4 GB and maximum compatibility is needed\n\n"
+           "### FLAC (Free Lossless Audio Codec)\n"
+           "- **Maximum file size:** No practical limit\n"
+           "- **Compression:** Lossless compression, typically 50-70% of original size\n"
+           "- **Sample types:** Integer only (16-bit, 24-bit, 32-bit)\n"
+           "- **Compatibility:** Widely supported by most audio software and players\n"
+           "- **Use when:** You want lossless compression to save disk space\n\n"
+           "### RF64 (RIFF 64-bit)\n"
+           "- **Maximum file size:** No practical limit (supports files larger than 4 GB)\n"
+           "- **Compatibility:** Supported by many modern professional audio applications "
+           "(Pro Tools, Reaper, Audacity, Adobe Audition, etc.), but **not universally supported**\n"
+           "- **Standard:** EBU Tech 3306 (European Broadcasting Union standard)\n"
+           "- **Use when:** Files exceed 4 GB and your audio software supports RF64\n\n"
+           "### W64 (Sony Wave64)\n"
+           "- **Maximum file size:** No practical limit (supports files larger than 4 GB)\n"
+           "- **Compatibility:** Supported by several professional audio applications "
+           "(Sound Forge, Vegas, Reaper, etc.), but **less widely supported than RF64**\n"
+           "- **Origin:** Proprietary format developed by Sony\n"
+           "- **Use when:** Files exceed 4 GB and your specific software prefers or requires W64\n\n"
+           "---\n\n"
+           "**Important:** Before using 64-bit WAV formats (RF64 or W64), verify that your audio editing "
+           "software, DAW, or playback tools support the specific format you choose. Not all players "
+           "and editors support these extended formats. If compatibility is uncertain, test with a "
+           "small sample file first."));
     dialog->setStandardButtons(QDialogButtonBox::Ok);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->show();
@@ -319,13 +348,14 @@ void WAVFormatChooserWidget::setupContainerFormatComboBox()
     int currentIndex = ui->containerFormatComboBox->currentIndex();
     ui->containerFormatComboBox->clear();
 
-    // First section: RIFF (default), RF64
-    ui->containerFormatComboBox->addItem(tr("RIFF (Standard WAV)"));
-    ui->containerFormatComboBox->addItem(tr("RF64 (RIFF 64-bit)"));
+    // First section: RIFF (default), FLAC
+    ui->containerFormatComboBox->addItem(tr("RIFF (Standard WAV)")); // index 0
+    ui->containerFormatComboBox->addItem(tr("FLAC"));                // index 1
     // Separator
-    ui->containerFormatComboBox->insertSeparator(2);
-    // Second section: W64
-    ui->containerFormatComboBox->addItem(tr("W64 (Sony Wave64)"));
+    ui->containerFormatComboBox->insertSeparator(2); // index 2
+    // Second section: RF64, W64
+    ui->containerFormatComboBox->addItem(tr("RF64 (RIFF 64-bit)")); // index 3
+    ui->containerFormatComboBox->addItem(tr("W64 (Sony Wave64)"));  // index 4
 
     if (currentIndex == 2) {
         currentIndex = 0;
@@ -335,4 +365,8 @@ void WAVFormatChooserWidget::setupContainerFormatComboBox()
     } else {
         ui->containerFormatComboBox->setCurrentIndex(0);
     }
+
+    // Connect container format change to update sample type combo
+    connect(ui->containerFormatComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+            &WAVFormatChooserWidget::onContainerFormatChanged, Qt::UniqueConnection);
 }

@@ -28,13 +28,38 @@ constexpr std::array<std::pair<audio_sample_type, std::string_view>, 5> audio_sa
     {audio_sample_type::f64, "64-bit double float"},
 }};
 
-// UI options: omit 32-bit int since internal processing uses float anyway.
-constexpr std::array<std::pair<audio_sample_type, std::string_view>, 4> audio_sample_type_entries_for_ui = {{
+// UI options
+constexpr std::array<std::pair<audio_sample_type, std::string_view>, 5> audio_sample_type_entries_for_ui = {{
     {audio_sample_type::i16, "16-bit int"},
     {audio_sample_type::i24, "24-bit int"},
+    {audio_sample_type::i32, "32-bit int"},
     {audio_sample_type::f32, "32-bit single float"},
     {audio_sample_type::f64, "64-bit double float"},
 }};
+
+// Integer-only sample types for FLAC container (FLAC does not support floating-point)
+constexpr std::array<std::pair<audio_sample_type, std::string_view>, 3> audio_sample_type_entries_for_flac = {{
+    {audio_sample_type::i16, "16-bit int"},
+    {audio_sample_type::i24, "24-bit int"},
+    {audio_sample_type::i32, "32-bit int"},
+}};
+
+// Map a sample type to the closest FLAC-compatible integer type (by byte width).
+// f32 (4 bytes) -> i32 (4 bytes), f64 (8 bytes) -> i32 (capped at FLAC max).
+constexpr audio_sample_type to_flac_compatible_sample_type(audio_sample_type t)
+{
+    switch (t) {
+    case audio_sample_type::i16:
+    case audio_sample_type::i24:
+    case audio_sample_type::i32:
+        return t;
+    case audio_sample_type::f32:
+    case audio_sample_type::f64:
+        return audio_sample_type::i32;
+    default:
+        return audio_sample_type::i24; // safe default
+    }
+}
 
 constexpr std::string_view audio_sample_type_to_string(audio_sample_type t)
 {

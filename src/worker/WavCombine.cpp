@@ -17,40 +17,39 @@
 
 using namespace utils;
 
-namespace WAVCombine {
+namespace AudioCombine {
 
-CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive, AudioIO::WavAudioFormat targetFormat)
+CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive, AudioIO::AudioFormat targetFormat)
 {
 
-    auto wavFileNames = getAbsoluteWAVFileNamesUnder(rootDirName, recursive);
+    auto wavFileNames = getAbsoluteAudioFileNamesUnder(rootDirName, recursive);
 
     if (wavFileNames.isEmpty()) {
         return {CheckPassType::CRITICAL,
                 QCoreApplication::translate(
-                    "WAVCombine", "<p class='critical'>There are not any wav files in the given folder. "
+                    "WAVCombine", "<p class='critical'>There are not any audio files in the given folder. "
                                   "Please check the path, or if you forget to turn \"scan subfolders\" on?</p>"),
                 wavFileNames};
     }
 
     // As mapped() need result_type member to work, so we use std::function() to help us.
-    auto formats =
-        QtConcurrent::mapped(wavFileNames,
-                             std::function([](const QString &fileName) -> QPair<QString, AudioIO::WavAudioFormat> {
-                                 try {
-                                     auto format = AudioIO::readWavFormat(fileName);
-                                     return {fileName, format};
-                                 } catch (...) {
-                                     return {fileName, AudioIO::WavAudioFormat{}};
-                                 }
-                             }))
-            .results();
+    auto formats = QtConcurrent::mapped(
+                       wavFileNames, std::function([](const QString &fileName) -> QPair<QString, AudioIO::AudioFormat> {
+                           try {
+                               auto format = AudioIO::readAudioFormat(fileName);
+                               return {fileName, format};
+                           } catch (...) {
+                               return {fileName, AudioIO::AudioFormat{}};
+                           }
+                       }))
+                       .results();
 
     qint64 totalLength = 0;
     for (const auto &i : formats) {
         totalLength += i.second.length;
     }
 
-    if (totalLength > INT32_MAX && targetFormat.container == AudioIO::WavAudioFormat::Container::RIFF) {
+    if (totalLength > INT32_MAX && targetFormat.container == AudioIO::AudioFormat::Container::RIFF) {
         return {
             CheckPassType::CRITICAL,
             QCoreApplication::translate(
@@ -62,10 +61,9 @@ CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive
 
     QString warningMsg;
 
-    auto hasUnknownType =
-        QtConcurrent::filtered(formats, [](const QPair<QString, AudioIO::WavAudioFormat> &info) -> bool {
-            return info.second.kfr_format.type == kfr::audio_sample_type::unknown;
-        }).results();
+    auto hasUnknownType = QtConcurrent::filtered(formats, [](const QPair<QString, AudioIO::AudioFormat> &info) -> bool {
+                              return info.second.kfr_format.type == kfr::audio_sample_type::unknown;
+                          }).results();
 
     for (const auto &i : std::as_const(hasUnknownType)) {
         warningMsg.append(QCoreApplication::translate("WAVCombine",
@@ -76,7 +74,7 @@ CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive
     }
 
     auto hasMultipleChannels =
-        QtConcurrent::filtered(formats, [targetFormat](const QPair<QString, AudioIO::WavAudioFormat> &info) -> bool {
+        QtConcurrent::filtered(formats, [targetFormat](const QPair<QString, AudioIO::AudioFormat> &info) -> bool {
             return info.second.kfr_format.channels > targetFormat.kfr_format.channels;
         }).results();
 
@@ -90,7 +88,7 @@ CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive
     }
 
     auto hasLargerSampleRate =
-        QtConcurrent::filtered(formats, [targetFormat](const QPair<QString, AudioIO::WavAudioFormat> &info) -> bool {
+        QtConcurrent::filtered(formats, [targetFormat](const QPair<QString, AudioIO::AudioFormat> &info) -> bool {
             return info.second.kfr_format.samplerate > targetFormat.kfr_format.samplerate;
         }).results();
 
@@ -105,7 +103,7 @@ CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive
     }
 
     auto hasLargerQuantization =
-        QtConcurrent::filtered(formats, [targetFormat](const QPair<QString, AudioIO::WavAudioFormat> &info) -> bool {
+        QtConcurrent::filtered(formats, [targetFormat](const QPair<QString, AudioIO::AudioFormat> &info) -> bool {
             return (kfr::audio_sample_type_to_precision(info.second.kfr_format.type) >
                     kfr::audio_sample_type_to_precision(targetFormat.kfr_format.type)) ||
                    (kfr::audio_sample_is_float(info.second.kfr_format.type) &&
@@ -127,11 +125,10 @@ CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive
 }
 
 QFuture<QPair<utils::AudioBufferPtr, QJsonObject>>
-startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::WavAudioFormat targetFormat, int gapMs)
+startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::AudioFormat targetFormat, int gapMs)
 {
     const bool useDouble = utils::shouldUseDoubleInternalProcessing(targetFormat.kfr_format.type);
-    const qint64 gapSamples =
-        qRound64(gapMs / 1000.0 * targetFormat.kfr_format.samplerate);
+    const qint64 gapSamples = qRound64(gapMs / 1000.0 * targetFormat.kfr_format.samplerate);
 
     return QtConcurrent::mappedReduced(
         WAVFileNames,
@@ -182,21 +179,24 @@ startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::
                 metaObj.insert("sample_rate", readResult.format.kfr_format.samplerate);
                 metaObj.insert("sample_type", (qint64)readResult.format.kfr_format.type);
 
-                int originalWavFormat = 0; // RIFF
+                int originalContainerFormat = 0; // RIFF
                 switch (readResult.format.container) {
-                case AudioIO::WavAudioFormat::Container::RIFF:
-                    originalWavFormat = 0;
+                case AudioIO::AudioFormat::Container::RIFF:
+                    originalContainerFormat = 0;
                     break;
-                case AudioIO::WavAudioFormat::Container::RF64:
-                    originalWavFormat = 2;
+                case AudioIO::AudioFormat::Container::RF64:
+                    originalContainerFormat = 2;
                     break;
-                case AudioIO::WavAudioFormat::Container::W64:
-                    originalWavFormat = 1;
+                case AudioIO::AudioFormat::Container::W64:
+                    originalContainerFormat = 1;
+                    break;
+                case AudioIO::AudioFormat::Container::FLAC:
+                    originalContainerFormat = 3;
                     break;
                 default:
                     break;
                 }
-                metaObj.insert("wav_format", originalWavFormat);
+                metaObj.insert("container_format", originalContainerFormat);
                 metaObj.insert("channel_count", (qint64)readResult.format.kfr_format.channels);
                 metaObj.insert("duration",
                                samplesToTimecode(readResult.format.length, readResult.format.kfr_format.samplerate));
@@ -211,11 +211,11 @@ startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::
             };
 
             if (useDouble) {
-                auto result = AudioIO::readWavFileF64(fileName);
+                auto result = AudioIO::readAudioFileF64(fileName);
                 return processTyped(std::move(result));
             }
 
-            auto result = AudioIO::readWavFileF32(fileName);
+            auto result = AudioIO::readAudioFileF32(fileName);
             return processTyped(std::move(result));
         }),
 
@@ -235,8 +235,7 @@ startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::
                 jsonRoot.insert("sample_rate", targetFormat.kfr_format.samplerate);
                 jsonRoot.insert("sample_type", (int)targetFormat.kfr_format.type);
                 jsonRoot.insert("channel_count", (int)targetFormat.kfr_format.channels);
-                jsonRoot.insert("gap_duration",
-                                samplesToTimecode(gapSamples, targetFormat.kfr_format.samplerate));
+                jsonRoot.insert("gap_duration", samplesToTimecode(gapSamples, targetFormat.kfr_format.samplerate));
                 jsonRoot.insert("descriptions", QJsonArray());
                 total.second = jsonRoot;
             }
@@ -245,11 +244,8 @@ startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::
 
             // Insert leading silence padding for this entry
             size_t currentSize = 0;
-            std::visit(
-                [&](auto &totalPtr, const auto &) {
-                    currentSize = totalPtr->operator[](0).size();
-                },
-                total.first, input.first);
+            std::visit([&](auto &totalPtr, const auto &) { currentSize = totalPtr->operator[](0).size(); }, total.first,
+                       input.first);
 
             if (gapSamples > 0) {
                 std::visit(
@@ -305,18 +301,14 @@ startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::
 
             // Update Total Duration (includes trailing gap)
             size_t finalSize = 0;
-            std::visit(
-                [&](auto &totalPtr, const auto &) {
-                    finalSize = totalPtr->operator[](0).size();
-                },
-                total.first, input.first);
-            total.second.insert("total_duration",
-                                samplesToTimecode(finalSize, targetFormat.kfr_format.samplerate));
+            std::visit([&](auto &totalPtr, const auto &) { finalSize = totalPtr->operator[](0).size(); }, total.first,
+                       input.first);
+            total.second.insert("total_duration", samplesToTimecode(finalSize, targetFormat.kfr_format.samplerate));
         }));
 }
 
 bool writeCombineResult(utils::AudioBufferPtr data, QJsonObject descObj, QString wavFileName,
-                        AudioIO::WavAudioFormat targetFormat, const utils::VolumeConfig &volumeConfig)
+                        AudioIO::AudioFormat targetFormat, const utils::VolumeConfig &volumeConfig)
 {
     double sampleRate = descObj["sample_rate"].toDouble();
     QJsonArray descriptions = descObj["descriptions"].toArray();
@@ -332,9 +324,9 @@ bool writeCombineResult(utils::AudioBufferPtr data, QJsonObject descObj, QString
                         throw std::runtime_error("Null audio buffer");
                     using PtrT = std::decay_t<decltype(ptr)>;
                     if constexpr (std::is_same_v<PtrT, std::shared_ptr<utils::AudioBufferF32>>) {
-                        AudioIO::writeWavFileF32(wavFileName, *ptr, targetFormat);
+                        AudioIO::writeAudioFileF32(wavFileName, *ptr, targetFormat);
                     } else {
-                        AudioIO::writeWavFileF64(wavFileName, *ptr, targetFormat);
+                        AudioIO::writeAudioFileF64(wavFileName, *ptr, targetFormat);
                     }
                 },
                 data);
@@ -376,7 +368,8 @@ bool writeCombineResult(utils::AudioBufferPtr data, QJsonObject descObj, QString
         }
     } else {
         // ByDuration
-        qint64 maxDurationSamples = static_cast<qint64>(volumeConfig.maxDurationSeconds) * static_cast<qint64>(sampleRate);
+        qint64 maxDurationSamples =
+            static_cast<qint64>(volumeConfig.maxDurationSeconds) * static_cast<qint64>(sampleRate);
         VolumeInfo currentVol;
         currentVol.entryBeginIndex = 0;
         qint64 accumulatedSamples = 0;
@@ -388,8 +381,9 @@ bool writeCombineResult(utils::AudioBufferPtr data, QJsonObject descObj, QString
 
             if (footprint > maxDurationSamples) {
                 throw std::runtime_error(
-                    QCoreApplication::translate("WAVCombine",
-                                                "Entry \"%1\" has duration %2 which exceeds the maximum volume duration of %3 seconds.")
+                    QCoreApplication::translate(
+                        "WAVCombine",
+                        "Entry \"%1\" has duration %2 which exceeds the maximum volume duration of %3 seconds.")
                         .arg(entry["file_name"].toString())
                         .arg(entry["duration"].toString())
                         .arg(volumeConfig.maxDurationSeconds)
@@ -448,9 +442,9 @@ bool writeCombineResult(utils::AudioBufferPtr data, QJsonObject descObj, QString
                         slice[c] = ptr->operator[](c).slice(sliceStart, sliceLen);
                     }
                     if constexpr (std::is_same_v<T, float>) {
-                        AudioIO::writeWavFileF32(volFileName, slice, targetFormat);
+                        AudioIO::writeAudioFileF32(volFileName, slice, targetFormat);
                     } else {
-                        AudioIO::writeWavFileF64(volFileName, slice, targetFormat);
+                        AudioIO::writeAudioFileF64(volFileName, slice, targetFormat);
                     }
                 },
                 data);
@@ -506,4 +500,4 @@ bool writeCombineResult(utils::AudioBufferPtr data, QJsonObject descObj, QString
 
     return true;
 }
-} // namespace WAVCombine
+} // namespace AudioCombine

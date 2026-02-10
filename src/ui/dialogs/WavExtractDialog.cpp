@@ -15,11 +15,11 @@
 #include "utils/Utils.h"
 #include "worker/WavExtract.h"
 
-using namespace WAVExtract;
+using namespace AudioExtract;
 using namespace utils;
 
 WavExtractDialog::WavExtractDialog(QString srcWAVFileName, QString dstDirName,
-                                   const AudioIO::WavAudioFormat &targetFormat, bool extractResultSelection,
+                                   const AudioIO::AudioFormat &targetFormat, bool extractResultSelection,
                                    bool removeDCOffset, QWidget *parent)
     : QDialog(parent), m_srcWAVFileName(srcWAVFileName), m_dstDirName(dstDirName), m_targetFormat(targetFormat),
       m_extractResultSelection(extractResultSelection), m_removeDCOffset(removeDCOffset)
@@ -58,7 +58,7 @@ void WavExtractDialog::startWork()
     connect(m_buttonBox, &QDialogButtonBox::rejected, watcher, &PreCheckFutureWatcher::cancel);
 }
 
-using ReadSrcWAVFileFutureWatcher = QFutureWatcher<decltype(std::function(readSrcWAVFile))::result_type>;
+using ReadSrcWAVFileFutureWatcher = QFutureWatcher<decltype(std::function(readSrcAudioFile))::result_type>;
 
 void WavExtractDialog::preCheckDone()
 {
@@ -69,7 +69,7 @@ void WavExtractDialog::preCheckDone()
             return;
         auto result = watcher->result();
         switch (result.pass) {
-        case WAVExtract::CheckPassType::CRITICAL: {
+        case AudioExtract::CheckPassType::CRITICAL: {
             CommonHtmlDialog dlg(this);
             dlg.setWindowTitle(tr("Error"));
             dlg.setLabel(tr("Critical error found. Can not continue."));
@@ -79,7 +79,7 @@ void WavExtractDialog::preCheckDone()
             done(QDialog::Rejected);
             break;
         }
-        case WAVExtract::CheckPassType::WARNING: {
+        case AudioExtract::CheckPassType::WARNING: {
             CommonHtmlDialog dlg(this);
             dlg.setWindowTitle(tr("Warning"));
             dlg.setLabel(tr("Some problems have been found but process can continue. Should we proceed?"));
@@ -92,7 +92,7 @@ void WavExtractDialog::preCheckDone()
             }
         }
             [[fallthrough]];
-        case WAVExtract::CheckPassType::OK: {
+        case AudioExtract::CheckPassType::OK: {
             // Populate volume file list for multi-volume
             int volumeCount = result.descRoot["volume_count"].toInt(1);
             m_allVolumeFiles.clear();
@@ -112,17 +112,17 @@ void WavExtractDialog::preCheckDone()
                 gapBox.setDefaultButton(originalBtn);
                 gapBox.exec();
                 if (gapBox.clickedButton() == originalBtn) {
-                    m_extractGapMode = WAVExtract::ExtractGapMode::OriginalRange;
+                    m_extractGapMode = AudioExtract::ExtractGapMode::OriginalRange;
                 } else {
-                    m_extractGapMode = WAVExtract::ExtractGapMode::IncludeSpace;
+                    m_extractGapMode = AudioExtract::ExtractGapMode::IncludeSpace;
                 }
             }
 
-            auto nextFuture = QtConcurrent::run(readSrcWAVFile, m_srcWAVFileName, result.descRoot, m_targetFormat);
+            auto nextFuture = QtConcurrent::run(readSrcAudioFile, m_srcWAVFileName, result.descRoot, m_targetFormat);
             auto nextWatcher = new ReadSrcWAVFileFutureWatcher(this);
             nextWatcher->setFuture(nextFuture);
             m_label->setText(tr("Reading source WAV file..."));
-            connect(nextWatcher, &ReadSrcWAVFileFutureWatcher::finished, this, &WavExtractDialog::readSrcWAVFileDone);
+            connect(nextWatcher, &ReadSrcWAVFileFutureWatcher::finished, this, &WavExtractDialog::readSrcAudioFileDone);
             connect(m_buttonBox, &QDialogButtonBox::rejected, nextWatcher, &ReadSrcWAVFileFutureWatcher::cancel);
             break;
         }
@@ -149,7 +149,7 @@ void WavExtractDialog::doExtractCall(utils::AudioBufferPtr srcData, decltype(kfr
     connect(m_buttonBox, &QDialogButtonBox::rejected, nextWatcher, &QFutureWatcher<bool>::cancel);
 }
 
-void WavExtractDialog::readSrcWAVFileDone()
+void WavExtractDialog::readSrcAudioFileDone()
 {
     if (auto watcher = dynamic_cast<ReadSrcWAVFileFutureWatcher *>(QObject::sender())) {
         if (!utils::checkFutureExceptionAndWarn(watcher->future()))

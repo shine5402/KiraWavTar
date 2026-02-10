@@ -4,7 +4,7 @@
 #include <QStack>
 #include <QStringList>
 
-QStringList getAbsoluteWAVFileNamesUnder(QString rootDirName, bool recursive)
+QStringList getAbsoluteAudioFileNamesUnder(QString rootDirName, bool recursive)
 {
     QStack<QString> dirNameStack;
     dirNameStack.append(rootDirName);
@@ -14,7 +14,7 @@ QStringList getAbsoluteWAVFileNamesUnder(QString rootDirName, bool recursive)
         auto currentDirName = dirNameStack.pop();
         QDir currentDir{currentDirName};
 
-        auto wavEntryList = currentDir.entryList({"*.wav"}, QDir::Files | QDir::NoDotAndDotDot);
+        auto wavEntryList = currentDir.entryList({"*.wav", "*.flac"}, QDir::Files | QDir::NoDotAndDotDot);
         for (const auto &entry : std::as_const(wavEntryList)) {
             result.append(currentDir.filePath(entry));
         }

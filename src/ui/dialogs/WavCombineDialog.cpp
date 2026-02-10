@@ -12,10 +12,10 @@
 #include "kfr/all.hpp"
 #include "worker/WavCombine.h"
 
-using namespace WAVCombine;
+using namespace AudioCombine;
 using namespace utils;
 
-WavCombineDialog::WavCombineDialog(QString rootDirName, bool recursive, const AudioIO::WavAudioFormat &targetFormat,
+WavCombineDialog::WavCombineDialog(QString rootDirName, bool recursive, const AudioIO::AudioFormat &targetFormat,
                                    QString saveFileName, int gapMs,
                                    const utils::VolumeConfig &volumeConfig, QWidget *parent)
     : QDialog(parent), m_rootDirName(rootDirName), m_recursive(recursive), m_targetFormat(targetFormat),
@@ -66,7 +66,7 @@ void WavCombineDialog::preCheckDone()
             return;
         auto result = watcher->result();
         switch (result.pass) {
-        case WAVCombine::CheckPassType::CRITICAL: {
+        case AudioCombine::CheckPassType::CRITICAL: {
             CommonHtmlDialog dlg(this);
             dlg.setWindowTitle(tr("Error"));
             dlg.setLabel(tr("Critical error found. Can not continue."));
@@ -76,7 +76,7 @@ void WavCombineDialog::preCheckDone()
             done(QDialog::Rejected);
             break;
         }
-        case WAVCombine::CheckPassType::WARNING: {
+        case AudioCombine::CheckPassType::WARNING: {
             CommonHtmlDialog dlg(this);
             dlg.setWindowTitle(tr("Warning"));
             dlg.setLabel(tr("Some problems have been found but process can continue. Should we proceed?"));
@@ -89,7 +89,7 @@ void WavCombineDialog::preCheckDone()
             }
         }
             [[fallthrough]];
-        case WAVCombine::CheckPassType::OK:
+        case AudioCombine::CheckPassType::OK:
             auto nextFuture = startReadAndCombineWork(result.wavFileNames, m_rootDirName, m_targetFormat, m_gapMs);
             auto nextWatcher = new readAndCombineFutureWatcher(this);
             nextWatcher->setFuture(nextFuture);

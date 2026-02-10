@@ -9,7 +9,7 @@
 #include "utils/Utils.h"
 
 // Because we are just writing static functions, so namespace may be a better choice than class.
-namespace WAVCombine {
+namespace AudioCombine {
 enum class CheckPassType { OK, WARNING, CRITICAL };
 
 struct CheckResult
@@ -19,17 +19,17 @@ struct CheckResult
     QStringList wavFileNames;
 };
 
-CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive, AudioIO::WavAudioFormat targetFormat);
+CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive, AudioIO::AudioFormat targetFormat);
 
 QFuture<QPair<utils::AudioBufferPtr, QJsonObject>>
-startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::WavAudioFormat targetFormat,
+startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::AudioFormat targetFormat,
                         int gapMs = 0);
 
 bool writeCombineResult(utils::AudioBufferPtr data, QJsonObject descObj, QString wavFileName,
-                        AudioIO::WavAudioFormat targetFormat,
+                        AudioIO::AudioFormat targetFormat,
                         const utils::VolumeConfig &volumeConfig = {});
-}; // namespace WAVCombine
+}; // namespace AudioCombine
 
-Q_DECLARE_METATYPE(WAVCombine::CheckResult);
+Q_DECLARE_METATYPE(AudioCombine::CheckResult);
 
 #endif // WAVCOMBINE_H

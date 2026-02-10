@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include <QActionGroup>
+#include <QDesktopServices>
 #include <QMessageBox>
 #include <QSettings>
 #include <QValidator>
@@ -35,6 +36,9 @@ QMenu *MainWindow::createHelpMenu()
     auto helpMenu = new QMenu(this);
     auto aboutAction = helpMenu->addAction(tr("About"));
     connect(aboutAction, &QAction::triggered, this, &MainWindow::about);
+    auto homepageAction = helpMenu->addAction(tr("Project homepage"));
+    connect(homepageAction, &QAction::triggered, this,
+            []() { QDesktopServices::openUrl(QUrl("https://github.com/shine5402/KiraWAVTar")); });
     helpMenu->addSeparator();
     helpMenu->addAction(UpdateChecker::createAutoCheckAction());
     auto checkUpdateAction = helpMenu->addAction(tr("Check update now"));
@@ -242,7 +246,7 @@ void MainWindow::run()
                         ui->combineWAVFormatWidget->isAutoChannelCount();
 
         if (needScan) {
-            auto wavFileNames = getAbsoluteWAVFileNamesUnder(rootDirName, recursive);
+            auto wavFileNames = getAbsoluteAudioFileNamesUnder(rootDirName, recursive);
             if (wavFileNames.isEmpty()) {
                 QMessageBox::critical(this, {}, tr("No WAV files found in the specified folder."));
                 return;
@@ -255,7 +259,7 @@ void MainWindow::run()
 
             for (const auto &fileName : std::as_const(wavFileNames)) {
                 try {
-                    auto format = AudioIO::readWavFormat(fileName);
+                    auto format = AudioIO::readAudioFormat(fileName);
 
                     // Track max sample rate
                     maxSampleRate = std::max(maxSampleRate, format.kfr_format.samplerate);
@@ -280,6 +284,10 @@ void MainWindow::run()
             }
             if (ui->combineWAVFormatWidget->isAutoSampleType() && maxSampleTypePrecision > 0) {
                 targetFormat.kfr_format.type = maxSampleType;
+                // For FLAC, ensure auto sample type is integer (map float→int by byte width)
+                if (targetFormat.isFlac()) {
+                    targetFormat.kfr_format.type = kfr::to_flac_compatible_sample_type(targetFormat.kfr_format.type);
+                }
             }
             if (ui->combineWAVFormatWidget->isAutoChannelCount()) {
                 targetFormat.kfr_format.channels = maxChannels;
@@ -299,11 +307,12 @@ void MainWindow::run()
             }
         }
 
-        auto dialog = new WavCombineDialog(rootDirName, recursive, targetFormat, saveFileName, gapMs, volumeConfig, this);
+        auto dialog =
+            new WavCombineDialog(rootDirName, recursive, targetFormat, saveFileName, gapMs, volumeConfig, this);
         dialog->setAttribute(Qt::WA_DeleteOnClose, true);
         dialog->open();
     } else {
-        AudioIO::WavAudioFormat invalidFormat;
+        AudioIO::AudioFormat invalidFormat;
         invalidFormat.kfr_format.type = kfr::audio_sample_type::unknown;
         invalidFormat.kfr_format.channels = 0;
         invalidFormat.kfr_format.samplerate = 0;
@@ -329,11 +338,14 @@ void MainWindow::fillResultPath()
 {
     if (ui->combineWAVRadioButton->isChecked()) {
         auto dirPath = ui->combineDirPathWidget->dirName();
-        // Remove trailing separators before appending .wav
+        // Remove trailing separators before appending extension
         while (!dirPath.isEmpty() && (dirPath.endsWith('/') || dirPath.endsWith('\\'))) {
             dirPath.chop(1);
         }
-        ui->combineResultPathWidget->setFileName(dirPath + ".wav");
+        // Choose extension based on container format
+        auto container = ui->combineWAVFormatWidget->getContainerFormat();
+        QString ext = (container == AudioIO::AudioFormat::Container::FLAC) ? ".flac" : ".wav";
+        ui->combineResultPathWidget->setFileName(dirPath + ext);
     } else {
         auto fileInfo = QFileInfo{ui->extractSrcPathWidget->fileName()};
         auto dir = fileInfo.absoluteDir();

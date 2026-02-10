@@ -2,40 +2,52 @@
 
 #include <QCoreApplication>
 #include <QFile>
+#include <QFileInfo>
 
 #define DR_WAV_IMPLEMENTATION
+#include <FLAC/stream_decoder.h>
+#include <FLAC/stream_encoder.h>
+
 #include "3rdparty/dr_libs/dr_wav.h"
 
 namespace AudioIO {
 
 using namespace utils;
 
+// --- Helper: detect FLAC by file extension ---
+static bool isFlacFileName(const QString &fileName)
+{
+    return fileName.endsWith(QLatin1String(".flac"), Qt::CaseInsensitive);
+}
+
 // On Windows, drwav_init_file() uses fopen() which expects ANSI paths, not UTF-8.
 // We must use the _w (wide-char) variants on Windows for proper Unicode path support.
 #ifdef Q_OS_WIN
 static drwav_bool32 drwav_init_file_compat(drwav *pWav, const QString &fileName,
-                                            const drwav_allocation_callbacks *pAllocationCallbacks)
+                                           const drwav_allocation_callbacks *pAllocationCallbacks)
 {
     return drwav_init_file_w(pWav, reinterpret_cast<const wchar_t *>(fileName.utf16()), pAllocationCallbacks);
 }
 
-static drwav_bool32 drwav_init_file_write_sequential_pcm_frames_compat(
-    drwav *pWav, const QString &fileName, const drwav_data_format *pFormat, drwav_uint64 totalPCMFrameCount,
-    const drwav_allocation_callbacks *pAllocationCallbacks)
+static drwav_bool32
+drwav_init_file_write_sequential_pcm_frames_compat(drwav *pWav, const QString &fileName,
+                                                   const drwav_data_format *pFormat, drwav_uint64 totalPCMFrameCount,
+                                                   const drwav_allocation_callbacks *pAllocationCallbacks)
 {
-    return drwav_init_file_write_sequential_pcm_frames_w(
-        pWav, reinterpret_cast<const wchar_t *>(fileName.utf16()), pFormat, totalPCMFrameCount, pAllocationCallbacks);
+    return drwav_init_file_write_sequential_pcm_frames_w(pWav, reinterpret_cast<const wchar_t *>(fileName.utf16()),
+                                                         pFormat, totalPCMFrameCount, pAllocationCallbacks);
 }
 #else
 static drwav_bool32 drwav_init_file_compat(drwav *pWav, const QString &fileName,
-                                            const drwav_allocation_callbacks *pAllocationCallbacks)
+                                           const drwav_allocation_callbacks *pAllocationCallbacks)
 {
     return drwav_init_file(pWav, fileName.toUtf8().constData(), pAllocationCallbacks);
 }
 
-static drwav_bool32 drwav_init_file_write_sequential_pcm_frames_compat(
-    drwav *pWav, const QString &fileName, const drwav_data_format *pFormat, drwav_uint64 totalPCMFrameCount,
-    const drwav_allocation_callbacks *pAllocationCallbacks)
+static drwav_bool32
+drwav_init_file_write_sequential_pcm_frames_compat(drwav *pWav, const QString &fileName,
+                                                   const drwav_data_format *pFormat, drwav_uint64 totalPCMFrameCount,
+                                                   const drwav_allocation_callbacks *pAllocationCallbacks)
 {
     return drwav_init_file_write_sequential_pcm_frames(pWav, fileName.toUtf8().constData(), pFormat, totalPCMFrameCount,
                                                        pAllocationCallbacks);
@@ -65,6 +77,8 @@ static void convert_f32_to_s24(drwav_uint8 *dst, const float *src, size_t count)
     }
 }
 
+// ---------- WAV-specific implementation (via drwav) ----------
+
 kfr::audio_sample_type mapDrWavToKfrType(drwav_uint16 formatTag, drwav_uint16 bitsPerSample,
                                          drwav_uint16 validBitsPerSample)
 {
@@ -85,7 +99,7 @@ kfr::audio_sample_type mapDrWavToKfrType(drwav_uint16 formatTag, drwav_uint16 bi
     return kfr::audio_sample_type::unknown;
 }
 
-WavAudioFormat readWavFormat(const QString &fileName)
+AudioFormat readWavFormat(const QString &fileName)
 {
     drwav wav;
     if (!drwav_init_file_compat(&wav, fileName, nullptr)) {
@@ -93,7 +107,7 @@ WavAudioFormat readWavFormat(const QString &fileName)
             QCoreApplication::translate("AudioIO", "Failed to open file: %1").arg(fileName).toStdString());
     }
 
-    WavAudioFormat format;
+    AudioFormat format;
     format.kfr_format.channels = wav.channels;
     format.kfr_format.samplerate = wav.sampleRate;
     format.length = wav.totalPCMFrameCount;
@@ -102,42 +116,42 @@ WavAudioFormat readWavFormat(const QString &fileName)
 
     // Map container format
     if (wav.container == drwav_container_riff)
-        format.container = WavAudioFormat::Container::RIFF;
+        format.container = AudioFormat::Container::RIFF;
     else if (wav.container == drwav_container_rifx)
-        format.container = WavAudioFormat::Container::RIFX;
+        format.container = AudioFormat::Container::RIFX;
     else if (wav.container == drwav_container_w64)
-        format.container = WavAudioFormat::Container::W64;
+        format.container = AudioFormat::Container::W64;
     else if (wav.container == drwav_container_rf64)
-        format.container = WavAudioFormat::Container::RF64;
+        format.container = AudioFormat::Container::RF64;
     else if (wav.container == drwav_container_aiff)
-        format.container = WavAudioFormat::Container::AIFF;
+        format.container = AudioFormat::Container::AIFF;
     else
-        format.container = WavAudioFormat::Container::Unknown;
+        format.container = AudioFormat::Container::Unknown;
 
     drwav_uninit(&wav);
     return format;
 }
 
-static WavAudioFormat readWavFormatFromInitialized(const drwav &wav)
+static AudioFormat readAudioFormatFromInitialized(const drwav &wav)
 {
-    WavAudioFormat format;
+    AudioFormat format;
     format.kfr_format.channels = wav.channels;
     format.kfr_format.samplerate = wav.sampleRate;
     format.length = wav.totalPCMFrameCount;
     format.kfr_format.type = mapDrWavToKfrType(wav.translatedFormatTag, wav.bitsPerSample, wav.bitsPerSample);
 
     if (wav.container == drwav_container_riff)
-        format.container = WavAudioFormat::Container::RIFF;
+        format.container = AudioFormat::Container::RIFF;
     else if (wav.container == drwav_container_rifx)
-        format.container = WavAudioFormat::Container::RIFX;
+        format.container = AudioFormat::Container::RIFX;
     else if (wav.container == drwav_container_w64)
-        format.container = WavAudioFormat::Container::W64;
+        format.container = AudioFormat::Container::W64;
     else if (wav.container == drwav_container_rf64)
-        format.container = WavAudioFormat::Container::RF64;
+        format.container = AudioFormat::Container::RF64;
     else if (wav.container == drwav_container_aiff)
-        format.container = WavAudioFormat::Container::AIFF;
+        format.container = AudioFormat::Container::AIFF;
     else
-        format.container = WavAudioFormat::Container::Unknown;
+        format.container = AudioFormat::Container::Unknown;
 
     return format;
 }
@@ -165,7 +179,7 @@ ReadResultF32 readWavFileF32(const QString &fileName)
     }
 
     ReadResultF32 result;
-    result.format = readWavFormatFromInitialized(wav);
+    result.format = readAudioFormatFromInitialized(wav);
 
     std::vector<float> interleavedBuffer(wav.totalPCMFrameCount * wav.channels);
     drwav_uint64 framesRead = drwav_read_pcm_frames_f32(&wav, wav.totalPCMFrameCount, interleavedBuffer.data());
@@ -185,7 +199,7 @@ ReadResultF64 readWavFileF64(const QString &fileName)
     }
 
     ReadResultF64 result;
-    result.format = readWavFormatFromInitialized(wav);
+    result.format = readAudioFormatFromInitialized(wav);
 
     // This dr_wav version does not provide a direct f64 decode helper.
     // Decode to f32 then promote to double for internal processing.
@@ -202,19 +216,19 @@ ReadResultF64 readWavFileF64(const QString &fileName)
     return result;
 }
 
-static drwav_data_format toDrWavDataFormat(const WavAudioFormat &targetFormat)
+static drwav_data_format toDrWavDataFormat(const AudioFormat &targetFormat)
 {
     drwav_data_format format;
     format.container = drwav_container_riff; // Default
-    if (targetFormat.container == WavAudioFormat::Container::RIFF)
+    if (targetFormat.container == AudioFormat::Container::RIFF)
         format.container = drwav_container_riff;
-    else if (targetFormat.container == WavAudioFormat::Container::RIFX)
+    else if (targetFormat.container == AudioFormat::Container::RIFX)
         format.container = drwav_container_rifx;
-    else if (targetFormat.container == WavAudioFormat::Container::W64)
+    else if (targetFormat.container == AudioFormat::Container::W64)
         format.container = drwav_container_w64;
-    else if (targetFormat.container == WavAudioFormat::Container::RF64)
+    else if (targetFormat.container == AudioFormat::Container::RF64)
         format.container = drwav_container_rf64;
-    else if (targetFormat.container == WavAudioFormat::Container::AIFF)
+    else if (targetFormat.container == AudioFormat::Container::AIFF)
         format.container = drwav_container_aiff;
 
     format.format = DR_WAVE_FORMAT_PCM;
@@ -263,15 +277,14 @@ template <typename T> static void interleaveFrom(std::vector<T> &dst, const kfr:
 static drwav initWriterOrThrow(drwav_data_format &format, const QString &fileName, size_t frameCount)
 {
     drwav wav;
-    if (!drwav_init_file_write_sequential_pcm_frames_compat(&wav, fileName, &format, frameCount, nullptr))
-    {
+    if (!drwav_init_file_write_sequential_pcm_frames_compat(&wav, fileName, &format, frameCount, nullptr)) {
         throw std::runtime_error(
             QCoreApplication::translate("AudioIO", "Failed to open file for writing: %1").arg(fileName).toStdString());
     }
     return wav;
 }
 
-size_t writeWavFileF32(const QString &fileName, const kfr::univector2d<float> &data, const WavAudioFormat &targetFormat)
+size_t writeWavFileF32(const QString &fileName, const kfr::univector2d<float> &data, const AudioFormat &targetFormat)
 {
     if (data.empty())
         return 0;
@@ -313,8 +326,7 @@ size_t writeWavFileF32(const QString &fileName, const kfr::univector2d<float> &d
     return written * channels;
 }
 
-size_t writeWavFileF64(const QString &fileName, const kfr::univector2d<double> &data,
-                       const WavAudioFormat &targetFormat)
+size_t writeWavFileF64(const QString &fileName, const kfr::univector2d<double> &data, const AudioFormat &targetFormat)
 {
     if (data.empty())
         return 0;
@@ -363,21 +375,343 @@ size_t writeWavFileF64(const QString &fileName, const kfr::univector2d<double> &
     return written * channels;
 }
 
-size_t writeWavFileF32(const QString &fileName, const kfr::univector2d<float> &data,
-                       const kfr::audio_format &targetFormat)
+// ---------- FLAC-specific implementation (via libFLAC) ----------
+
+static kfr::audio_sample_type mapFlacBitsToKfrType(unsigned bitsPerSample)
 {
-    WavAudioFormat fmt;
-    fmt.kfr_format = targetFormat;
-    fmt.container = WavAudioFormat::Container::RIFF; // Default
-    return writeWavFileF32(fileName, data, fmt);
+    if (bitsPerSample <= 16)
+        return kfr::audio_sample_type::i16;
+    if (bitsPerSample <= 24)
+        return kfr::audio_sample_type::i24;
+    return kfr::audio_sample_type::i32;
 }
 
-size_t writeWavFileF64(const QString &fileName, const kfr::univector2d<double> &data,
-                       const kfr::audio_format &targetFormat)
+static unsigned kfrTypeToFlacBits(kfr::audio_sample_type type)
 {
-    WavAudioFormat fmt;
+    switch (type) {
+    case kfr::audio_sample_type::i16:
+        return 16;
+    case kfr::audio_sample_type::i24:
+        return 24;
+    case kfr::audio_sample_type::i32:
+        return 32;
+    default:
+        return 24; // safe default
+    }
+}
+
+// Read FLAC format metadata only
+static AudioFormat readFlacFormat(const QString &fileName)
+{
+    struct FlacMetadata
+    {
+        AudioFormat format;
+        bool gotStreamInfo = false;
+    };
+
+    FlacMetadata meta;
+
+    auto *decoder = FLAC__stream_decoder_new();
+    if (!decoder) {
+        throw std::runtime_error(QCoreApplication::translate("AudioIO", "Failed to create FLAC decoder for: %1")
+                                     .arg(fileName)
+                                     .toStdString());
+    }
+
+    auto metadataCallback = [](const FLAC__StreamDecoder *, const FLAC__StreamMetadata *metadata, void *clientData) {
+        auto *m = static_cast<FlacMetadata *>(clientData);
+        if (metadata->type == FLAC__METADATA_TYPE_STREAMINFO) {
+            const auto &info = metadata->data.stream_info;
+            m->format.kfr_format.samplerate = info.sample_rate;
+            m->format.kfr_format.channels = info.channels;
+            m->format.kfr_format.type = mapFlacBitsToKfrType(info.bits_per_sample);
+            m->format.length = static_cast<qint64>(info.total_samples);
+            m->format.container = AudioFormat::Container::FLAC;
+            m->gotStreamInfo = true;
+        }
+    };
+
+    auto errorCallback = [](const FLAC__StreamDecoder *, FLAC__StreamDecoderErrorStatus, void *) {
+    };
+
+    // We don't need a write callback since we only read metadata
+    auto writeCallback = [](const FLAC__StreamDecoder *, const FLAC__Frame *, const FLAC__int32 *const *,
+                            void *) -> FLAC__StreamDecoderWriteStatus {
+        return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT; // Stop after metadata
+    };
+
+    QByteArray path = fileName.toUtf8();
+    auto initStatus = FLAC__stream_decoder_init_file(decoder, path.constData(), writeCallback, metadataCallback,
+                                                     errorCallback, &meta);
+    if (initStatus != FLAC__STREAM_DECODER_INIT_STATUS_OK) {
+        FLAC__stream_decoder_delete(decoder);
+        throw std::runtime_error(
+            QCoreApplication::translate("AudioIO", "Failed to open FLAC file: %1").arg(fileName).toStdString());
+    }
+
+    FLAC__stream_decoder_process_until_end_of_metadata(decoder);
+    FLAC__stream_decoder_finish(decoder);
+    FLAC__stream_decoder_delete(decoder);
+
+    if (!meta.gotStreamInfo) {
+        throw std::runtime_error(QCoreApplication::translate("AudioIO", "Failed to read FLAC metadata from: %1")
+                                     .arg(fileName)
+                                     .toStdString());
+    }
+
+    return meta.format;
+}
+
+// Helper struct for FLAC decoding context
+template <typename T> struct FlacDecodeContext
+{
+    kfr::univector2d<T> data;
+    AudioFormat format;
+    unsigned bitsPerSample = 0;
+    bool gotStreamInfo = false;
+    size_t writePos = 0;
+    QString errorMsg;
+};
+
+template <typename T>
+static FLAC__StreamDecoderWriteStatus flacWriteCallback(const FLAC__StreamDecoder *, const FLAC__Frame *frame,
+                                                        const FLAC__int32 *const buffer[], void *clientData)
+{
+    auto *ctx = static_cast<FlacDecodeContext<T> *>(clientData);
+    unsigned channels = frame->header.channels;
+    unsigned blocksize = frame->header.blocksize;
+    unsigned bps = ctx->bitsPerSample;
+
+    // Scale factor: FLAC delivers samples as signed integers in FLAC__int32.
+    // We need to normalize to [-1.0, 1.0) range.
+    double scale = 1.0 / static_cast<double>(1ULL << (bps - 1));
+
+    for (unsigned c = 0; c < channels && c < ctx->data.size(); ++c) {
+        for (unsigned i = 0; i < blocksize; ++i) {
+            size_t pos = ctx->writePos + i;
+            if (pos < ctx->data[c].size()) {
+                ctx->data[c][pos] = static_cast<T>(buffer[c][i] * scale);
+            }
+        }
+    }
+    ctx->writePos += blocksize;
+    return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
+}
+
+template <typename T>
+static void flacMetadataCallback(const FLAC__StreamDecoder *, const FLAC__StreamMetadata *metadata, void *clientData)
+{
+    auto *ctx = static_cast<FlacDecodeContext<T> *>(clientData);
+    if (metadata->type == FLAC__METADATA_TYPE_STREAMINFO) {
+        const auto &info = metadata->data.stream_info;
+        ctx->format.kfr_format.samplerate = info.sample_rate;
+        ctx->format.kfr_format.channels = info.channels;
+        ctx->format.kfr_format.type = mapFlacBitsToKfrType(info.bits_per_sample);
+        ctx->format.length = static_cast<qint64>(info.total_samples);
+        ctx->format.container = AudioFormat::Container::FLAC;
+        ctx->bitsPerSample = info.bits_per_sample;
+        ctx->gotStreamInfo = true;
+
+        // Pre-allocate output buffers
+        ctx->data.resize(info.channels);
+        for (unsigned c = 0; c < info.channels; ++c) {
+            ctx->data[c].resize(info.total_samples);
+        }
+    }
+}
+
+template <typename T>
+static void flacErrorCallback(const FLAC__StreamDecoder *, FLAC__StreamDecoderErrorStatus status, void *clientData)
+{
+    auto *ctx = static_cast<FlacDecodeContext<T> *>(clientData);
+    ctx->errorMsg = QString("FLAC decode error: %1").arg(static_cast<int>(status));
+}
+
+template <typename T> static auto readFlacFileTyped(const QString &fileName)
+{
+    FlacDecodeContext<T> ctx;
+
+    auto *decoder = FLAC__stream_decoder_new();
+    if (!decoder) {
+        throw std::runtime_error(QCoreApplication::translate("AudioIO", "Failed to create FLAC decoder for: %1")
+                                     .arg(fileName)
+                                     .toStdString());
+    }
+
+    QByteArray path = fileName.toUtf8();
+    auto initStatus = FLAC__stream_decoder_init_file(decoder, path.constData(), flacWriteCallback<T>,
+                                                     flacMetadataCallback<T>, flacErrorCallback<T>, &ctx);
+    if (initStatus != FLAC__STREAM_DECODER_INIT_STATUS_OK) {
+        FLAC__stream_decoder_delete(decoder);
+        throw std::runtime_error(
+            QCoreApplication::translate("AudioIO", "Failed to open FLAC file: %1").arg(fileName).toStdString());
+    }
+
+    if (!FLAC__stream_decoder_process_until_end_of_stream(decoder)) {
+        FLAC__stream_decoder_finish(decoder);
+        FLAC__stream_decoder_delete(decoder);
+        if (!ctx.errorMsg.isEmpty()) {
+            throw std::runtime_error(ctx.errorMsg.toStdString());
+        }
+        throw std::runtime_error(
+            QCoreApplication::translate("AudioIO", "Failed to decode FLAC file: %1").arg(fileName).toStdString());
+    }
+
+    FLAC__stream_decoder_finish(decoder);
+    FLAC__stream_decoder_delete(decoder);
+
+    // Trim buffers to actual write position (in case total_samples was 0/unknown)
+    for (size_t c = 0; c < ctx.data.size(); ++c) {
+        if (ctx.data[c].size() > ctx.writePos) {
+            ctx.data[c].resize(ctx.writePos);
+        }
+    }
+    ctx.format.length = static_cast<qint64>(ctx.writePos);
+
+    return ctx;
+}
+
+static ReadResultF32 readFlacFileF32(const QString &fileName)
+{
+    auto ctx = readFlacFileTyped<float>(fileName);
+    return {std::move(ctx.data), ctx.format};
+}
+
+static ReadResultF64 readFlacFileF64(const QString &fileName)
+{
+    auto ctx = readFlacFileTyped<double>(fileName);
+    return {std::move(ctx.data), ctx.format};
+}
+
+// Write FLAC file from interleaved float/double data
+template <typename T>
+static size_t writeFlacFileTyped(const QString &fileName, const kfr::univector2d<T> &data,
+                                 const AudioFormat &targetFormat)
+{
+    if (data.empty())
+        return 0;
+
+    size_t frameCount = data[0].size();
+    size_t channels = data.size();
+    unsigned bitsPerSample = kfrTypeToFlacBits(targetFormat.kfr_format.type);
+
+    auto *encoder = FLAC__stream_encoder_new();
+    if (!encoder) {
+        throw std::runtime_error(QCoreApplication::translate("AudioIO", "Failed to create FLAC encoder for: %1")
+                                     .arg(fileName)
+                                     .toStdString());
+    }
+
+    FLAC__stream_encoder_set_channels(encoder, static_cast<unsigned>(channels));
+    FLAC__stream_encoder_set_bits_per_sample(encoder, bitsPerSample);
+    FLAC__stream_encoder_set_sample_rate(encoder, static_cast<unsigned>(targetFormat.kfr_format.samplerate));
+    FLAC__stream_encoder_set_compression_level(encoder, 5); // Default compression
+    FLAC__stream_encoder_set_total_samples_estimate(encoder, static_cast<FLAC__uint64>(frameCount));
+
+    QByteArray path = fileName.toUtf8();
+    auto initStatus = FLAC__stream_encoder_init_file(encoder, path.constData(), nullptr, nullptr);
+    if (initStatus != FLAC__STREAM_ENCODER_INIT_STATUS_OK) {
+        FLAC__stream_encoder_delete(encoder);
+        throw std::runtime_error(QCoreApplication::translate("AudioIO", "Failed to open FLAC file for writing: %1")
+                                     .arg(fileName)
+                                     .toStdString());
+    }
+
+    // Convert float/double data to FLAC__int32 interleaved and encode in chunks
+    constexpr size_t chunkFrames = 4096;
+    double scale = static_cast<double>(1ULL << (bitsPerSample - 1));
+    double maxVal = scale - 1.0;
+    double minVal = -scale;
+
+    std::vector<FLAC__int32> buffer(chunkFrames * channels);
+
+    for (size_t offset = 0; offset < frameCount; offset += chunkFrames) {
+        size_t thisChunk = std::min(chunkFrames, frameCount - offset);
+
+        for (size_t i = 0; i < thisChunk; ++i) {
+            for (size_t c = 0; c < channels; ++c) {
+                double sample = static_cast<double>(data[c][offset + i]);
+                // Scale and clamp
+                double scaled = sample * scale;
+                if (scaled > maxVal)
+                    scaled = maxVal;
+                if (scaled < minVal)
+                    scaled = minVal;
+                buffer[i * channels + c] = static_cast<FLAC__int32>(scaled);
+            }
+        }
+
+        if (!FLAC__stream_encoder_process_interleaved(encoder, buffer.data(), static_cast<unsigned>(thisChunk))) {
+            FLAC__stream_encoder_finish(encoder);
+            FLAC__stream_encoder_delete(encoder);
+            throw std::runtime_error(
+                QCoreApplication::translate("AudioIO", "FLAC encoding error writing: %1").arg(fileName).toStdString());
+        }
+    }
+
+    FLAC__stream_encoder_finish(encoder);
+    FLAC__stream_encoder_delete(encoder);
+
+    return frameCount * channels;
+}
+
+// ---------- Public dispatch functions ----------
+
+AudioFormat readAudioFormat(const QString &fileName)
+{
+    if (isFlacFileName(fileName)) {
+        return readFlacFormat(fileName);
+    }
+    return readWavFormat(fileName);
+}
+
+ReadResultF32 readAudioFileF32(const QString &fileName)
+{
+    if (isFlacFileName(fileName)) {
+        return readFlacFileF32(fileName);
+    }
+    return readWavFileF32(fileName);
+}
+
+ReadResultF64 readAudioFileF64(const QString &fileName)
+{
+    if (isFlacFileName(fileName)) {
+        return readFlacFileF64(fileName);
+    }
+    return readWavFileF64(fileName);
+}
+
+size_t writeAudioFileF32(const QString &fileName, const kfr::univector2d<float> &data, const AudioFormat &targetFormat)
+{
+    if (targetFormat.isFlac()) {
+        return writeFlacFileTyped(fileName, data, targetFormat);
+    }
+    return writeWavFileF32(fileName, data, targetFormat);
+}
+
+size_t writeAudioFileF64(const QString &fileName, const kfr::univector2d<double> &data, const AudioFormat &targetFormat)
+{
+    if (targetFormat.isFlac()) {
+        return writeFlacFileTyped(fileName, data, targetFormat);
+    }
+    return writeWavFileF64(fileName, data, targetFormat);
+}
+
+size_t writeAudioFileF32(const QString &fileName, const kfr::univector2d<float> &data,
+                         const kfr::audio_format &targetFormat)
+{
+    AudioFormat fmt;
     fmt.kfr_format = targetFormat;
-    fmt.container = WavAudioFormat::Container::RIFF; // Default
-    return writeWavFileF64(fileName, data, fmt);
+    fmt.container = AudioFormat::Container::RIFF; // Default
+    return writeAudioFileF32(fileName, data, fmt);
+}
+
+size_t writeAudioFileF64(const QString &fileName, const kfr::univector2d<double> &data,
+                         const kfr::audio_format &targetFormat)
+{
+    AudioFormat fmt;
+    fmt.kfr_format = targetFormat;
+    fmt.container = AudioFormat::Container::RIFF; // Default
+    return writeAudioFileF64(fileName, data, fmt);
 }
 } // namespace AudioIO

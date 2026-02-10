@@ -1,6 +1,8 @@
 #include "WavExtract.h"
 
+#include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QtConcurrent/QtConcurrent>
@@ -13,7 +15,7 @@
 
 using namespace utils;
 
-namespace WAVExtract {
+namespace AudioExtract {
 
 CheckResult preCheck(QString srcWAVFileName, QString dstDirName)
 {
@@ -63,9 +65,8 @@ CheckResult preCheck(QString srcWAVFileName, QString dstDirName)
     int version = root["version"].toInt();
     if (version != 3 && version != 4 && version != 5) {
         return {CheckPassType::CRITICAL,
-                QCoreApplication::translate(
-                    "WAVExtract",
-                    "<p class='critical'>Description file \"%1\" has unsupported version %2. Expected version 3, 4, or 5.</p>")
+                QCoreApplication::translate("WAVExtract", "<p class='critical'>Description file \"%1\" has unsupported "
+                                                          "version %2. Expected version 3, 4, or 5.</p>")
                     .arg(descFileName)
                     .arg(version),
                 {}};
@@ -79,9 +80,9 @@ CheckResult preCheck(QString srcWAVFileName, QString dstDirName)
             for (int i = 0; i < volumeCount; ++i) {
                 QString volFile = utils::getVolumeFileName(srcWAVFileName, i);
                 if (!QFile::exists(volFile)) {
-                    missingFiles += QCoreApplication::translate(
-                                        "WAVExtract", "<p class='critical'>Missing volume file: \"%1\"</p>")
-                                        .arg(volFile);
+                    missingFiles +=
+                        QCoreApplication::translate("WAVExtract", "<p class='critical'>Missing volume file: \"%1\"</p>")
+                            .arg(volFile);
                 }
             }
             if (!missingFiles.isEmpty()) {
@@ -93,7 +94,7 @@ CheckResult preCheck(QString srcWAVFileName, QString dstDirName)
     return {CheckPassType::OK, "", root};
 }
 
-SrcData readSrcWAVFile(QString srcWAVFileName, QJsonObject descRoot, AudioIO::WavAudioFormat targetFormat)
+SrcData readSrcAudioFile(QString srcWAVFileName, QJsonObject descRoot, AudioIO::AudioFormat targetFormat)
 {
     int volumeCount = descRoot["volume_count"].toInt(1);
     double sampleRate = descRoot["sample_rate"].toDouble();
@@ -102,19 +103,19 @@ SrcData readSrcWAVFile(QString srcWAVFileName, QJsonObject descRoot, AudioIO::Wa
     const bool forceDouble = utils::shouldUseDoubleInternalProcessing(targetFormat.kfr_format.type);
     bool useDouble = forceDouble;
     if (!useDouble && targetFormat.kfr_format.type == kfr::audio_sample_type::unknown) {
-        auto srcFormat = AudioIO::readWavFormat(srcWAVFileName);
+        auto srcFormat = AudioIO::readAudioFormat(srcWAVFileName);
         useDouble = utils::shouldUseDoubleInternalProcessing(srcFormat.kfr_format.type);
     }
 
     // Single volume (v3/v4 or v5 with volume_count <= 1): existing logic
     if (volumeCount <= 1) {
         if (useDouble) {
-            auto result = AudioIO::readWavFileF64(srcWAVFileName);
+            auto result = AudioIO::readAudioFileF64(srcWAVFileName);
             auto srcData = std::make_shared<kfr::univector2d<double>>(std::move(result.data));
             return {utils::AudioBufferPtr{srcData}, result.format.kfr_format.samplerate,
                     descRoot["descriptions"].toArray()};
         }
-        auto result = AudioIO::readWavFileF32(srcWAVFileName);
+        auto result = AudioIO::readAudioFileF32(srcWAVFileName);
         auto srcData = std::make_shared<kfr::univector2d<float>>(std::move(result.data));
         return {utils::AudioBufferPtr{srcData}, result.format.kfr_format.samplerate,
                 descRoot["descriptions"].toArray()};
@@ -138,7 +139,7 @@ SrcData readSrcWAVFile(QString srcWAVFileName, QJsonObject descRoot, AudioIO::Wa
             volumeOffsets.append(cumulativeOffset);
 
             if constexpr (std::is_same_v<T, double>) {
-                auto result = AudioIO::readWavFileF64(volFile);
+                auto result = AudioIO::readAudioFileF64(volFile);
                 if (v == 0) {
                     nChannels = result.data.size();
                     concatenated->resize(nChannels);
@@ -147,12 +148,11 @@ SrcData readSrcWAVFile(QString srcWAVFileName, QJsonObject descRoot, AudioIO::Wa
                 for (size_t c = 0; c < nChannels; ++c) {
                     size_t prevSize = (*concatenated)[c].size();
                     (*concatenated)[c].resize(prevSize + volLen);
-                    std::copy(result.data[c].begin(), result.data[c].end(),
-                              (*concatenated)[c].begin() + prevSize);
+                    std::copy(result.data[c].begin(), result.data[c].end(), (*concatenated)[c].begin() + prevSize);
                 }
                 cumulativeOffset += static_cast<qint64>(volLen);
             } else {
-                auto result = AudioIO::readWavFileF32(volFile);
+                auto result = AudioIO::readAudioFileF32(volFile);
                 if (v == 0) {
                     nChannels = result.data.size();
                     concatenated->resize(nChannels);
@@ -161,8 +161,7 @@ SrcData readSrcWAVFile(QString srcWAVFileName, QJsonObject descRoot, AudioIO::Wa
                 for (size_t c = 0; c < nChannels; ++c) {
                     size_t prevSize = (*concatenated)[c].size();
                     (*concatenated)[c].resize(prevSize + volLen);
-                    std::copy(result.data[c].begin(), result.data[c].end(),
-                              (*concatenated)[c].begin() + prevSize);
+                    std::copy(result.data[c].begin(), result.data[c].end(), (*concatenated)[c].begin() + prevSize);
                 }
                 cumulativeOffset += static_cast<qint64>(volLen);
             }
@@ -192,7 +191,7 @@ SrcData readSrcWAVFile(QString srcWAVFileName, QJsonObject descRoot, AudioIO::Wa
 QFuture<ExtractErrorDescription> startExtract(utils::AudioBufferPtr srcData,
                                               decltype(kfr::audio_format::samplerate) srcSampleRate,
                                               QJsonArray descArray, QString dstDirName,
-                                              AudioIO::WavAudioFormat targetFormat, bool removeDCOffset,
+                                              AudioIO::AudioFormat targetFormat, bool removeDCOffset,
                                               ExtractGapMode gapMode, const QString &gapDurationTimecode)
 {
     // Process in parallel
@@ -201,10 +200,9 @@ QFuture<ExtractErrorDescription> startExtract(utils::AudioBufferPtr srcData,
     for (auto x : descArray)
         jobs.append(x.toObject());
 
-    const qint64 gapSamples =
-        (gapMode == ExtractGapMode::IncludeSpace && !gapDurationTimecode.isEmpty())
-            ? timecodeToSamples(gapDurationTimecode, srcSampleRate)
-            : 0;
+    const qint64 gapSamples = (gapMode == ExtractGapMode::IncludeSpace && !gapDurationTimecode.isEmpty())
+                                  ? timecodeToSamples(gapDurationTimecode, srcSampleRate)
+                                  : 0;
 
     return QtConcurrent::mapped(
         jobs, std::function([srcData, srcSampleRate, dstDirName, targetFormat, removeDCOffset, gapMode,
@@ -263,7 +261,7 @@ QFuture<ExtractErrorDescription> startExtract(utils::AudioBufferPtr srcData,
                         }
 
                         // Determine Output Format
-                        AudioIO::WavAudioFormat outputFormat;
+                        AudioIO::AudioFormat outputFormat;
                         // If targetFormat type is unknown, use original from json
                         if (targetFormat.kfr_format.type == kfr::audio_sample_type::unknown) {
                             outputFormat.kfr_format.type = (kfr::audio_sample_type)descObj["sample_type"].toInt();
@@ -317,15 +315,26 @@ QFuture<ExtractErrorDescription> startExtract(utils::AudioBufferPtr srcData,
                         // Determine container format (inherit if all fields are inherited)
                         bool useOriginalFormat = inheritSampleRate && inheritSampleType && inheritChannels;
                         if (useOriginalFormat) {
-                            int wfmt = descObj["wav_format"].toInt();
-                            if (wfmt == 0)
-                                outputFormat.container = AudioIO::WavAudioFormat::Container::RIFF;
-                            else if (wfmt == 1)
-                                outputFormat.container = AudioIO::WavAudioFormat::Container::W64;
-                            else if (wfmt == 2)
-                                outputFormat.container = AudioIO::WavAudioFormat::Container::RF64;
-                            else
-                                outputFormat.container = AudioIO::WavAudioFormat::Container::RIFF;
+                            // Read container_format (new) with wav_format (legacy) fallback
+                            int cfmt = descObj.contains("container_format") ? descObj["container_format"].toInt()
+                                                                            : descObj["wav_format"].toInt();
+                            switch (cfmt) {
+                            case 0:
+                                outputFormat.container = AudioIO::AudioFormat::Container::RIFF;
+                                break;
+                            case 1:
+                                outputFormat.container = AudioIO::AudioFormat::Container::W64;
+                                break;
+                            case 2:
+                                outputFormat.container = AudioIO::AudioFormat::Container::RF64;
+                                break;
+                            case 3:
+                                outputFormat.container = AudioIO::AudioFormat::Container::FLAC;
+                                break;
+                            default:
+                                outputFormat.container = AudioIO::AudioFormat::Container::RIFF;
+                                break;
+                            }
                         } else {
                             outputFormat.container = targetFormat.container;
                         }
@@ -364,11 +373,19 @@ QFuture<ExtractErrorDescription> startExtract(utils::AudioBufferPtr srcData,
 
                         // Write File
                         QString outFileName = dstDirName + "/" + relativePath;
+                        // Adjust file extension based on output container format
+                        if (outputFormat.isFlac() && !outFileName.endsWith(".flac", Qt::CaseInsensitive)) {
+                            outFileName = QFileInfo(outFileName).path() + "/" +
+                                          QFileInfo(outFileName).completeBaseName() + ".flac";
+                        } else if (!outputFormat.isFlac() && !outFileName.endsWith(".wav", Qt::CaseInsensitive)) {
+                            outFileName = QFileInfo(outFileName).path() + "/" +
+                                          QFileInfo(outFileName).completeBaseName() + ".wav";
+                        }
                         QDir().mkpath(QFileInfo(outFileName).absolutePath());
 
                         if (utils::shouldUseDoubleInternalProcessing(outputFormat.kfr_format.type)) {
                             if constexpr (std::is_same_v<T, double>)
-                                AudioIO::writeWavFileF64(outFileName, finalData, outputFormat);
+                                AudioIO::writeAudioFileF64(outFileName, finalData, outputFormat);
                             else {
                                 // output is f64 but internal is f32: promote for write
                                 kfr::univector2d<double> promoted(finalData.size());
@@ -377,11 +394,11 @@ QFuture<ExtractErrorDescription> startExtract(utils::AudioBufferPtr srcData,
                                     for (size_t i = 0; i < finalData[c].size(); ++i)
                                         promoted[c][i] = finalData[c][i];
                                 }
-                                AudioIO::writeWavFileF64(outFileName, promoted, outputFormat);
+                                AudioIO::writeAudioFileF64(outFileName, promoted, outputFormat);
                             }
                         } else {
                             if constexpr (std::is_same_v<T, float>)
-                                AudioIO::writeWavFileF32(outFileName, finalData, outputFormat);
+                                AudioIO::writeAudioFileF32(outFileName, finalData, outputFormat);
                             else {
                                 // downcast for non-f64 output
                                 kfr::univector2d<float> downcast(finalData.size());
@@ -390,7 +407,7 @@ QFuture<ExtractErrorDescription> startExtract(utils::AudioBufferPtr srcData,
                                     for (size_t i = 0; i < finalData[c].size(); ++i)
                                         downcast[c][i] = static_cast<float>(finalData[c][i]);
                                 }
-                                AudioIO::writeWavFileF32(outFileName, downcast, outputFormat);
+                                AudioIO::writeAudioFileF32(outFileName, downcast, outputFormat);
                             }
                         }
 
@@ -405,4 +422,4 @@ QFuture<ExtractErrorDescription> startExtract(utils::AudioBufferPtr srcData,
             }
         }));
 }
-} // namespace WAVExtract
+} // namespace AudioExtract

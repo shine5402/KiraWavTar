@@ -17,7 +17,7 @@ class WavExtractDialog : public QDialog
     Q_OBJECT
 
 public:
-    WavExtractDialog(QString srcWAVFileName, QString dstDirName, const AudioIO::WavAudioFormat &targetFormat,
+    WavExtractDialog(QString srcWAVFileName, QString dstDirName, const AudioIO::AudioFormat &targetFormat,
                      bool extractResultSelection, bool removeDCOffset, QWidget *parent);
 
 public slots:
@@ -34,7 +34,7 @@ private:
 private slots:
     void startWork();
     void preCheckDone();
-    void readSrcWAVFileDone();
+    void readSrcAudioFileDone();
     void extractWorkDone();
 
 private:
@@ -44,10 +44,10 @@ private:
 
     QString m_srcWAVFileName;
     QString m_dstDirName;
-    AudioIO::WavAudioFormat m_targetFormat;
+    AudioIO::AudioFormat m_targetFormat;
     bool m_extractResultSelection;
     bool m_removeDCOffset;
-    WAVExtract::ExtractGapMode m_extractGapMode = WAVExtract::ExtractGapMode::OriginalRange;
+    AudioExtract::ExtractGapMode m_extractGapMode = AudioExtract::ExtractGapMode::OriginalRange;
     QString m_gapDurationTimecode;
     QStringList m_allVolumeFiles;
 };

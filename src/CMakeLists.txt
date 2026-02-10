@@ -18,6 +18,7 @@ target_link_libraries(KiraWAVTar PRIVATE
     Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Concurrent Qt6::Network
     kfr kfr_dsp
     dr_libs
+    FLAC
 )
 
 set_target_properties(KiraWAVTar PROPERTIES

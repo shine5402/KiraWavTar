@@ -69,7 +69,7 @@ using AudioBufferPtr = std::variant<std::shared_ptr<AudioBufferF32>, std::shared
 
 inline bool shouldUseDoubleInternalProcessing(kfr::audio_sample_type outputType)
 {
-    return outputType == kfr::audio_sample_type::f64;
+    return outputType == kfr::audio_sample_type::f64 || outputType == kfr::audio_sample_type::i32;
 }
 
 // Sample rate conversion quality is configurable via UI.
@@ -89,7 +89,6 @@ struct VolumeConfig
 };
 
 QString getVolumeFileName(const QString &baseWavFileName, int volumeIndex);
-
 
 constexpr auto reportTextStyle = R"(<style>
 .critical{

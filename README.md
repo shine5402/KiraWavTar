@@ -1,6 +1,6 @@
 # <img src="assets/icon.svg" alt="KiraWAVTar logo" width="48" /> KiraWAVTar
 
-Fast, easy-to-use utility for combining and splitting WAV files, offering a streamlined alternative for batch audio processing.
+Fast, easy-to-use utility for combining and splitting audio files (WAV and FLAC), offering a streamlined alternative for batch audio processing.
 
 ## Usage
 
@@ -20,9 +20,9 @@ Professional software like Adobe Audition or iZotope RX provides built-in batch 
 
 #### Basic workflow
 
-![KiraWAVTar workflow](docs/images/workflow.gif)
+![KiraWAVTar workflow](docs/images/workflow.png)
 
-Organize your WAV files in a folder (any subfolder structure is supported), use the **Combine** page to merge them into a single file, apply your edits in your preferred software, then split them back out using the **Extract** page.
+Organize your audio files (WAV or FLAC) in a folder (any subfolder structure is supported), use the **Combine** page to merge them into a single file, apply your edits in your preferred software, then split them back out using the **Extract** page.
 
 As shown in the workflow above, you can drag and drop a folder or file directly onto a path input field to set the path quickly.
 
@@ -50,9 +50,13 @@ For reference, on an Intel i7-9750H with a WD MyPassport 25E1, combining 2,000 W
 
 ## Format Support
 
-KiraWAVTar supports reading and writing the following WAV containers: RIFF, RF64, and W64. Other containers (such as AIFF) may work for reading, but have not been tested.
+KiraWAVTar supports reading and writing the following audio formats:
+- **WAV containers:** RIFF, RF64, and W64
+- **FLAC:** Free Lossless Audio Codec (integer sample types only: 16-bit, 24-bit, 32-bit)
 
-Supported bit depths for writing: 8-bit integer, 16-bit integer, 24-bit integer, 32-bit float (IEEE), and 64-bit double (IEEE). Other bit depths (such as 32-bit integer) may work for reading, but have not been tested.
+WAV and FLAC files can be freely mixed as input when combining. Other containers (such as AIFF) may work for reading, but have not been tested.
+
+Supported bit depths for WAV writing: 8-bit integer, 16-bit integer, 24-bit integer, 32-bit integer, 32-bit float (IEEE), and 64-bit double (IEEE). FLAC writing supports 16-bit, 24-bit, and 32-bit integer.
 
 ## Supported Platforms
 
@@ -90,4 +94,5 @@ This project is licensed under the GPL v3 License. See [LICENSE](LICENSE) for de
 - Qt, The Qt Company Ltd, under LGPL v3.
 - KFR - Fast, modern C++ DSP framework, under GNU GPL v2+.
 - dr_wav - Public domain single-header WAV reader/writer library by David Reid.
+- libFLAC - Free Lossless Audio Codec reference library by Xiph.Org Foundation, under BSD license.
 - nwp8861, for the original wavtar program.

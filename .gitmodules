@@ -4,3 +4,6 @@
 [submodule "src/3rdparty/dr_libs"]
 	path = src/3rdparty/dr_libs
 	url = https://github.com/mackron/dr_libs.git
+[submodule "src/3rdparty/flac"]
+	path = src/3rdparty/flac
+	url = https://github.com/xiph/flac.git

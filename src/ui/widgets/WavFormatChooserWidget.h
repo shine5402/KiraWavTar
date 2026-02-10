@@ -35,9 +35,9 @@ public:
     decltype(kfr::audio_format::samplerate) getSampleRate() const;
     decltype(kfr::audio_format::channels) getChannelCount() const;
     decltype(kfr::audio_format::type) getSampleType() const;
-    AudioIO::WavAudioFormat::Container getWAVContainerFormat() const;
+    AudioIO::AudioFormat::Container getContainerFormat() const;
 
-    AudioIO::WavAudioFormat getFormat() const;
+    AudioIO::AudioFormat getFormat() const;
 
     // Sample rate auto mode
     bool isAutoSampleRate() const;
@@ -65,6 +65,7 @@ protected:
 
 private slots:
     void onChannelsComboBoxChanged(int index);
+    void onContainerFormatChanged(int index);
 
 private:
     void setupSampleRateComboBox();

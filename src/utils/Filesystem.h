@@ -3,6 +3,6 @@
 
 #include <QString>
 
-QStringList getAbsoluteWAVFileNamesUnder(QString rootDirName, bool recursive = false);
+QStringList getAbsoluteAudioFileNamesUnder(QString rootDirName, bool recursive = false);
 
 #endif // KIRA_FILESYSTEM_H
