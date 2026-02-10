@@ -1,5 +1,4 @@
 #include "WavExtractDialog.h"
-#include "CommonHtmlDialog.h"
 
 #include <QDialogButtonBox>
 #include <QHeaderView>
@@ -11,6 +10,7 @@
 #include <QVBoxLayout>
 #include <QtConcurrent>
 
+#include "CommonHtmlDialog.h"
 #include "models/ExtractTargetSelectModel.h"
 #include "utils/Utils.h"
 #include "worker/WavExtract.h"
@@ -19,7 +19,7 @@ using namespace AudioExtract;
 using namespace utils;
 
 WavExtractDialog::WavExtractDialog(QString srcWAVFileName, QString dstDirName,
-                                   const AudioIO::AudioFormat &targetFormat, bool extractResultSelection,
+                                   const std::optional<AudioIO::AudioFormat> &targetFormat, bool extractResultSelection,
                                    bool removeDCOffset, QWidget *parent)
     : QDialog(parent), m_srcWAVFileName(srcWAVFileName), m_dstDirName(dstDirName), m_targetFormat(targetFormat),
       m_extractResultSelection(extractResultSelection), m_removeDCOffset(removeDCOffset)
@@ -129,7 +129,6 @@ void WavExtractDialog::preCheckDone()
         }
     }
 }
-
 
 using ExtractWorkFutureWatcher = QFutureWatcher<ExtractErrorDescription>;
 

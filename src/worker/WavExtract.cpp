@@ -94,15 +94,17 @@ CheckResult preCheck(QString srcWAVFileName, QString dstDirName)
     return {CheckPassType::OK, "", root};
 }
 
-SrcData readSrcAudioFile(QString srcWAVFileName, QJsonObject descRoot, AudioIO::AudioFormat targetFormat)
+SrcData readSrcAudioFile(QString srcWAVFileName, QJsonObject descRoot, std::optional<AudioIO::AudioFormat> targetFormat)
 {
     int volumeCount = descRoot["volume_count"].toInt(1);
     double sampleRate = descRoot["sample_rate"].toDouble();
 
     // Decide internal processing precision.
-    const bool forceDouble = utils::shouldUseDoubleInternalProcessing(targetFormat.kfr_format.type);
-    bool useDouble = forceDouble;
-    if (!useDouble && targetFormat.kfr_format.type == kfr::audio_sample_type::unknown) {
+    // When targetFormat is nullopt ("same as source"), infer from the source file.
+    bool useDouble = false;
+    if (targetFormat.has_value() && targetFormat->kfr_format.type != kfr::audio_sample_type::unknown) {
+        useDouble = utils::shouldUseDoubleInternalProcessing(targetFormat->kfr_format.type);
+    } else {
         auto srcFormat = AudioIO::readAudioFormat(srcWAVFileName);
         useDouble = utils::shouldUseDoubleInternalProcessing(srcFormat.kfr_format.type);
     }
@@ -191,7 +193,7 @@ SrcData readSrcAudioFile(QString srcWAVFileName, QJsonObject descRoot, AudioIO::
 QFuture<ExtractErrorDescription> startExtract(utils::AudioBufferPtr srcData,
                                               decltype(kfr::audio_format::samplerate) srcSampleRate,
                                               QJsonArray descArray, QString dstDirName,
-                                              AudioIO::AudioFormat targetFormat, bool removeDCOffset,
+                                              std::optional<AudioIO::AudioFormat> targetFormat, bool removeDCOffset,
                                               ExtractGapMode gapMode, const QString &gapDurationTimecode)
 {
     // Process in parallel
@@ -262,59 +264,12 @@ QFuture<ExtractErrorDescription> startExtract(utils::AudioBufferPtr srcData,
 
                         // Determine Output Format
                         AudioIO::AudioFormat outputFormat;
-                        // If targetFormat type is unknown, use original from json
-                        if (targetFormat.kfr_format.type == kfr::audio_sample_type::unknown) {
-                            outputFormat.kfr_format.type = (kfr::audio_sample_type)descObj["sample_type"].toInt();
-                            // If original also unknown? valid?
-                        } else {
-                            outputFormat.kfr_format.type = targetFormat.kfr_format.type;
-                        }
 
-                        outputFormat.kfr_format.samplerate = srcSampleRate; // Unless resampled (future feature)
-                        // Actually `targetFormat` struct might contain forced sample rate?
-                        // The UI says "Same as source" or "Custom". `invalidFormat` is passed if "Same as source".
-                        // If `invalidFormat` (unknown type), we rely on `descObj`.
-                        // What about sample rate?
-
-                        // IF targetFormat is "valid", we might need resampling!
-                        // The UI logic in MainWindow: "ui->extractFormatCustomChooser->getFormat()".
-                        // If Custom is chosen, user selects rate, channels, type.
-
-                        // So targetFormat is the DESIRED output format.
-                        // If "Same as Source" selected, targetFormat is Invalid/Unknown.
-                        // Individual fields can also be set to "inherit" values:
-                        // - sample rate = 0 means inherit
-                        // - sample type = unknown means inherit
-                        // - channels = 0 means inherit
-
-                        bool inheritSampleRate = (targetFormat.kfr_format.samplerate < 1e-5);
-                        bool inheritSampleType = (targetFormat.kfr_format.type == kfr::audio_sample_type::unknown);
-                        bool inheritChannels = (targetFormat.kfr_format.channels == 0);
-
-                        // Determine sample rate
-                        if (inheritSampleRate) {
+                        if (!targetFormat.has_value()) {
+                            // "Same as source when combining" — inherit everything from description
                             outputFormat.kfr_format.samplerate = descObj["sample_rate"].toDouble();
-                        } else {
-                            outputFormat.kfr_format.samplerate = targetFormat.kfr_format.samplerate;
-                        }
-
-                        // Determine sample type
-                        if (inheritSampleType) {
                             outputFormat.kfr_format.type = (kfr::audio_sample_type)descObj["sample_type"].toInt();
-                        } else {
-                            outputFormat.kfr_format.type = targetFormat.kfr_format.type;
-                        }
-
-                        // Determine channels
-                        if (inheritChannels) {
                             outputFormat.kfr_format.channels = descObj["channel_count"].toInt();
-                        } else {
-                            outputFormat.kfr_format.channels = targetFormat.kfr_format.channels;
-                        }
-
-                        // Determine container format (inherit if all fields are inherited)
-                        bool useOriginalFormat = inheritSampleRate && inheritSampleType && inheritChannels;
-                        if (useOriginalFormat) {
                             // Read container_format (new) with wav_format (legacy) fallback
                             int cfmt = descObj.contains("container_format") ? descObj["container_format"].toInt()
                                                                             : descObj["wav_format"].toInt();
@@ -336,7 +291,34 @@ QFuture<ExtractErrorDescription> startExtract(utils::AudioBufferPtr srcData,
                                 break;
                             }
                         } else {
-                            outputFormat.container = targetFormat.container;
+                            // "Use unified format" — per-field inherit via sentinel values:
+                            //   sample rate = 0 means inherit, type = unknown means inherit, channels = 0 means
+                            //   inherit. Container is always explicitly set by the chooser widget.
+                            const auto &fmt = *targetFormat;
+
+                            // Determine sample rate
+                            if (fmt.kfr_format.samplerate < 1e-5) {
+                                outputFormat.kfr_format.samplerate = descObj["sample_rate"].toDouble();
+                            } else {
+                                outputFormat.kfr_format.samplerate = fmt.kfr_format.samplerate;
+                            }
+
+                            // Determine sample type
+                            if (fmt.kfr_format.type == kfr::audio_sample_type::unknown) {
+                                outputFormat.kfr_format.type = (kfr::audio_sample_type)descObj["sample_type"].toInt();
+                            } else {
+                                outputFormat.kfr_format.type = fmt.kfr_format.type;
+                            }
+
+                            // Determine channels
+                            if (fmt.kfr_format.channels == 0) {
+                                outputFormat.kfr_format.channels = descObj["channel_count"].toInt();
+                            } else {
+                                outputFormat.kfr_format.channels = fmt.kfr_format.channels;
+                            }
+
+                            // Container is always explicit when user chose "Use unified format"
+                            outputFormat.container = fmt.container;
                         }
 
                         // Resample if needed

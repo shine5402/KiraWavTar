@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <kfr/all.hpp>
+#include <optional>
 
 #include "utils/Utils.h"
 #include "worker/AudioIO.h"
@@ -17,8 +18,9 @@ class WavExtractDialog : public QDialog
     Q_OBJECT
 
 public:
-    WavExtractDialog(QString srcWAVFileName, QString dstDirName, const AudioIO::AudioFormat &targetFormat,
-                     bool extractResultSelection, bool removeDCOffset, QWidget *parent);
+    WavExtractDialog(QString srcWAVFileName, QString dstDirName,
+                     const std::optional<AudioIO::AudioFormat> &targetFormat, bool extractResultSelection,
+                     bool removeDCOffset, QWidget *parent);
 
 public slots:
     void open() override;
@@ -44,7 +46,7 @@ private:
 
     QString m_srcWAVFileName;
     QString m_dstDirName;
-    AudioIO::AudioFormat m_targetFormat;
+    std::optional<AudioIO::AudioFormat> m_targetFormat;
     bool m_extractResultSelection;
     bool m_removeDCOffset;
     AudioExtract::ExtractGapMode m_extractGapMode = AudioExtract::ExtractGapMode::OriginalRange;

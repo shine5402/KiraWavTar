@@ -150,6 +150,7 @@ void WAVFormatChooserWidget::onContainerFormatChanged(int /*index*/)
 {
     // Rebuild sample type combobox to reflect integer-only constraint for FLAC
     setupSampleTypeComboBox();
+    emit containerFormatChanged(getContainerFormat());
 }
 
 void WAVFormatChooserWidget::setAutoMode(AutoMode mode)

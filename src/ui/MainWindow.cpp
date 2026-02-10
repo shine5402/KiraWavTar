@@ -69,6 +69,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->combineDirPathWidget, &DirNameEditWithBrowse::dropTriggered, this, &MainWindow::fillResultPath);
     connect(ui->extractSrcPathWidget, &FileNameEditWithBrowse::browseTriggered, this, &MainWindow::fillResultPath);
     connect(ui->extractSrcPathWidget, &FileNameEditWithBrowse::dropTriggered, this, &MainWindow::fillResultPath);
+    connect(ui->combineWAVFormatWidget, &WAVFormatChooserWidget::containerFormatChanged, this,
+            &MainWindow::updateCombineResultExtension);
 
     // Set extract format widget to use "Inherit from input" mode
     ui->extractFormatCustomChooser->setAutoChannelMode(WAVFormatChooserWidget::AutoChannelMode::InheritFromInput);
@@ -312,13 +314,9 @@ void MainWindow::run()
         dialog->setAttribute(Qt::WA_DeleteOnClose, true);
         dialog->open();
     } else {
-        AudioIO::AudioFormat invalidFormat;
-        invalidFormat.kfr_format.type = kfr::audio_sample_type::unknown;
-        invalidFormat.kfr_format.channels = 0;
-        invalidFormat.kfr_format.samplerate = 0;
-
-        auto targetFormat =
-            ui->extractFormatSrcRadioButton->isChecked() ? invalidFormat : ui->extractFormatCustomChooser->getFormat();
+        std::optional<AudioIO::AudioFormat> targetFormat;
+        if (!ui->extractFormatSrcRadioButton->isChecked())
+            targetFormat = ui->extractFormatCustomChooser->getFormat();
         auto srcWAVFileName = ui->extractSrcPathWidget->fileName();
         auto dstDirName = ui->extractResultPathWidget->dirName();
         auto extractResultSelection = ui->extractSelectionCheckBox->isChecked();
@@ -351,6 +349,20 @@ void MainWindow::fillResultPath()
         auto dir = fileInfo.absoluteDir();
         auto baseFileName = fileInfo.completeBaseName();
         ui->extractResultPathWidget->setDirName(dir.absoluteFilePath(baseFileName + "_result"));
+    }
+}
+
+void MainWindow::updateCombineResultExtension()
+{
+    auto currentPath = ui->combineResultPathWidget->fileName();
+    if (currentPath.isEmpty())
+        return;
+    auto fileInfo = QFileInfo(currentPath);
+    auto container = ui->combineWAVFormatWidget->getContainerFormat();
+    QString newExt = (container == AudioIO::AudioFormat::Container::FLAC) ? "flac" : "wav";
+    if (fileInfo.suffix().compare(newExt, Qt::CaseInsensitive) != 0) {
+        auto newPath = fileInfo.path() + "/" + fileInfo.completeBaseName() + "." + newExt;
+        ui->combineResultPathWidget->setFileName(newPath);
     }
 }
 

@@ -57,6 +57,9 @@ public:
 
     void reset();
 
+signals:
+    void containerFormatChanged(AudioIO::AudioFormat::Container container);
+
 public slots:
     void showFormatHelp();
 

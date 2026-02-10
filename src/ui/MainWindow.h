@@ -31,6 +31,7 @@ private slots:
     void updateStackWidgetIndex();
     void run();
     void fillResultPath();
+    void updateCombineResultExtension();
     void about();
 
 private:

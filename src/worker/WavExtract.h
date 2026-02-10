@@ -5,6 +5,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QObject>
+#include <optional>
 
 #include "AudioIO.h"
 #include "utils/KfrHelper.h"
@@ -29,7 +30,8 @@ struct SrcData
     decltype(kfr::audio_format::samplerate) samplerate;
     QJsonArray descArray;
 };
-SrcData readSrcAudioFile(QString srcWAVFileName, QJsonObject descRoot, AudioIO::AudioFormat targetFormat);
+SrcData readSrcAudioFile(QString srcWAVFileName, QJsonObject descRoot,
+                         std::optional<AudioIO::AudioFormat> targetFormat);
 
 struct ExtractErrorDescription
 {
@@ -38,12 +40,10 @@ struct ExtractErrorDescription
     utils::AudioBufferPtr srcData;
     decltype(kfr::audio_format::samplerate) srcSampleRate;
 };
-QFuture<ExtractErrorDescription> startExtract(utils::AudioBufferPtr srcData,
-                                              decltype(kfr::audio_format::samplerate) srcSampleRate,
-                                              QJsonArray descArray, QString dstDirName,
-                                              AudioIO::AudioFormat targetFormat, bool removeDCOffset,
-                                              ExtractGapMode gapMode = ExtractGapMode::OriginalRange,
-                                              const QString &gapDurationTimecode = {});
+QFuture<ExtractErrorDescription>
+startExtract(utils::AudioBufferPtr srcData, decltype(kfr::audio_format::samplerate) srcSampleRate, QJsonArray descArray,
+             QString dstDirName, std::optional<AudioIO::AudioFormat> targetFormat, bool removeDCOffset,
+             ExtractGapMode gapMode = ExtractGapMode::OriginalRange, const QString &gapDurationTimecode = {});
 } // namespace AudioExtract
 
 Q_DECLARE_METATYPE(AudioExtract::CheckResult);
