@@ -419,6 +419,7 @@ Thanks for their contribution!</p>
                         .arg(versionStr)
                         .arg(QT_VERSION_STR));
     dialog->setStandardButtons(QDialogButtonBox::Ok);
+    dialog->setOpenExternalLinks(true);
     dialog->exec();
 }
 

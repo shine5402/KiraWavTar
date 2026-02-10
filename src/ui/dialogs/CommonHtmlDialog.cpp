@@ -45,3 +45,8 @@ void CommonHtmlDialog::setAllowRemoteImageLoad(bool allow)
 {
     ui->textBrowser->setAllowRemoteImageLoad(allow);
 }
+
+void CommonHtmlDialog::setOpenExternalLinks(bool open)
+{
+    ui->textBrowser->setOpenExternalLinks(open);
+}

@@ -21,6 +21,7 @@ public:
     void setMarkdown(const QString &markdown);
     void setStandardButtons(QDialogButtonBox::StandardButtons buttons);
     void setAllowRemoteImageLoad(bool allow);
+    void setOpenExternalLinks(bool open);
 
 private:
     Ui::CommonHtmlDialog *ui;
