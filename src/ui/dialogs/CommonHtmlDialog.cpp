@@ -1,6 +1,8 @@
 #include "CommonHtmlDialog.h"
 #include "ui_CommonHtmlDialog.h"
 
+#include "RemoteImageTextBrowser.h"
+
 CommonHtmlDialog::CommonHtmlDialog(QWidget *parent) : QDialog(parent), ui(new Ui::CommonHtmlDialog)
 {
     ui->setupUi(this);
@@ -37,4 +39,9 @@ void CommonHtmlDialog::setMarkdown(const QString &markdown)
 void CommonHtmlDialog::setStandardButtons(QDialogButtonBox::StandardButtons buttons)
 {
     ui->buttonBox->setStandardButtons(buttons);
+}
+
+void CommonHtmlDialog::setAllowRemoteImageLoad(bool allow)
+{
+    ui->textBrowser->setAllowRemoteImageLoad(allow);
 }

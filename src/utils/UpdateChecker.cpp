@@ -103,6 +103,7 @@ QDialog *getUpdateAvailableDialog(const QVersionNumber &newVersion, const QStrin
                                                                   "Currently you are at \"%3\".\n"
                                                                   "Open download page?")
                          .arg(newVersion.toString(), qApp->applicationName(), qApp->applicationVersion()));
+    dialog->setAllowRemoteImageLoad(true);
     dialog->setMarkdown(msgBody);
     dialog->setStandardButtons(QDialogButtonBox::Yes | QDialogButtonBox::No);
     dialog->setWindowModality(Qt::ApplicationModal);

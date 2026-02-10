@@ -56,8 +56,9 @@ StatementMacros:
   - QML_UNAVAILABLE
   - QML_UNCREATABLE
   - QML_VALUE_TYPE
-StatementAttributeLikeMacros: 
+StatementAttributeLikeMacros:
   - Q_EMIT
+  - emit
 SortIncludes: 
   Enabled: true
   IgnoreCase: false

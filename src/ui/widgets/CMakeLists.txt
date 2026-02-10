@@ -5,6 +5,8 @@ target_sources(KiraWAVTar PRIVATE
     FileNameEditWithBrowse.cpp
     FileNameEditWithBrowse.h
     FileNameEditWithBrowse.ui
+    RemoteImageTextBrowser.cpp
+    RemoteImageTextBrowser.h
     WavFormatChooserWidget.cpp
     WavFormatChooserWidget.h
     WavFormatChooserWidget.ui
