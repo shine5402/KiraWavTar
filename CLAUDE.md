@@ -9,14 +9,12 @@ KiraWavTar is a Qt 6 desktop application for combining multiple audio files (WAV
 ## Build Commands
 
 ```bash
-# Configure (Qt 6 path required)
-cmake -B build -DCMAKE_PREFIX_PATH=/Users/shine_5402/Qt/6.10.1/macos
+# Configure
+cmake --preset default-relwithdebinfo
 
 # Build
-cmake --build build
+cmake --build --preset default-relwithdebinfo
 
-# Run
-./build/src/KiraWAVTar
 ```
 
 There are no tests. No linter is configured.

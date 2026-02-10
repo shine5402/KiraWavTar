@@ -102,20 +102,66 @@ CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive
                               .arg(targetFormat.kfr_format.samplerate));
     }
 
-    auto hasLargerQuantization =
-        QtConcurrent::filtered(formats, [targetFormat](const QPair<QString, AudioIO::AudioFormat> &info) -> bool {
-            return (kfr::audio_sample_type_to_precision(info.second.kfr_format.type) >
-                    kfr::audio_sample_type_to_precision(targetFormat.kfr_format.type)) ||
-                   (kfr::audio_sample_is_float(info.second.kfr_format.type) &&
-                    (!kfr::audio_sample_is_float(targetFormat.kfr_format.type)));
-        }).results();
+    // --- Sample type conversion warnings ---
+    // Categorized by conversion scenario for more informative messages:
+    //   int→float: safe, no warning
+    //   float→int: dynamic range loss, clipping burns in, dithering applied
+    //   int→int (higher→lower): dynamic range loss, dithering applied
+    //   f64→f32: subtle precision loss
+    for (const auto &[fileName, fileFormat] : std::as_const(formats)) {
+        auto srcType = fileFormat.kfr_format.type;
+        auto dstType = targetFormat.kfr_format.type;
 
-    for (const auto &i : std::as_const(hasLargerQuantization)) {
-        warningMsg.append(QCoreApplication::translate(
-                              "WAVCombine", "<p class='warning'>Bit depth (%2) of \"%1\" is larger than target."
-                                            "The precision could be lost a bit when processing.</p>")
-                              .arg(i.first)
-                              .arg(kfr::audio_sample_type_to_string(i.second.kfr_format.type).data()));
+        if (srcType == dstType || srcType == kfr::audio_sample_type::unknown)
+            continue;
+
+        bool srcIsFloat = kfr::audio_sample_is_float(srcType);
+        bool dstIsFloat = kfr::audio_sample_is_float(dstType);
+
+        if (!srcIsFloat && dstIsFloat) {
+            // int → float: always safe, superior representation. No warning.
+            continue;
+        }
+
+        if (srcIsFloat && !dstIsFloat) {
+            // float → int: always warn about dynamic range loss and permanent clipping
+            warningMsg.append(
+                QCoreApplication::translate(
+                    "WAVCombine",
+                    "<p class='warning'>\"%1\" (%2) will be converted to integer format (%3). "
+                    "Floating-point audio has virtually unlimited headroom, but integer formats clip at 0 dBFS "
+                    "\u2014 any signal above that will be permanently burned in. Quiet signals may also lose detail "
+                    "due to the reduced dynamic range. "
+                    "TPDF dithering is applied automatically to reduce quantization artifacts.</p>")
+                    .arg(fileName)
+                    .arg(kfr::audio_sample_type_to_string(srcType).data())
+                    .arg(kfr::audio_sample_type_to_string(dstType).data()));
+        } else if (srcIsFloat && dstIsFloat) {
+            // f64 → f32: subtle precision loss
+            if (kfr::audio_sample_type_to_precision(srcType) > kfr::audio_sample_type_to_precision(dstType)) {
+                warningMsg.append(QCoreApplication::translate(
+                                      "WAVCombine", "<p class='warning'>\"%1\" (%2) will be converted to %3. "
+                                                    "There will be a slight reduction in floating-point precision, "
+                                                    "which is generally negligible for most audio work.</p>")
+                                      .arg(fileName)
+                                      .arg(kfr::audio_sample_type_to_string(srcType).data())
+                                      .arg(kfr::audio_sample_type_to_string(dstType).data()));
+            }
+        } else {
+            // int → int: warn if losing bit depth (e.g., 24-bit → 16-bit)
+            int srcBits = kfr::audio_sample_type_to_precision(srcType);
+            int dstBits = kfr::audio_sample_type_to_precision(dstType);
+            if (srcBits > dstBits) {
+                warningMsg.append(QCoreApplication::translate(
+                                      "WAVCombine",
+                                      "<p class='warning'>\"%1\" (%2) will be converted to %3. "
+                                      "This reduces the dynamic range, which means quiet signals may lose detail. "
+                                      "TPDF dithering is applied automatically to reduce quantization artifacts.</p>")
+                                      .arg(fileName)
+                                      .arg(kfr::audio_sample_type_to_string(srcType).data())
+                                      .arg(kfr::audio_sample_type_to_string(dstType).data()));
+            }
+        }
     }
 
     if (warningMsg.isEmpty())

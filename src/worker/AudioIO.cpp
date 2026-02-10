@@ -54,27 +54,25 @@ drwav_init_file_write_sequential_pcm_frames_compat(drwav *pWav, const QString &f
 }
 #endif
 
-// Manual implementation of f32 to s24 conversion since dr_libs doesn't export it
-static void convert_f32_to_s24(drwav_uint8 *dst, const float *src, size_t count)
+// Helper: build an array of const fbase* pointers from univector2d<double> (fbase = double)
+static std::vector<const kfr::fbase *> planarPointers(const kfr::univector2d<double> &data)
 {
-    for (size_t i = 0; i < count; ++i) {
-        float sample = src[i];
-        // Clamp
-        if (sample > 1.0f)
-            sample = 1.0f;
-        if (sample < -1.0f)
-            sample = -1.0f;
-        // Scale to 24-bit range
-        int32_t val = (int32_t)(sample * 8388607.0f);
-        if (val > 8388607)
-            val = 8388607;
-        if (val < -8388608)
-            val = -8388608;
-        // Pack (little endian)
-        dst[3 * i + 0] = (uint8_t)(val & 0xFF);
-        dst[3 * i + 1] = (uint8_t)((val >> 8) & 0xFF);
-        dst[3 * i + 2] = (uint8_t)((val >> 16) & 0xFF);
+    std::vector<const kfr::fbase *> ptrs(data.size());
+    for (size_t c = 0; c < data.size(); ++c)
+        ptrs[c] = data[c].data();
+    return ptrs;
+}
+
+// Helper: promote float planar data to double planar data (required because kfr::fbase = double)
+static kfr::univector2d<double> promoteToDouble(const kfr::univector2d<float> &data)
+{
+    kfr::univector2d<double> out(data.size());
+    for (size_t c = 0; c < data.size(); ++c) {
+        out[c].resize(data[c].size());
+        for (size_t i = 0; i < data[c].size(); ++i)
+            out[c][i] = static_cast<double>(data[c][i]);
     }
+    return out;
 }
 
 // ---------- WAV-specific implementation (via drwav) ----------
@@ -284,6 +282,33 @@ static drwav initWriterOrThrow(drwav_data_format &format, const QString &fileNam
     return wav;
 }
 
+// Write interleaved PCM via kfr::samples_store (handles dithering + quantization).
+// The planar overload interleaves, applies TPDF dither, clamps, and quantizes in one pass.
+static drwav_uint64 writePcmWithDither(drwav &wav, const kfr::univector2d<double> &data,
+                                       const drwav_data_format &format)
+{
+    size_t frameCount = data[0].size();
+    size_t channels = data.size();
+    size_t totalSamples = frameCount * channels;
+    auto ptrs = planarPointers(data);
+    kfr::audio_quantization quant(format.bitsPerSample, kfr::audio_dithering::triangular);
+
+    if (format.bitsPerSample == 16) {
+        std::vector<kfr::i16> buf(totalSamples);
+        kfr::samples_store(buf.data(), ptrs.data(), channels, frameCount, quant);
+        return drwav_write_pcm_frames(&wav, frameCount, buf.data());
+    } else if (format.bitsPerSample == 24) {
+        std::vector<kfr::i24> buf(totalSamples);
+        kfr::samples_store(buf.data(), ptrs.data(), channels, frameCount, quant);
+        return drwav_write_pcm_frames(&wav, frameCount, buf.data());
+    } else if (format.bitsPerSample == 32) {
+        std::vector<kfr::i32> buf(totalSamples);
+        kfr::samples_store(buf.data(), ptrs.data(), channels, frameCount, quant);
+        return drwav_write_pcm_frames(&wav, frameCount, buf.data());
+    }
+    return 0;
+}
+
 size_t writeWavFileF32(const QString &fileName, const kfr::univector2d<float> &data, const AudioFormat &targetFormat)
 {
     if (data.empty())
@@ -295,31 +320,20 @@ size_t writeWavFileF32(const QString &fileName, const kfr::univector2d<float> &d
 
     drwav wav = initWriterOrThrow(format, fileName, frameCount);
 
-    std::vector<float> interleaved;
-    interleaveFrom(interleaved, data);
-
     drwav_uint64 written = 0;
-    if (format.format == DR_WAVE_FORMAT_IEEE_FLOAT && format.bitsPerSample == 32) {
+    if (format.format == DR_WAVE_FORMAT_PCM) {
+        // Promote to double (kfr::fbase) for KFR's dithered quantization
+        auto dataDouble = promoteToDouble(data);
+        written = writePcmWithDither(wav, dataDouble, format);
+    } else if (format.format == DR_WAVE_FORMAT_IEEE_FLOAT && format.bitsPerSample == 32) {
+        std::vector<float> interleaved;
+        interleaveFrom(interleaved, data);
         written = drwav_write_pcm_frames(&wav, frameCount, interleaved.data());
-    } else if (format.format == DR_WAVE_FORMAT_PCM) {
-        if (format.bitsPerSample == 16) {
-            std::vector<drwav_int16> buf16(interleaved.size());
-            drwav_f32_to_s16(buf16.data(), interleaved.data(), interleaved.size());
-            written = drwav_write_pcm_frames(&wav, frameCount, buf16.data());
-        } else if (format.bitsPerSample == 24) {
-            std::vector<drwav_uint8> buf24(interleaved.size() * 3);
-            convert_f32_to_s24(buf24.data(), interleaved.data(), interleaved.size());
-            written = drwav_write_pcm_frames(&wav, frameCount, buf24.data());
-        } else if (format.bitsPerSample == 32) {
-            std::vector<drwav_int32> buf32(interleaved.size());
-            drwav_f32_to_s32(buf32.data(), interleaved.data(), interleaved.size());
-            written = drwav_write_pcm_frames(&wav, frameCount, buf32.data());
-        }
     } else if (format.format == DR_WAVE_FORMAT_IEEE_FLOAT && format.bitsPerSample == 64) {
-        std::vector<double> buf64(interleaved.size());
-        for (size_t i = 0; i < interleaved.size(); ++i)
-            buf64[i] = interleaved[i];
-        written = drwav_write_pcm_frames(&wav, frameCount, buf64.data());
+        auto dataDouble = promoteToDouble(data);
+        std::vector<double> interleaved;
+        interleaveFrom(interleaved, dataDouble);
+        written = drwav_write_pcm_frames(&wav, frameCount, interleaved.data());
     }
 
     drwav_uninit(&wav);
@@ -338,12 +352,15 @@ size_t writeWavFileF64(const QString &fileName, const kfr::univector2d<double> &
     drwav wav = initWriterOrThrow(format, fileName, frameCount);
 
     drwav_uint64 written = 0;
-    if (format.format == DR_WAVE_FORMAT_IEEE_FLOAT && format.bitsPerSample == 64) {
+    if (format.format == DR_WAVE_FORMAT_PCM) {
+        // data is already double = kfr::fbase, use KFR's dithered quantization directly
+        written = writePcmWithDither(wav, data, format);
+    } else if (format.format == DR_WAVE_FORMAT_IEEE_FLOAT && format.bitsPerSample == 64) {
         std::vector<double> interleaved;
         interleaveFrom(interleaved, data);
         written = drwav_write_pcm_frames(&wav, frameCount, interleaved.data());
-    } else {
-        // For non-f64 outputs, convert via float for the final quantization.
+    } else if (format.format == DR_WAVE_FORMAT_IEEE_FLOAT && format.bitsPerSample == 32) {
+        // double → float, then write
         std::vector<float> interleavedF32(frameCount * channels);
         for (size_t i = 0; i < frameCount; ++i) {
             for (size_t c = 0; c < channels; ++c) {
@@ -351,24 +368,7 @@ size_t writeWavFileF64(const QString &fileName, const kfr::univector2d<double> &
                 interleavedF32[i * channels + c] = static_cast<float>(v);
             }
         }
-
-        if (format.format == DR_WAVE_FORMAT_IEEE_FLOAT && format.bitsPerSample == 32) {
-            written = drwav_write_pcm_frames(&wav, frameCount, interleavedF32.data());
-        } else if (format.format == DR_WAVE_FORMAT_PCM) {
-            if (format.bitsPerSample == 16) {
-                std::vector<drwav_int16> buf16(interleavedF32.size());
-                drwav_f32_to_s16(buf16.data(), interleavedF32.data(), interleavedF32.size());
-                written = drwav_write_pcm_frames(&wav, frameCount, buf16.data());
-            } else if (format.bitsPerSample == 24) {
-                std::vector<drwav_uint8> buf24(interleavedF32.size() * 3);
-                convert_f32_to_s24(buf24.data(), interleavedF32.data(), interleavedF32.size());
-                written = drwav_write_pcm_frames(&wav, frameCount, buf24.data());
-            } else if (format.bitsPerSample == 32) {
-                std::vector<drwav_int32> buf32(interleavedF32.size());
-                drwav_f32_to_s32(buf32.data(), interleavedF32.data(), interleavedF32.size());
-                written = drwav_write_pcm_frames(&wav, frameCount, buf32.data());
-            }
-        }
+        written = drwav_write_pcm_frames(&wav, frameCount, interleavedF32.data());
     }
 
     drwav_uninit(&wav);
@@ -617,11 +617,14 @@ static size_t writeFlacFileTyped(const QString &fileName, const kfr::univector2d
                                      .toStdString());
     }
 
-    // Convert float/double data to FLAC__int32 interleaved and encode in chunks
+    // Convert float/double data to FLAC__int32 interleaved and encode in chunks,
+    // using KFR's audio_quantization for TPDF dithering.
     constexpr size_t chunkFrames = 4096;
     double scale = static_cast<double>(1ULL << (bitsPerSample - 1));
     double maxVal = scale - 1.0;
     double minVal = -scale;
+
+    kfr::audio_quantization quant(bitsPerSample, kfr::audio_dithering::triangular);
 
     std::vector<FLAC__int32> buffer(chunkFrames * channels);
 
@@ -631,13 +634,14 @@ static size_t writeFlacFileTyped(const QString &fileName, const kfr::univector2d
         for (size_t i = 0; i < thisChunk; ++i) {
             for (size_t c = 0; c < channels; ++c) {
                 double sample = static_cast<double>(data[c][offset + i]);
-                // Scale and clamp
-                double scaled = sample * scale;
+                // Add TPDF dither, clamp to [-1, +1], then scale to integer range
+                double dithered = std::clamp(sample + quant.dither(), -1.0, 1.0);
+                double scaled = dithered * scale;
                 if (scaled > maxVal)
                     scaled = maxVal;
                 if (scaled < minVal)
                     scaled = minVal;
-                buffer[i * channels + c] = static_cast<FLAC__int32>(scaled);
+                buffer[i * channels + c] = static_cast<FLAC__int32>(std::llround(scaled));
             }
         }
 
