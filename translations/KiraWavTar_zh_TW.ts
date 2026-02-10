@@ -213,12 +213,12 @@
     <message>
         <location filename="../src/ui/MainWindow.ui" line="466"/>
         <source>Sample rate conversion quality</source>
-        <translation>指定采樣率轉換過程的質量</translation>
+        <translation type="unfinished">指定取樣率轉換過程的品質</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="469"/>
         <source>SRC Quality</source>
-        <translation>重新采樣質量</translation>
+        <translation>重取樣品質</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="486"/>
@@ -228,7 +228,7 @@
     <message>
         <location filename="../src/ui/MainWindow.ui" line="506"/>
         <source>Run</source>
-        <translation>運行</translation>
+        <translation type="unfinished">執行</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="37"/>
@@ -335,10 +335,72 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
 &lt;li&gt;libFLAC - reference implementation of the Free Lossless Audio Codec, under BSD-3-Clause.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h4&gt;Translators&lt;/h4&gt;
+&lt;p&gt;This program includes translations with contributions from the community. See our &lt;a href=&quot;https://github.com/shine5402/KiraWAVTar?tab=readme-ov-file#translations&quot;&gt;homepage&lt;/a&gt; for acknowledgements.&lt;/p&gt;
+</source>
+        <translation>&lt;p style=&quot;text-align: left;&quot;&gt;&lt;img src=&quot;:/icon/appIcon&quot; width=&quot;64&quot;/&gt;&lt;/p&gt;
+&lt;h2&gt;KiraWAVTar&lt;/h2&gt;
+&lt;p&gt;Copyright 2021-present shine_5402&lt;/p&gt;
+%1
+&lt;h3&gt;關於&lt;/h3&gt;
+&lt;p&gt;一個快速且易於使用的 WAV 合併/拆分工具。&lt;/p&gt;
+&lt;h3&gt;授權&lt;/h3&gt;
+&lt;p&gt; This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.&lt;br&gt;
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.&lt;br&gt;
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licenses/&quot;&gt;https://www.gnu.org/licenses/&lt;/a&gt;.&lt;br&gt;
+&lt;/p&gt;
+
+&lt;h3&gt;致謝&lt;/h3&gt;
+&lt;h4&gt;第三方函式庫&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;Qt %2, The Qt Company Ltd, under LGPL v3.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.kfrlib.com/&quot;&gt;KFR - Fast, modern C++ DSP framework&lt;/a&gt;, under GNU GPL v2+&lt;/li&gt;
+&lt;li&gt;dr_wav - Public domain single-header WAV reader/writer library by David Reid.&lt;/li&gt;
+&lt;li&gt;libFLAC - 自由無損音訊編解碼器 (Free Lossless Audio Codec) 的參考實作，採用 BSD-3-Clause 協議。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;翻譯人員&lt;/h4&gt;
+&lt;p&gt;本程式的翻譯由社群貢獻者提供。詳情請參閱我們的&lt;a href=&quot;https://github.com/shine5402/KiraWAVTar?tab=readme-ov-file#translations&quot;&gt;首頁&lt;/a&gt;。&lt;/p&gt;
+</translation>
+    </message>
+    <message>
+        <source>&lt;p style=&quot;text-align: left;&quot;&gt;&lt;img src=&quot;:/icon/appIcon&quot; width=&quot;64&quot;/&gt;&lt;/p&gt;
+&lt;h2&gt;KiraWAVTar&lt;/h2&gt;
+&lt;p&gt;Copyright 2021-present shine_5402&lt;/p&gt;
+%1
+&lt;h3&gt;About&lt;/h3&gt;
+&lt;p&gt;A fast and easy-to-use WAV combine/extract tool.&lt;/p&gt;
+&lt;h3&gt;License&lt;/h3&gt;
+&lt;p&gt; This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.&lt;br&gt;
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.&lt;br&gt;
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licenses/&quot;&gt;https://www.gnu.org/licenses/&lt;/a&gt;.&lt;br&gt;
+&lt;/p&gt;
+
+&lt;h3&gt;Acknowledgements&lt;/h3&gt;
+&lt;h4&gt;Third-party libraries&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;Qt %2, The Qt Company Ltd, under LGPL v3.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.kfrlib.com/&quot;&gt;KFR - Fast, modern C++ DSP framework&lt;/a&gt;, under GNU GPL v2+&lt;/li&gt;
+&lt;li&gt;dr_wav - Public domain single-header WAV reader/writer library by David Reid.&lt;/li&gt;
+&lt;li&gt;libFLAC - reference implementation of the Free Lossless Audio Codec, under BSD-3-Clause.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;Translators&lt;/h4&gt;
 &lt;p&gt;Japanese translation was provided by Leka in previous versions. Their work continues to be partly used in the current version.
 Thanks for their contribution!&lt;/p&gt;
 </source>
-        <translation>&lt;p style=&quot;text-align: left;&quot;&gt;&lt;img src=&quot;:/icon/appIcon&quot; width=&quot;64&quot;/&gt;&lt;/p&gt;
+        <translation type="vanished">&lt;p style=&quot;text-align: left;&quot;&gt;&lt;img src=&quot;:/icon/appIcon&quot; width=&quot;64&quot;/&gt;&lt;/p&gt;
 &lt;h2&gt;KiraWAVTar&lt;/h2&gt;
 &lt;p&gt;版權所有 2021-至今 shine_5402&lt;/p&gt;
 %1
@@ -491,12 +553,12 @@ Open download page?</source>
     <message>
         <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="34"/>
         <source>Sample rate</source>
-        <translation>采樣率</translation>
+        <translation type="unfinished">取樣率</translation>
     </message>
     <message>
         <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="64"/>
         <source>Bit depth</source>
-        <translation>位深度</translation>
+        <translation type="unfinished">位元深度</translation>
     </message>
     <message>
         <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="91"/>
@@ -788,7 +850,7 @@ How would you like to extract?</source>
     <message>
         <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="177"/>
         <source>Inverse</source>
-        <translation>選擇反向</translation>
+        <translation type="unfinished">反向選擇</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="215"/>

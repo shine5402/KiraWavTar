@@ -76,6 +76,13 @@ Official translations are available in the following languages:
 - Japanese [日本語]
 - Chinese (Traditional) [繁體中文]
 
+### Acknowledgements for translations
+
+Japanese translation was provided by Leka in previous versions. Their work continues to be partly used in the current version.
+Chinese (Traditional) translation is being reviewed by justln1113.
+
+Thanks for their contributions!
+
 ## By the way...
 
 ### Where does this name come from?

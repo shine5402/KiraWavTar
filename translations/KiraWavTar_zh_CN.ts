@@ -326,10 +326,72 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
 &lt;li&gt;libFLAC - reference implementation of the Free Lossless Audio Codec, under BSD-3-Clause.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h4&gt;Translators&lt;/h4&gt;
+&lt;p&gt;This program includes translations with contributions from the community. See our &lt;a href=&quot;https://github.com/shine5402/KiraWAVTar?tab=readme-ov-file#translations&quot;&gt;homepage&lt;/a&gt; for acknowledgements.&lt;/p&gt;
+</source>
+        <translation>&lt;p style=&quot;text-align: left;&quot;&gt;&lt;img src=&quot;:/icon/appIcon&quot; width=&quot;64&quot;/&gt;&lt;/p&gt;
+&lt;h2&gt;KiraWAVTar&lt;/h2&gt;
+&lt;p&gt;Copyright 2021-present shine_5402&lt;/p&gt;
+%1
+&lt;h3&gt;关于&lt;/h3&gt;
+&lt;p&gt;一个快速且易于使用的 WAV 合并/拆分工具。&lt;/p&gt;
+&lt;h3&gt;许可证&lt;/h3&gt;
+&lt;p&gt; This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.&lt;br&gt;
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.&lt;br&gt;
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licenses/&quot;&gt;https://www.gnu.org/licenses/&lt;/a&gt;.&lt;br&gt;
+&lt;/p&gt;
+
+&lt;h3&gt;致谢&lt;/h3&gt;
+&lt;h4&gt;第三方库&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;Qt %2, The Qt Company Ltd, under LGPL v3.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.kfrlib.com/&quot;&gt;KFR - Fast, modern C++ DSP framework&lt;/a&gt;, under GNU GPL v2+&lt;/li&gt;
+&lt;li&gt;dr_wav - Public domain single-header WAV reader/writer library by David Reid.&lt;/li&gt;
+&lt;li&gt;libFLAC - 自由无损音频编解码器 (Free Lossless Audio Codec) 的参考实现，采用 BSD-3-Clause 协议。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;翻译人员&lt;/h4&gt;
+&lt;p&gt;本程序的翻译由社区贡献者提供。详情请参阅我们的&lt;a href=&quot;https://github.com/shine5402/KiraWAVTar?tab=readme-ov-file#translations&quot;&gt;主页&lt;/a&gt;。&lt;/p&gt;
+</translation>
+    </message>
+    <message>
+        <source>&lt;p style=&quot;text-align: left;&quot;&gt;&lt;img src=&quot;:/icon/appIcon&quot; width=&quot;64&quot;/&gt;&lt;/p&gt;
+&lt;h2&gt;KiraWAVTar&lt;/h2&gt;
+&lt;p&gt;Copyright 2021-present shine_5402&lt;/p&gt;
+%1
+&lt;h3&gt;About&lt;/h3&gt;
+&lt;p&gt;A fast and easy-to-use WAV combine/extract tool.&lt;/p&gt;
+&lt;h3&gt;License&lt;/h3&gt;
+&lt;p&gt; This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.&lt;br&gt;
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.&lt;br&gt;
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licenses/&quot;&gt;https://www.gnu.org/licenses/&lt;/a&gt;.&lt;br&gt;
+&lt;/p&gt;
+
+&lt;h3&gt;Acknowledgements&lt;/h3&gt;
+&lt;h4&gt;Third-party libraries&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;Qt %2, The Qt Company Ltd, under LGPL v3.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.kfrlib.com/&quot;&gt;KFR - Fast, modern C++ DSP framework&lt;/a&gt;, under GNU GPL v2+&lt;/li&gt;
+&lt;li&gt;dr_wav - Public domain single-header WAV reader/writer library by David Reid.&lt;/li&gt;
+&lt;li&gt;libFLAC - reference implementation of the Free Lossless Audio Codec, under BSD-3-Clause.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;Translators&lt;/h4&gt;
 &lt;p&gt;Japanese translation was provided by Leka in previous versions. Their work continues to be partly used in the current version.
 Thanks for their contribution!&lt;/p&gt;
 </source>
-        <translation>&lt;p style=&quot;text-align: left;&quot;&gt;&lt;img src=&quot;:/icon/appIcon&quot; width=&quot;64&quot;/&gt;&lt;/p&gt;
+        <translation type="vanished">&lt;p style=&quot;text-align: left;&quot;&gt;&lt;img src=&quot;:/icon/appIcon&quot; width=&quot;64&quot;/&gt;&lt;/p&gt;
 &lt;h2&gt;KiraWAVTar&lt;/h2&gt;
 &lt;p&gt;版权所有 2021-至今 shine_5402&lt;/p&gt;
 %1

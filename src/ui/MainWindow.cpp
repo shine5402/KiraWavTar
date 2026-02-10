@@ -404,8 +404,7 @@ along with this program.  If not, see <a href="https://www.gnu.org/licenses/">ht
 <li>libFLAC - reference implementation of the Free Lossless Audio Codec, under BSD-3-Clause.</li>
 </ul>
 <h4>Translators</h4>
-<p>Japanese translation was provided by Leka in previous versions. Their work continues to be partly used in the current version.
-Thanks for their contribution!</p>
+<p>This program includes translations with contributions from the community. See our <a href="https://github.com/shine5402/KiraWAVTar?tab=readme-ov-file#translations">homepage</a> for acknowledgements.</p>
 )")
                         .arg(versionStr)
                         .arg(QT_VERSION_STR));

@@ -106,7 +106,7 @@
     <message>
         <location filename="../src/ui/MainWindow.ui" line="29"/>
         <source>What to do:</source>
-        <translation>行いたい操作：</translation>
+        <translation>操作を選択：</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="469"/>
@@ -123,7 +123,7 @@
         <location filename="../src/ui/MainWindow.cpp" line="111"/>
         <location filename="../src/ui/MainWindow.cpp" line="195"/>
         <source>Draft</source>
-        <translation>ドラフト</translation>
+        <translation>簡易</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="92"/>
@@ -190,10 +190,72 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
 &lt;li&gt;libFLAC - reference implementation of the Free Lossless Audio Codec, under BSD-3-Clause.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h4&gt;Translators&lt;/h4&gt;
+&lt;p&gt;This program includes translations with contributions from the community. See our &lt;a href=&quot;https://github.com/shine5402/KiraWAVTar?tab=readme-ov-file#translations&quot;&gt;homepage&lt;/a&gt; for acknowledgements.&lt;/p&gt;
+</source>
+        <translation>&lt;p style=&quot;text-align: left;&quot;&gt;&lt;img src=&quot;:/icon/appIcon&quot; width=&quot;64&quot;/&gt;&lt;/p&gt;
+&lt;h2&gt;KiraWAVTar&lt;/h2&gt;
+&lt;p&gt;Copyright 2021-present shine_5402&lt;/p&gt;
+%1
+&lt;h3&gt;このソフトについて&lt;/h3&gt;
+&lt;p&gt;使いやすく素早いWAVファイルの結合/抽出ツール。&lt;/p&gt;
+&lt;h3&gt;ライセンス&lt;/h3&gt;
+&lt;p&gt; This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.&lt;br&gt;
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.&lt;br&gt;
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licenses/&quot;&gt;https://www.gnu.org/licenses/&lt;/a&gt;.&lt;br&gt;
+&lt;/p&gt;
+
+&lt;h3&gt;謝辞&lt;/h3&gt;
+&lt;h4&gt;サードパーティライブラリ&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;Qt %2, The Qt Company Ltd, under LGPL v3.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.kfrlib.com/&quot;&gt;KFR - Fast, modern C++ DSP framework&lt;/a&gt;, under GNU GPL v2+&lt;/li&gt;
+&lt;li&gt;dr_wav - Public domain single-header WAV reader/writer library by David Reid.&lt;/li&gt;
+&lt;li&gt;libFLAC - reference implementation of the Free Lossless Audio Codec, under BSD-3-Clause.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;翻訳者&lt;/h4&gt;
+&lt;p&gt;このプログラムには、コミュニティの貢献による翻訳が含まれています。謝辞については&lt;a href=&quot;https://github.com/shine5402/KiraWAVTar?tab=readme-ov-file#translations&quot;&gt;ホームページ&lt;/a&gt;をご覧ください。&lt;/p&gt;
+</translation>
+    </message>
+    <message>
+        <source>&lt;p style=&quot;text-align: left;&quot;&gt;&lt;img src=&quot;:/icon/appIcon&quot; width=&quot;64&quot;/&gt;&lt;/p&gt;
+&lt;h2&gt;KiraWAVTar&lt;/h2&gt;
+&lt;p&gt;Copyright 2021-present shine_5402&lt;/p&gt;
+%1
+&lt;h3&gt;About&lt;/h3&gt;
+&lt;p&gt;A fast and easy-to-use WAV combine/extract tool.&lt;/p&gt;
+&lt;h3&gt;License&lt;/h3&gt;
+&lt;p&gt; This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.&lt;br&gt;
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.&lt;br&gt;
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licenses/&quot;&gt;https://www.gnu.org/licenses/&lt;/a&gt;.&lt;br&gt;
+&lt;/p&gt;
+
+&lt;h3&gt;Acknowledgements&lt;/h3&gt;
+&lt;h4&gt;Third-party libraries&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;Qt %2, The Qt Company Ltd, under LGPL v3.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.kfrlib.com/&quot;&gt;KFR - Fast, modern C++ DSP framework&lt;/a&gt;, under GNU GPL v2+&lt;/li&gt;
+&lt;li&gt;dr_wav - Public domain single-header WAV reader/writer library by David Reid.&lt;/li&gt;
+&lt;li&gt;libFLAC - reference implementation of the Free Lossless Audio Codec, under BSD-3-Clause.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;Translators&lt;/h4&gt;
 &lt;p&gt;Japanese translation was provided by Leka in previous versions. Their work continues to be partly used in the current version.
 Thanks for their contribution!&lt;/p&gt;
 </source>
-        <translation>&lt;p style=&quot;text-align: left;&quot;&gt;&lt;img src=&quot;:/icon/appIcon&quot; width=&quot;64&quot;/&gt;&lt;/p&gt;
+        <translation type="vanished">&lt;p style=&quot;text-align: left;&quot;&gt;&lt;img src=&quot;:/icon/appIcon&quot; width=&quot;64&quot;/&gt;&lt;/p&gt;
 &lt;h2&gt;KiraWAVTar&lt;/h2&gt;
 &lt;p&gt;Copyright 2021-present shine_5402&lt;/p&gt;
 %1
@@ -384,12 +446,12 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
     <message>
         <location filename="../src/ui/MainWindow.ui" line="36"/>
         <source>Combine WAV files</source>
-        <translation>WAVファイルを結合</translation>
+        <translation>WAVファイルの結合</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="49"/>
         <source>Extract WAV file</source>
-        <translation>WAVファイルを抽出</translation>
+        <translation>WAVファイルの抽出</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="123"/>
@@ -404,7 +466,7 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
     <message>
         <location filename="../src/ui/MainWindow.ui" line="100"/>
         <source>Folder contains WAV files:</source>
-        <translation>WAVファイルを含むフォルダ：</translation>
+        <translation>WAVファイルが入っているフォルダ：</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="110"/>
@@ -414,22 +476,22 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
     <message>
         <location filename="../src/ui/MainWindow.ui" line="113"/>
         <source>scan subfolders</source>
-        <translation>サブフォルダもスキャン</translation>
+        <translation>サブフォルダも検索</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="145"/>
         <source>Split into volumes</source>
-        <translation>分巻保存</translation>
+        <translation>分割して保存</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="186"/>
         <source>By entry count:</source>
-        <translation>各巻の項目数：</translation>
+        <translation>各ファイルの項目数：</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="212"/>
         <source>By duration:</source>
-        <translation>各巻の長さ：</translation>
+        <translation>各ファイルの長さ：</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="225"/>
@@ -439,7 +501,7 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
     <message>
         <location filename="../src/ui/MainWindow.ui" line="274"/>
         <source>Silence padding around each entry:</source>
-        <translation>各項目前後の無音パディング：</translation>
+        <translation>各音声ファイル間の無音：</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="281"/>
@@ -449,7 +511,7 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
     <message>
         <location filename="../src/ui/MainWindow.ui" line="379"/>
         <source>WAV file to extract:</source>
-        <translation>抽出するWAVファイル：</translation>
+        <translation>抽出元のWAVファイル：</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="452"/>
@@ -469,12 +531,12 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
     <message>
         <location filename="../src/ui/MainWindow.ui" line="408"/>
         <source>Use unified format:</source>
-        <translation>フォーマットを統一：</translation>
+        <translation>統一フォーマット：</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="418"/>
         <source>Same as source when combing</source>
-        <translation>結合時の元ファイルと同じ</translation>
+        <translation>結合時と同じ</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="325"/>
@@ -484,7 +546,7 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
     <message>
         <location filename="../src/ui/MainWindow.ui" line="354"/>
         <source>Remove DC offset also</source>
-        <translation>DCオフセットも除去する</translation>
+        <translation>DCオフセットを除去</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="37"/>
@@ -500,7 +562,7 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="44"/>
         <source>Check update now</source>
-        <translation>今すぐアップデートを確認</translation>
+        <translation>更新を確認</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="150"/>
@@ -530,7 +592,7 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
     <message>
         <location filename="../src/ui/MainWindow.ui" line="506"/>
         <source>Run</source>
-        <translation>起動する</translation>
+        <translation>実行</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="241"/>
@@ -1224,12 +1286,12 @@ WAVファイルは、制限や互換性が異なる複数のコンテナ形式�
     <message>
         <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="96"/>
         <source>Reading WAV files and combining them...</source>
-        <translation>WAVファイルを読み込み、結合しています...</translation>
+        <translation>ファイルを読み込んで結合しています...</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="117"/>
         <source>Writing combined file...</source>
-        <translation>結合したファイルを書き込んでいます...</translation>
+        <translation>ファイルを書き込んでいます...</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="143"/>
