@@ -106,7 +106,7 @@ QMenu *TranslationManager::getI18nMenu()
     // Add supported translations
     for (const auto &locale : std::as_const(m_supportedLocales)) {
         auto langAction = new QAction(
-            QLatin1String("%1 (%2)").arg(QLocale::languageToString(locale.language()), locale.bcp47Name()), m_i18nMenu);
+            QLatin1String("%1 (%2)").arg(locale.nativeLanguageName(), locale.bcp47Name()), m_i18nMenu);
         langAction->setData(QVariant::fromValue(locale));
         langAction->setCheckable(true);
         m_i18nMenu->addAction(langAction);
