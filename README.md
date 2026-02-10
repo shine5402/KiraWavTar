@@ -52,7 +52,7 @@ For reference, on an Intel i7-9750H with a WD MyPassport 25E1, combining 2,000 W
 
 KiraWAVTar supports reading and writing the following audio formats:
 - **WAV containers:** RIFF, RF64, and W64
-- **FLAC:** Free Lossless Audio Codec (integer sample types only: 16-bit, 24-bit, 32-bit)
+- **FLAC:** Free Lossless Audio Codec
 
 WAV and FLAC files can be freely mixed as input when combining. Other containers (such as AIFF) may work for reading, but have not been tested.
 

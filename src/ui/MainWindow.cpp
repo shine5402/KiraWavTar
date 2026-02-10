@@ -411,6 +411,8 @@ along with this program.  If not, see <a href="https://www.gnu.org/licenses/">ht
 <ul>
 <li>Qt %2, The Qt Company Ltd, under LGPL v3.</li>
 <li><a href="https://www.kfrlib.com/">KFR - Fast, modern C++ DSP framework</a>, under GNU GPL v2+</li>
+<li>dr_wav - Public domain single-header WAV reader/writer library by David Reid.</li>
+<li>libFLAC - reference implementation of the Free Lossless Audio Codec, under BSD-3-Clause.</li>
 </ul>
 <h4>Translators</h4>
 <p>Japanese translation was provided by Leka in previous versions. Their work continues to be partly used in the current version.
