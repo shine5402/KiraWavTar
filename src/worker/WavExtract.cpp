@@ -6,6 +6,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QtConcurrent/QtConcurrent>
+#include <kfr/dsp/dcremove.hpp>
 #include <kfr/dsp/sample_rate_conversion.hpp>
 #include <memory>
 #include <type_traits>
@@ -251,15 +252,10 @@ QFuture<ExtractErrorDescription> startExtract(utils::AudioBufferPtr srcData,
                         }
 
                         if (removeDCOffset) {
-                            // DC offset removal (High pass filter)
-                            // kfr::biquad_highpass(0.5 / samplerate, ...)
-                            // Using kfr::biquad_filter or similar.
-                            // For now, let's assume it works or skip as it's complex to implement blindly.
-                            // But if users asked for it...
-                            // "Optional DC offset removal and resampling via KFR"
-
-                            // biquad_params params = biquad_highpass(10.0 / srcSampleRate, 0.5); // 10Hz HPF
-                            // slice = biquad(params, slice); ?
+                            // DC offset removal via KFR's built-in 10 Hz highpass filter
+                            for (size_t c = 0; c < slice.size(); ++c) {
+                                slice[c] = kfr::dcremove(slice[c], 10.0, srcSampleRate);
+                            }
                         }
 
                         // Determine Output Format
