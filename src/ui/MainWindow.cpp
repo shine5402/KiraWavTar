@@ -378,7 +378,7 @@ void MainWindow::about()
     dialog->setHTML(tr(
                         R"(<p style="text-align: left;"><img src=":/icon/appIcon" width="64"/></p>
 <h2>KiraWAVTar</h2>
-<p>Copyright 2021-present <a href="https://shine5402.top/about-me">shine_5402</a></p>
+<p>Copyright 2021-present shine_5402</p>
 %1
 <h3>About</h3>
 <p>A fast and easy-to-use WAV combine/extract tool.</p>
@@ -393,18 +393,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.<br>
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.<br>
- In addition, as a special exception, the copyright holders give
- permission to link the code of portions of this program with the
- OpenSSL library under certain conditions as described in each
- individual source file, and distribute linked combinations
- including the two.<br>
- You must obey the GNU General Public License in all respects
- for all of the code used other than OpenSSL.  If you modify
- file(s) with this exception, you may extend this exception to your
- version of the file(s), but you are not obligated to do so.  If you
- do not wish to do so, delete this exception statement from your
- version.  If you delete this exception statement from all source
- files in the program, then also delete it here.</p>
+</p>
 
 <h3>Acknowledgements</h3>
 <h4>Third-party libraries</h4>
