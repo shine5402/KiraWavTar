@@ -74,6 +74,7 @@ Official translations are available in the following languages:
 - English
 - Chinese (Simplified) [简体中文]
 - Japanese [日本語]
+- Chinese (Traditional) [繁體中文]
 
 ## By the way...
 
