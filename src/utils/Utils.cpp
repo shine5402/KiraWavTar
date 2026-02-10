@@ -28,4 +28,15 @@ QString getDescFileNameFrom(const QString &WAVFileName)
     return fileInfo.absoluteDir().absoluteFilePath(fileInfo.completeBaseName() + ".kirawavtar-desc.json");
 }
 
+QString getVolumeFileName(const QString &baseWavFileName, int volumeIndex)
+{
+    if (volumeIndex == 0)
+        return baseWavFileName;
+    auto fileInfo = QFileInfo(baseWavFileName);
+    auto dir = fileInfo.absoluteDir();
+    auto baseName = fileInfo.completeBaseName();
+    auto suffix = fileInfo.suffix();
+    return dir.absoluteFilePath(QString("%1.%2.%3").arg(baseName).arg(volumeIndex, 3, 10, QChar('0')).arg(suffix));
+}
+
 } // namespace utils

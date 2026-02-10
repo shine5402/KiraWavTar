@@ -26,7 +26,8 @@ startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::
                         int gapMs = 0);
 
 bool writeCombineResult(utils::AudioBufferPtr data, QJsonObject descObj, QString wavFileName,
-                        AudioIO::WavAudioFormat targetFormat);
+                        AudioIO::WavAudioFormat targetFormat,
+                        const utils::VolumeConfig &volumeConfig = {});
 }; // namespace WAVCombine
 
 Q_DECLARE_METATYPE(WAVCombine::CheckResult);

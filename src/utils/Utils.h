@@ -77,6 +77,19 @@ kfr::sample_rate_conversion_quality getSampleRateConversionQuality();
 void setSampleRateConversionQuality(kfr::sample_rate_conversion_quality quality);
 
 constexpr auto desc_file_version = 4;
+constexpr auto desc_file_version_multivolume = 5;
+
+enum class VolumeSplitMode { None, ByCount, ByDuration };
+
+struct VolumeConfig
+{
+    VolumeSplitMode mode = VolumeSplitMode::None;
+    int maxEntriesPerVolume = 0;
+    int maxDurationSeconds = 0;
+};
+
+QString getVolumeFileName(const QString &baseWavFileName, int volumeIndex);
+
 
 constexpr auto reportTextStyle = R"(<style>
 .critical{

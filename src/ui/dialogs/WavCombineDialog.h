@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <kfr/all.hpp>
 
+#include "utils/Utils.h"
 #include "worker/AudioIO.h"
 
 class QLabel;
@@ -15,7 +16,8 @@ class WavCombineDialog : public QDialog
     Q_OBJECT
 public:
     WavCombineDialog(QString rootDirName, bool recursive, const AudioIO::WavAudioFormat &targetFormat,
-                     QString saveFileName, int gapMs = 0, QWidget *parent = nullptr);
+                     QString saveFileName, int gapMs = 0,
+                     const utils::VolumeConfig &volumeConfig = {}, QWidget *parent = nullptr);
 
 public slots:
     void open() override;
@@ -40,6 +42,7 @@ private:
     AudioIO::WavAudioFormat m_targetFormat;
     QString m_saveFileName;
     int m_gapMs;
+    utils::VolumeConfig m_volumeConfig;
 };
 
 #endif // WAVCOMBINEDIALOG_H

@@ -61,14 +61,33 @@ CheckResult preCheck(QString srcWAVFileName, QString dstDirName)
     }
 
     int version = root["version"].toInt();
-    if (version != 3 && version != 4) {
+    if (version != 3 && version != 4 && version != 5) {
         return {CheckPassType::CRITICAL,
                 QCoreApplication::translate(
                     "WAVExtract",
-                    "<p class='critical'>Description file \"%1\" has unsupported version %2. Expected version 3 or 4.</p>")
+                    "<p class='critical'>Description file \"%1\" has unsupported version %2. Expected version 3, 4, or 5.</p>")
                     .arg(descFileName)
                     .arg(version),
                 {}};
+    }
+
+    // Validate all volume files exist for multi-volume (v5)
+    if (version == 5) {
+        int volumeCount = root["volume_count"].toInt(1);
+        if (volumeCount > 1) {
+            QString missingFiles;
+            for (int i = 0; i < volumeCount; ++i) {
+                QString volFile = utils::getVolumeFileName(srcWAVFileName, i);
+                if (!QFile::exists(volFile)) {
+                    missingFiles += QCoreApplication::translate(
+                                        "WAVExtract", "<p class='critical'>Missing volume file: \"%1\"</p>")
+                                        .arg(volFile);
+                }
+            }
+            if (!missingFiles.isEmpty()) {
+                return {CheckPassType::CRITICAL, missingFiles, {}};
+            }
+        }
     }
 
     return {CheckPassType::OK, "", root};
@@ -76,31 +95,98 @@ CheckResult preCheck(QString srcWAVFileName, QString dstDirName)
 
 SrcData readSrcWAVFile(QString srcWAVFileName, QJsonObject descRoot, AudioIO::WavAudioFormat targetFormat)
 {
+    int volumeCount = descRoot["volume_count"].toInt(1);
+    double sampleRate = descRoot["sample_rate"].toDouble();
+
     // Decide internal processing precision.
-    // - If user explicitly chose f64 output: use double
-    // - If output type is unknown (inherit): use double only if source is f64
     const bool forceDouble = utils::shouldUseDoubleInternalProcessing(targetFormat.kfr_format.type);
-    if (forceDouble) {
-        auto result = AudioIO::readWavFileF64(srcWAVFileName);
-        auto srcData = std::make_shared<kfr::univector2d<double>>(std::move(result.data));
+    bool useDouble = forceDouble;
+    if (!useDouble && targetFormat.kfr_format.type == kfr::audio_sample_type::unknown) {
+        auto srcFormat = AudioIO::readWavFormat(srcWAVFileName);
+        useDouble = utils::shouldUseDoubleInternalProcessing(srcFormat.kfr_format.type);
+    }
+
+    // Single volume (v3/v4 or v5 with volume_count <= 1): existing logic
+    if (volumeCount <= 1) {
+        if (useDouble) {
+            auto result = AudioIO::readWavFileF64(srcWAVFileName);
+            auto srcData = std::make_shared<kfr::univector2d<double>>(std::move(result.data));
+            return {utils::AudioBufferPtr{srcData}, result.format.kfr_format.samplerate,
+                    descRoot["descriptions"].toArray()};
+        }
+        auto result = AudioIO::readWavFileF32(srcWAVFileName);
+        auto srcData = std::make_shared<kfr::univector2d<float>>(std::move(result.data));
         return {utils::AudioBufferPtr{srcData}, result.format.kfr_format.samplerate,
                 descRoot["descriptions"].toArray()};
     }
 
-    // Inherit-from-source mode
-    auto srcFormat = AudioIO::readWavFormat(srcWAVFileName);
-    if (targetFormat.kfr_format.type == kfr::audio_sample_type::unknown &&
-        utils::shouldUseDoubleInternalProcessing(srcFormat.kfr_format.type))
-    {
-        auto result = AudioIO::readWavFileF64(srcWAVFileName);
-        auto srcData = std::make_shared<kfr::univector2d<double>>(std::move(result.data));
-        return {utils::AudioBufferPtr{srcData}, result.format.kfr_format.samplerate,
-                descRoot["descriptions"].toArray()};
-    }
+    // Multi-volume: read all volumes and concatenate
+    QJsonArray volumes = descRoot["volumes"].toArray();
+    QJsonArray descriptions = descRoot["descriptions"].toArray();
 
-    auto result = AudioIO::readWavFileF32(srcWAVFileName);
-    auto srcData = std::make_shared<kfr::univector2d<float>>(std::move(result.data));
-    return {utils::AudioBufferPtr{srcData}, result.format.kfr_format.samplerate, descRoot["descriptions"].toArray()};
+    // Track cumulative sample offset for each volume
+    QList<qint64> volumeOffsets;
+    qint64 cumulativeOffset = 0;
+
+    auto readAndConcat = [&](auto dummyT) -> SrcData {
+        using T = decltype(dummyT);
+        auto concatenated = std::make_shared<kfr::univector2d<T>>();
+        size_t nChannels = 0;
+
+        for (int v = 0; v < volumeCount; ++v) {
+            QString volFile = utils::getVolumeFileName(srcWAVFileName, v);
+            volumeOffsets.append(cumulativeOffset);
+
+            if constexpr (std::is_same_v<T, double>) {
+                auto result = AudioIO::readWavFileF64(volFile);
+                if (v == 0) {
+                    nChannels = result.data.size();
+                    concatenated->resize(nChannels);
+                }
+                size_t volLen = result.data[0].size();
+                for (size_t c = 0; c < nChannels; ++c) {
+                    size_t prevSize = (*concatenated)[c].size();
+                    (*concatenated)[c].resize(prevSize + volLen);
+                    std::copy(result.data[c].begin(), result.data[c].end(),
+                              (*concatenated)[c].begin() + prevSize);
+                }
+                cumulativeOffset += static_cast<qint64>(volLen);
+            } else {
+                auto result = AudioIO::readWavFileF32(volFile);
+                if (v == 0) {
+                    nChannels = result.data.size();
+                    concatenated->resize(nChannels);
+                }
+                size_t volLen = result.data[0].size();
+                for (size_t c = 0; c < nChannels; ++c) {
+                    size_t prevSize = (*concatenated)[c].size();
+                    (*concatenated)[c].resize(prevSize + volLen);
+                    std::copy(result.data[c].begin(), result.data[c].end(),
+                              (*concatenated)[c].begin() + prevSize);
+                }
+                cumulativeOffset += static_cast<qint64>(volLen);
+            }
+        }
+
+        // Adjust begin_time from per-volume to global
+        QJsonArray adjustedDesc;
+        for (int i = 0; i < descriptions.size(); ++i) {
+            QJsonObject entry = descriptions[i].toObject();
+            int volIdx = entry["volume_index"].toInt(0);
+            qint64 perVolumeBeginSample = utils::timecodeToSamples(entry["begin_time"].toString(), sampleRate);
+            qint64 globalBeginSample = volumeOffsets[volIdx] + perVolumeBeginSample;
+            entry.insert("begin_time", utils::samplesToTimecode(globalBeginSample, sampleRate));
+            entry.remove("volume_index");
+            adjustedDesc.append(entry);
+        }
+
+        return {utils::AudioBufferPtr{concatenated}, sampleRate, adjustedDesc};
+    };
+
+    if (useDouble) {
+        return readAndConcat(double{});
+    }
+    return readAndConcat(float{});
 }
 
 QFuture<ExtractErrorDescription> startExtract(utils::AudioBufferPtr srcData,

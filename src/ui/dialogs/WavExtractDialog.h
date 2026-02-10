@@ -49,6 +49,7 @@ private:
     bool m_removeDCOffset;
     WAVExtract::ExtractGapMode m_extractGapMode = WAVExtract::ExtractGapMode::OriginalRange;
     QString m_gapDurationTimecode;
+    QStringList m_allVolumeFiles;
 };
 
 #endif // WAVEXTRACTDIALOG_H

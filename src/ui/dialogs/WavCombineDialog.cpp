@@ -16,9 +16,10 @@ using namespace WAVCombine;
 using namespace utils;
 
 WavCombineDialog::WavCombineDialog(QString rootDirName, bool recursive, const AudioIO::WavAudioFormat &targetFormat,
-                                   QString saveFileName, int gapMs, QWidget *parent)
+                                   QString saveFileName, int gapMs,
+                                   const utils::VolumeConfig &volumeConfig, QWidget *parent)
     : QDialog(parent), m_rootDirName(rootDirName), m_recursive(recursive), m_targetFormat(targetFormat),
-      m_saveFileName(saveFileName), m_gapMs(gapMs)
+      m_saveFileName(saveFileName), m_gapMs(gapMs), m_volumeConfig(volumeConfig)
 {
     auto layout = new QVBoxLayout(this);
 
@@ -117,8 +118,14 @@ void WavCombineDialog::readAndCombineWorkDone()
         // This will make progress bar show as busy indicator
         m_progressBar->setMaximum(0);
         m_progressBar->setMinimum(0);
-        auto nextFuture =
-            QtConcurrent::run(writeCombineResult, result.first, result.second, m_saveFileName, m_targetFormat);
+        auto data = result.first;
+        auto descObj = result.second;
+        auto saveFileName = m_saveFileName;
+        auto targetFormat = m_targetFormat;
+        auto volumeConfig = m_volumeConfig;
+        auto nextFuture = QtConcurrent::run([data, descObj, saveFileName, targetFormat, volumeConfig]() {
+            return writeCombineResult(data, descObj, saveFileName, targetFormat, volumeConfig);
+        });
         auto nextWatcher = new QFutureWatcher<bool>(this);
         nextWatcher->setFuture(nextFuture);
         connect(nextWatcher, &QFutureWatcher<bool>::finished, this, &WavCombineDialog::writeResultDone);

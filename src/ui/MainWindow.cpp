@@ -157,6 +157,10 @@ void MainWindow::reset()
     ui->combineResultPathWidget->setFileName({});
     ui->combineWAVFormatWidget->reset();
     ui->combineGapSpinBox->setValue(0);
+    ui->combineMultiVolumeCheckBox->setChecked(false);
+    ui->volumeByCountRadioButton->setChecked(true);
+    ui->volumeCountSpinBox->setValue(100);
+    ui->volumeDurationSpinBox->setValue(300);
 
     ui->extractSrcPathWidget->setFileName({});
     ui->extractResultPathWidget->setDirName({});
@@ -283,7 +287,19 @@ void MainWindow::run()
         }
 
         auto gapMs = ui->combineGapSpinBox->value();
-        auto dialog = new WavCombineDialog(rootDirName, recursive, targetFormat, saveFileName, gapMs, this);
+
+        utils::VolumeConfig volumeConfig;
+        if (ui->combineMultiVolumeCheckBox->isChecked()) {
+            if (ui->volumeByCountRadioButton->isChecked()) {
+                volumeConfig.mode = utils::VolumeSplitMode::ByCount;
+                volumeConfig.maxEntriesPerVolume = ui->volumeCountSpinBox->value();
+            } else {
+                volumeConfig.mode = utils::VolumeSplitMode::ByDuration;
+                volumeConfig.maxDurationSeconds = ui->volumeDurationSpinBox->value();
+            }
+        }
+
+        auto dialog = new WavCombineDialog(rootDirName, recursive, targetFormat, saveFileName, gapMs, volumeConfig, this);
         dialog->setAttribute(Qt::WA_DeleteOnClose, true);
         dialog->open();
     } else {

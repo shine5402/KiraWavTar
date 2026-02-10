@@ -93,6 +93,12 @@ void WavExtractDialog::preCheckDone()
         }
             [[fallthrough]];
         case WAVExtract::CheckPassType::OK: {
+            // Populate volume file list for multi-volume
+            int volumeCount = result.descRoot["volume_count"].toInt(1);
+            m_allVolumeFiles.clear();
+            for (int i = 0; i < volumeCount; ++i)
+                m_allVolumeFiles.append(utils::getVolumeFileName(m_srcWAVFileName, i));
+
             // Check for gap_duration (version 4+)
             m_gapDurationTimecode = result.descRoot.value("gap_duration").toString();
             if (!m_gapDurationTimecode.isEmpty() && m_gapDurationTimecode != QStringLiteral("00:00:00.000")) {
@@ -229,13 +235,19 @@ void WavExtractDialog::extractWorkDone()
                                           .arg(m_dstDirName));
             auto deleteSrcButton = new QPushButton(tr("Delete source file"), &msgBox);
             connect(deleteSrcButton, &QPushButton::clicked, this, [this]() {
-                auto removeSrcWAV = QFile(m_srcWAVFileName).remove();
+                bool allOk = true;
+                for (const auto &volFile : std::as_const(m_allVolumeFiles)) {
+                    if (QFile::exists(volFile) && !QFile(volFile).remove()) {
+                        QMessageBox::critical(this, {}, tr("Can not delete %1").arg(volFile));
+                        allOk = false;
+                    }
+                }
                 auto removeDescFile = QFile(getDescFileNameFrom(m_srcWAVFileName)).remove();
-                if (!removeSrcWAV)
-                    QMessageBox::critical(this, {}, tr("Can not delete %1").arg(m_srcWAVFileName));
-                if (!removeDescFile)
+                if (!removeDescFile) {
                     QMessageBox::critical(this, {}, tr("Can not delete %1").arg(getDescFileNameFrom(m_srcWAVFileName)));
-                if (removeSrcWAV && removeDescFile)
+                    allOk = false;
+                }
+                if (allOk)
                     QMessageBox::information(this, {}, tr("Source files have been deleted successfully."));
             });
             msgBox.addButton(deleteSrcButton, QMessageBox::AcceptRole);

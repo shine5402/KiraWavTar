@@ -316,33 +316,191 @@ startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::
 }
 
 bool writeCombineResult(utils::AudioBufferPtr data, QJsonObject descObj, QString wavFileName,
-                        AudioIO::WavAudioFormat targetFormat)
+                        AudioIO::WavAudioFormat targetFormat, const utils::VolumeConfig &volumeConfig)
 {
-    // Write WAV
-    try {
-        std::visit(
-            [&](auto &ptr) {
-                if (!ptr)
-                    throw std::runtime_error("Null audio buffer");
-                using PtrT = std::decay_t<decltype(ptr)>;
-                if constexpr (std::is_same_v<PtrT, std::shared_ptr<utils::AudioBufferF32>>) {
-                    AudioIO::writeWavFileF32(wavFileName, *ptr, targetFormat);
-                } else {
-                    AudioIO::writeWavFileF64(wavFileName, *ptr, targetFormat);
-                }
-            },
-            data);
-    } catch (...) {
-        return false;
+    double sampleRate = descObj["sample_rate"].toDouble();
+    QJsonArray descriptions = descObj["descriptions"].toArray();
+    QString gapDuration = descObj["gap_duration"].toString();
+    qint64 gapSamples = timecodeToSamples(gapDuration, sampleRate);
+
+    // Single-volume (no splitting)
+    if (volumeConfig.mode == utils::VolumeSplitMode::None) {
+        try {
+            std::visit(
+                [&](auto &ptr) {
+                    if (!ptr)
+                        throw std::runtime_error("Null audio buffer");
+                    using PtrT = std::decay_t<decltype(ptr)>;
+                    if constexpr (std::is_same_v<PtrT, std::shared_ptr<utils::AudioBufferF32>>) {
+                        AudioIO::writeWavFileF32(wavFileName, *ptr, targetFormat);
+                    } else {
+                        AudioIO::writeWavFileF64(wavFileName, *ptr, targetFormat);
+                    }
+                },
+                data);
+        } catch (...) {
+            return false;
+        }
+
+        QString descFileName = getDescFileNameFrom(wavFileName);
+        QFile descFile(descFileName);
+        if (!descFile.open(QIODevice::WriteOnly))
+            return false;
+        QJsonDocument doc(descObj);
+        descFile.write(doc.toJson());
+        descFile.close();
+        return true;
     }
 
-    // Write Desc
+    // Multi-volume: partition entries into volumes
+    struct VolumeInfo
+    {
+        int entryBeginIndex = 0;
+        int entryEndIndex = 0;
+        qint64 startSample = 0;
+        qint64 endSample = 0;
+    };
+    QList<VolumeInfo> volumes;
+
+    int entryCount = descriptions.size();
+    if (entryCount == 0)
+        return false;
+
+    if (volumeConfig.mode == utils::VolumeSplitMode::ByCount) {
+        int maxPerVol = volumeConfig.maxEntriesPerVolume;
+        for (int i = 0; i < entryCount; i += maxPerVol) {
+            VolumeInfo vi;
+            vi.entryBeginIndex = i;
+            vi.entryEndIndex = std::min(i + maxPerVol, entryCount);
+            volumes.append(vi);
+        }
+    } else {
+        // ByDuration
+        qint64 maxDurationSamples = static_cast<qint64>(volumeConfig.maxDurationSeconds) * static_cast<qint64>(sampleRate);
+        VolumeInfo currentVol;
+        currentVol.entryBeginIndex = 0;
+        qint64 accumulatedSamples = 0;
+
+        for (int i = 0; i < entryCount; ++i) {
+            auto entry = descriptions[i].toObject();
+            qint64 entryDurSamples = timecodeToSamples(entry["duration"].toString(), sampleRate);
+            qint64 footprint = 2 * gapSamples + entryDurSamples;
+
+            if (footprint > maxDurationSamples) {
+                throw std::runtime_error(
+                    QCoreApplication::translate("WAVCombine",
+                                                "Entry \"%1\" has duration %2 which exceeds the maximum volume duration of %3 seconds.")
+                        .arg(entry["file_name"].toString())
+                        .arg(entry["duration"].toString())
+                        .arg(volumeConfig.maxDurationSeconds)
+                        .toStdString());
+            }
+
+            if (accumulatedSamples > 0 && accumulatedSamples + footprint > maxDurationSamples) {
+                currentVol.entryEndIndex = i;
+                volumes.append(currentVol);
+                currentVol = {};
+                currentVol.entryBeginIndex = i;
+                accumulatedSamples = 0;
+            }
+            accumulatedSamples += footprint;
+        }
+        currentVol.entryEndIndex = entryCount;
+        volumes.append(currentVol);
+    }
+
+    // Compute volume sample boundaries
+    size_t totalBufferSize = 0;
+    std::visit([&](const auto &ptr) { totalBufferSize = ptr->operator[](0).size(); }, data);
+
+    for (int v = 0; v < volumes.size(); ++v) {
+        auto &vol = volumes[v];
+        auto firstEntry = descriptions[vol.entryBeginIndex].toObject();
+        qint64 firstBeginSample = timecodeToSamples(firstEntry["begin_time"].toString(), sampleRate);
+        vol.startSample = std::max(qint64(0), firstBeginSample - gapSamples);
+
+        if (v + 1 < volumes.size()) {
+            auto nextFirstEntry = descriptions[volumes[v + 1].entryBeginIndex].toObject();
+            qint64 nextBeginSample = timecodeToSamples(nextFirstEntry["begin_time"].toString(), sampleRate);
+            vol.endSample = std::max(qint64(0), nextBeginSample - gapSamples);
+        } else {
+            vol.endSample = static_cast<qint64>(totalBufferSize);
+        }
+    }
+
+    // Write each volume WAV
+    for (int v = 0; v < volumes.size(); ++v) {
+        const auto &vol = volumes[v];
+        QString volFileName = getVolumeFileName(wavFileName, v);
+        qint64 sliceStart = vol.startSample;
+        qint64 sliceLen = vol.endSample - vol.startSample;
+
+        try {
+            std::visit(
+                [&](auto &ptr) {
+                    if (!ptr)
+                        throw std::runtime_error("Null audio buffer");
+                    using PtrT = std::decay_t<decltype(ptr)>;
+                    using T = typename PtrT::element_type::value_type::value_type;
+                    size_t nChannels = ptr->size();
+                    kfr::univector2d<T> slice(nChannels);
+                    for (size_t c = 0; c < nChannels; ++c) {
+                        slice[c] = ptr->operator[](c).slice(sliceStart, sliceLen);
+                    }
+                    if constexpr (std::is_same_v<T, float>) {
+                        AudioIO::writeWavFileF32(volFileName, slice, targetFormat);
+                    } else {
+                        AudioIO::writeWavFileF64(volFileName, slice, targetFormat);
+                    }
+                },
+                data);
+        } catch (...) {
+            return false;
+        }
+    }
+
+    // Build v5 JSON
+    QJsonObject v5Root;
+    v5Root.insert("version", utils::desc_file_version_multivolume);
+    v5Root.insert("sample_rate", descObj["sample_rate"]);
+    v5Root.insert("sample_type", descObj["sample_type"]);
+    v5Root.insert("channel_count", descObj["channel_count"]);
+    v5Root.insert("gap_duration", descObj["gap_duration"]);
+    v5Root.insert("total_duration", descObj["total_duration"]);
+    v5Root.insert("volume_count", volumes.size());
+
+    QJsonArray volumesArray;
+    QJsonArray newDescriptions;
+
+    for (int v = 0; v < volumes.size(); ++v) {
+        const auto &vol = volumes[v];
+
+        QJsonObject volObj;
+        qint64 volDurationSamples = vol.endSample - vol.startSample;
+        volObj.insert("total_duration", samplesToTimecode(volDurationSamples, sampleRate));
+        volObj.insert("entry_begin_index", vol.entryBeginIndex);
+        volObj.insert("entry_end_index", vol.entryEndIndex);
+        volumesArray.append(volObj);
+
+        for (int i = vol.entryBeginIndex; i < vol.entryEndIndex; ++i) {
+            QJsonObject entry = descriptions[i].toObject();
+            qint64 globalBeginSample = timecodeToSamples(entry["begin_time"].toString(), sampleRate);
+            qint64 perVolumeBeginSample = globalBeginSample - vol.startSample;
+            entry.insert("begin_time", samplesToTimecode(perVolumeBeginSample, sampleRate));
+            entry.insert("volume_index", v);
+            newDescriptions.append(entry);
+        }
+    }
+
+    v5Root.insert("volumes", volumesArray);
+    v5Root.insert("descriptions", newDescriptions);
+
+    // Write single desc JSON
     QString descFileName = getDescFileNameFrom(wavFileName);
     QFile descFile(descFileName);
     if (!descFile.open(QIODevice::WriteOnly))
         return false;
-
-    QJsonDocument doc(descObj);
+    QJsonDocument doc(v5Root);
     descFile.write(doc.toJson());
     descFile.close();
 
