@@ -64,17 +64,20 @@ CheckResult preCheck(QString srcWAVFileName, QString dstDirName)
     }
 
     int version = root["version"].toInt();
-    if (version != 3 && version != 4 && version != 5) {
+    if (version < utils::min_supported_desc_file_version || version > utils::desc_file_version) {
         return {CheckPassType::CRITICAL,
-                QCoreApplication::translate("WAVExtract", "<p class='critical'>Description file \"%1\" has unsupported "
-                                                          "version %2. Expected version 3, 4, or 5.</p>")
+                QCoreApplication::translate("WAVExtract",
+                                            "<p class='critical'>Description file \"%1\" has unsupported "
+                                            "version %2. Expected version %3 to %4.</p>")
                     .arg(descFileName)
-                    .arg(version),
+                    .arg(version)
+                    .arg(utils::min_supported_desc_file_version)
+                    .arg(utils::desc_file_version),
                 {}};
     }
 
-    // Validate all volume files exist for multi-volume (v5)
-    if (version == 5) {
+    // Validate all volume files exist for multi-volume
+    {
         int volumeCount = root["volume_count"].toInt(1);
         if (volumeCount > 1) {
             QString missingFiles;
@@ -110,7 +113,7 @@ SrcData readSrcAudioFile(QString srcWAVFileName, QJsonObject descRoot, std::opti
         useDouble = utils::shouldUseDoubleInternalProcessing(srcFormat.kfr_format.type);
     }
 
-    // Single volume (v3/v4 or v5 with volume_count <= 1): existing logic
+    // Single volume: existing logic
     if (volumeCount <= 1) {
         if (useDouble) {
             auto result = AudioIO::readAudioFileF64(srcWAVFileName);

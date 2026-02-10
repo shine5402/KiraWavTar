@@ -499,15 +499,15 @@ bool writeCombineResult(utils::AudioBufferPtr data, QJsonObject descObj, QString
         }
     }
 
-    // Build v5 JSON
-    QJsonObject v5Root;
-    v5Root.insert("version", utils::desc_file_version_multivolume);
-    v5Root.insert("sample_rate", descObj["sample_rate"]);
-    v5Root.insert("sample_type", descObj["sample_type"]);
-    v5Root.insert("channel_count", descObj["channel_count"]);
-    v5Root.insert("gap_duration", descObj["gap_duration"]);
-    v5Root.insert("total_duration", descObj["total_duration"]);
-    v5Root.insert("volume_count", volumes.size());
+    // Build multi-volume description JSON
+    QJsonObject multiVolRoot;
+    multiVolRoot.insert("version", utils::desc_file_version);
+    multiVolRoot.insert("sample_rate", descObj["sample_rate"]);
+    multiVolRoot.insert("sample_type", descObj["sample_type"]);
+    multiVolRoot.insert("channel_count", descObj["channel_count"]);
+    multiVolRoot.insert("gap_duration", descObj["gap_duration"]);
+    multiVolRoot.insert("total_duration", descObj["total_duration"]);
+    multiVolRoot.insert("volume_count", volumes.size());
 
     QJsonArray volumesArray;
     QJsonArray newDescriptions;
@@ -532,15 +532,15 @@ bool writeCombineResult(utils::AudioBufferPtr data, QJsonObject descObj, QString
         }
     }
 
-    v5Root.insert("volumes", volumesArray);
-    v5Root.insert("descriptions", newDescriptions);
+    multiVolRoot.insert("volumes", volumesArray);
+    multiVolRoot.insert("descriptions", newDescriptions);
 
     // Write single desc JSON
     QString descFileName = getDescFileNameFrom(wavFileName);
     QFile descFile(descFileName);
     if (!descFile.open(QIODevice::WriteOnly))
         return false;
-    QJsonDocument doc(v5Root);
+    QJsonDocument doc(multiVolRoot);
     descFile.write(doc.toJson());
     descFile.close();
 

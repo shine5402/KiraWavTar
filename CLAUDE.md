@@ -53,15 +53,15 @@ The description file name is derived from the audio file name via `utils::getDes
 
 | Field            | Type   | Description                                                         |
 | ---------------- | ------ | ------------------------------------------------------------------- |
-| `version`        | int    | `4` for single-volume, `5` for multi-volume                         |
+| `version`        | int    | Currently `4` (see versioning policy below)                         |
 | `sample_rate`    | double | Sample rate of the combined audio (Hz)                              |
 | `sample_type`    | int    | KFR `audio_sample_type` enum value                                  |
 | `channel_count`  | int    | Number of channels                                                  |
 | `gap_duration`   | string | Duration of gap between entries as timecode `"HH:MM:SS.fff"`        |
 | `total_duration` | string | Total duration of the combined audio as a timecode `"HH:MM:SS.fff"` |
 | `descriptions`   | array  | Per-file entries (see below)                                        |
-| `volume_count`   | int    | (v5 only) Number of volume files                                    |
-| `volumes`        | array  | (v5 only) Per-volume metadata                                       |
+| `volume_count`   | int    | (multi-volume only) Number of volume files                          |
+| `volumes`        | array  | (multi-volume only) Per-volume metadata                             |
 
 Each entry in `descriptions`:
 
@@ -74,9 +74,18 @@ Each entry in `descriptions`:
 | `channel_count`    | int    | Number of channels kept (min of source and target)               |
 | `begin_time`       | string | Start position in the combined audio as `"HH:MM:SS.fff"`         |
 | `duration`         | string | Duration of this segment as `"HH:MM:SS.fff"`                     |
-| `volume_index`     | int    | (v5 only) Index of the volume file this entry belongs to         |
+| `volume_index`     | int    | (multi-volume only) Index of the volume file this entry belongs to |
 
 Timecodes use millisecond precision (3 decimal places). They are sample-rate-independent — if the combined WAV is resampled in a DAW, the timecodes remain valid. Conversion helpers live in `Utils.h`: `samplesToTimecode()` and `timecodeToSamples()`.
+
+#### Description File Versioning Policy
+
+Two constants in `Utils.h` govern version handling:
+
+- **`desc_file_version`** — the current version. The **write side** (`AudioCombine`) must always write this value and never any other. Do not use the version field as a feature flag to distinguish format variants (e.g. single-volume vs multi-volume); instead use the presence/absence of optional fields like `volume_count`.
+- **`min_supported_desc_file_version`** — the oldest version the **read side** (`AudioExtract`) still accepts. Any description file with a version in the range `[min_supported_desc_file_version, desc_file_version]` is accepted; anything outside is rejected.
+
+When adding new features to the description format, increment `desc_file_version` and keep `min_supported_desc_file_version` at whatever oldest version you still intend to support.
 
 ### Third-Party Libraries (vendored in `3rdparty/`)
 
