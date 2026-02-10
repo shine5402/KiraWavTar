@@ -113,10 +113,16 @@ QMenu *TranslationManager::getI18nMenu()
 
     // Add supported translations
     for (const auto &locale : std::as_const(m_supportedLocales)) {
-        auto langAction = new QAction(
-            QLatin1String("%1 [%2] (%3)")
-                .arg(QLocale::languageToString(locale.language()), locale.nativeLanguageName(), locale.bcp47Name()),
-            m_i18nMenu);
+        auto getActionText = [&](const QLocale &loc) {
+            if (loc.language() == QLocale::English) {
+                return QStringLiteral("English (%1) (%2)")
+                    .arg(QLocale::territoryToString(loc.territory()), loc.bcp47Name());
+            }
+            return QStringLiteral("%1 [%2] (%3)")
+                .arg(QLocale::languageToString(loc.language()), loc.nativeLanguageName(), loc.bcp47Name());
+        };
+
+        auto langAction = new QAction(getActionText(locale), m_i18nMenu);
         langAction->setData(QVariant::fromValue(locale));
         langAction->setCheckable(true);
         m_i18nMenu->addAction(langAction);
