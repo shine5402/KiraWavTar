@@ -27,6 +27,7 @@ Organize your audio files (WAV or FLAC) in a folder (any subfolder structure is 
 As shown in the workflow above, you can drag and drop a folder or file directly onto a path input field to set the path quickly.
 
 KiraWAVTar also suggests a default output path whenever you provide a source path:
+
 - **Combining:** the suggested output file is placed next to the input folder, using the folder's name as the filename (e.g., `MyAudioFiles` → `MyAudioFiles.wav`).
 - **Extracting:** the suggested output folder is placed next to the input file, with `_result` appended to its name (e.g., `CombinedAudio.wav` → `CombinedAudio_result/`). The suffix is added to avoid confusion with the original file and to prevent accidental overwriting.
 
@@ -40,8 +41,7 @@ While this utility handles a straightforward task, performance is still a priori
 
 Under the hood, KiraWAVTar leverages the highly SIMD-optimized [KFR audio library](https://kfrlib.com/) for resampling and processes files in parallel using [oneTBB](https://github.com/uxlfoundation/oneTBB) to keep things moving fast.
 
-For reference, on a MacBook Pro M4 Max with its internal SSD, combining ~1600 WAV files totaling ~2 and a half hours of audio takes around 3 seconds to complete, while extracting them back takes around [test needed] seconds. Even if resampling is involved, it only takes around 11 seconds to combine and [test needed] seconds to extract.
-
+For reference, on a MacBook Pro M4 Max with its internal SSD, combining ~1600 WAV files totaling ~2 and a half hours of audio takes around 3 seconds to complete, while extracting them back takes around 1 seconds. Even if resampling is involved, it only takes around 11 seconds to combine and 6 seconds to extract.
 
 #### Easy to use
 
@@ -52,6 +52,7 @@ For reference, on a MacBook Pro M4 Max with its internal SSD, combining ~1600 WA
 ## Format Support
 
 KiraWAVTar supports reading and writing the following audio formats:
+
 - **WAV containers:** RIFF, RF64, and W64
 - **FLAC:** Free Lossless Audio Codec
 
@@ -62,6 +63,7 @@ Supported bit depths for WAV writing: 8-bit integer, 16-bit integer, 24-bit inte
 ## Supported Platforms
 
 Official prebuilt binaries are provided for:
+
 - Windows 10/11 (x64)
 - macOS 13+ (Universal)
 
@@ -72,6 +74,7 @@ The codebase has no platform-specific code, and all dependencies are cross-platf
 ## Translations
 
 Official translations are available in the following languages:
+
 - English
 - Chinese (Simplified) [简体中文]
 - Chinese (Traditional) [繁體中文]

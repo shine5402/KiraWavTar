@@ -111,6 +111,46 @@ private:
     std::unique_ptr<DitherState> m_ditherState;
 };
 
+// --- Streaming reader for chunked input (used by extract pipeline) ---
+
+class StreamingAudioReader {
+public:
+    StreamingAudioReader();
+    ~StreamingAudioReader();
+
+    // Non-copyable, movable
+    StreamingAudioReader(const StreamingAudioReader &) = delete;
+    StreamingAudioReader &operator=(const StreamingAudioReader &) = delete;
+    StreamingAudioReader(StreamingAudioReader &&) noexcept;
+    StreamingAudioReader &operator=(StreamingAudioReader &&) noexcept;
+
+    // Opens the audio file. Dispatches by extension (.flac → FLAC, else → WAV).
+    void open(const QString &fileName);
+
+    AudioFormat format() const { return m_format; }
+
+    // Seek to an absolute PCM frame position. Returns true on success.
+    bool seekToFrame(qint64 frame);
+
+    // Read frameCount frames starting from current position, returned as planar float/double.
+    kfr::univector2d<float> readFramesF32(qint64 frameCount);
+    kfr::univector2d<double> readFramesF64(qint64 frameCount);
+
+    void close();
+    bool isOpen() const { return m_isOpen; }
+
+private:
+    AudioFormat m_format{};
+    bool m_isOpen = false;
+    bool m_isWav = false;
+
+    struct WavState;
+    std::unique_ptr<WavState> m_wavState;
+
+    struct FlacState;
+    std::unique_ptr<FlacState> m_flacState;
+};
+
 } // namespace AudioIO
 
 #endif

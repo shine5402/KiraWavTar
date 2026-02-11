@@ -83,8 +83,8 @@ void setMaxLiveTokens(int value);
 int effectiveMaxLiveTokens();
 
 // Description file versioning policy:
-// - desc_file_version is the CURRENT version written by WavCombine. Write side must ONLY use this.
-// - min_supported_desc_file_version is the oldest version WavExtract still accepts (backward compatibility).
+// - desc_file_version is the CURRENT version written by AudioCombine. Write side must ONLY use this.
+// - min_supported_desc_file_version is the oldest version AudioExtract still accepts (backward compatibility).
 constexpr auto desc_file_version = 4;
 constexpr auto min_supported_desc_file_version = 3;
 

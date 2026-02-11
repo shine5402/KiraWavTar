@@ -1,4 +1,4 @@
-#include "WavCombine.h"
+#include "AudioCombine.h"
 
 #include <QDir>
 #include <QJsonArray>

@@ -12,6 +12,7 @@
     </message>
     <message>
         <location filename="../src/worker/AudioIO.cpp" line="280"/>
+        <location filename="../src/worker/AudioIO.cpp" line="854"/>
         <source>Failed to open file for writing: %1</source>
         <translation>无法打开文件进行写入：%1</translation>
     </message>
@@ -39,11 +40,13 @@
     </message>
     <message>
         <location filename="../src/worker/AudioIO.cpp" line="600"/>
+        <location filename="../src/worker/AudioIO.cpp" line="822"/>
         <source>Failed to create FLAC encoder for: %1</source>
         <translation>无法为以下文件创建 FLAC 编码器：%1</translation>
     </message>
     <message>
         <location filename="../src/worker/AudioIO.cpp" line="615"/>
+        <location filename="../src/worker/AudioIO.cpp" line="838"/>
         <source>Failed to open FLAC file for writing: %1</source>
         <translation>无法打开 FLAC 文件进行写入：%1</translation>
     </message>
@@ -60,6 +63,40 @@
         <location filename="../src/ui/widgets/DirNameEditWithBrowse.cpp" line="92"/>
         <source>Browse</source>
         <translation>浏览</translation>
+    </message>
+</context>
+<context>
+    <name>EngineSettingsDialog</name>
+    <message>
+        <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="40"/>
+        <source>Engine Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="47"/>
+        <source>Sample Rate Conversion Quality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="61"/>
+        <source>Quality:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="65"/>
+        <source>Pipeline Concurrency</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="68"/>
+        <source>Controls how many audio chunks are processed simultaneously during combine.
+Higher values may improve speed but use more memory.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="74"/>
+        <source>Auto (recommended)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -189,13 +226,21 @@
     </message>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="466"/>
-        <source>Sample rate conversion quality</source>
-        <translation>指定采样率转换过程的质量</translation>
+        <source>Configure audio processing engine settings</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="469"/>
+        <source>Engine Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample rate conversion quality</source>
+        <translation type="vanished">指定采样率转换过程的质量</translation>
+    </message>
+    <message>
         <source>SRC Quality</source>
-        <translation>重采样质量</translation>
+        <translation type="vanished">重采样质量</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="347"/>
@@ -229,7 +274,7 @@
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="37"/>
-        <location filename="../src/ui/MainWindow.cpp" line="377"/>
+        <location filename="../src/ui/MainWindow.cpp" line="293"/>
         <source>About</source>
         <translation>关于</translation>
     </message>
@@ -244,60 +289,41 @@
         <translation>立即检查更新</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="90"/>
-        <location filename="../src/ui/MainWindow.cpp" line="111"/>
-        <location filename="../src/ui/MainWindow.cpp" line="195"/>
         <source>Draft</source>
-        <translation>草稿</translation>
+        <translation type="vanished">草稿</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="92"/>
-        <location filename="../src/ui/MainWindow.cpp" line="112"/>
-        <location filename="../src/ui/MainWindow.cpp" line="197"/>
         <source>Low</source>
-        <translation>低</translation>
+        <translation type="vanished">低</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="94"/>
-        <location filename="../src/ui/MainWindow.cpp" line="100"/>
-        <location filename="../src/ui/MainWindow.cpp" line="113"/>
-        <location filename="../src/ui/MainWindow.cpp" line="199"/>
-        <location filename="../src/ui/MainWindow.cpp" line="205"/>
         <source>Normal</source>
-        <translation>正常</translation>
+        <translation type="vanished">正常</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="96"/>
-        <location filename="../src/ui/MainWindow.cpp" line="114"/>
-        <location filename="../src/ui/MainWindow.cpp" line="201"/>
         <source>High</source>
-        <translation>高</translation>
+        <translation type="vanished">高</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="98"/>
-        <location filename="../src/ui/MainWindow.cpp" line="115"/>
-        <location filename="../src/ui/MainWindow.cpp" line="203"/>
         <source>Perfect</source>
-        <translation>完美</translation>
+        <translation type="vanished">完美</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="150"/>
-        <location filename="../src/ui/MainWindow.cpp" line="219"/>
         <source>SRC Quality: %1</source>
-        <translation>重采样质量：%1</translation>
+        <translation type="vanished">重采样质量：%1</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="253"/>
+        <location filename="../src/ui/MainWindow.cpp" line="169"/>
         <source>No WAV files found in the specified folder.</source>
         <translation>在指定文件夹中未找到任何 WAV 文件。</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="372"/>
+        <location filename="../src/ui/MainWindow.cpp" line="288"/>
         <source>&lt;p&gt;Version %1, &lt;i&gt;build on %2 %3&lt;/i&gt;&lt;/p&gt;</source>
         <translation>&lt;p&gt;版本 %1, &lt;i&gt;构建于 %2 %3&lt;/i&gt;&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="378"/>
+        <location filename="../src/ui/MainWindow.cpp" line="294"/>
         <source>&lt;p style=&quot;text-align: left;&quot;&gt;&lt;img src=&quot;:/icon/appIcon&quot; width=&quot;64&quot;/&gt;&lt;/p&gt;
 &lt;h2&gt;KiraWAVTar&lt;/h2&gt;
 &lt;p&gt;Copyright 2021-present shine_5402&lt;/p&gt;
@@ -560,8 +586,8 @@ Thanks for their contribution!&lt;/p&gt;
         <translation>运行</translation>
     </message>
     <message>
+        <location filename="../src/ui/MainWindow.cpp" line="157"/>
         <location filename="../src/ui/MainWindow.cpp" line="241"/>
-        <location filename="../src/ui/MainWindow.cpp" line="325"/>
         <source>Needed paths are empty. Please check your input and try again.</source>
         <translation>没有提供所有需要的路径。请检查输入之后重试。</translation>
     </message>
@@ -755,49 +781,62 @@ Open download page?</source>
         <translation type="vanished">&lt;p class=&apos;critical&apos;&gt;合并后的音频数据长度超过了普通WAV文件所能承载的长度，请选择使用W64格式来保存。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/WavCombine.cpp" line="29"/>
+        <location filename="../src/worker/AudioCombine.cpp" line="36"/>
         <source>&lt;p class=&apos;critical&apos;&gt;There are not any audio files in the given folder. Please check the path, or if you forget to turn &quot;scan subfolders&quot; on?&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;没有在所给文件夹中找到任何音频文件。请检查提供的路径，或者忘记勾选“包含子文件夹”了？&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/WavCombine.cpp" line="55"/>
+        <location filename="../src/worker/AudioCombine.cpp" line="62"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Length of the wav file combined will be too large to save in normal RIFF WAVs. Please use 64-bit WAV instead.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;合并后的音频数据长度超过了普通 RIFF WAV 文件所能承载的长度，请选择使用64位格式来保存。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/WavCombine.cpp" line="69"/>
         <source>&lt;p class=&apos;warning&apos;&gt;Can not know bit depth from &quot;%1&quot;. Maybe this file id corrupted, or error happend during openning the file.&lt;/p&gt;</source>
-        <translation>&lt;p class=&apos;warning&apos;&gt;我们无法得知“%1”存储的量化类型，可能该文件已损坏，或者文件打开时出现了问题。&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p class=&apos;warning&apos;&gt;我们无法得知“%1”存储的量化类型，可能该文件已损坏，或者文件打开时出现了问题。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/WavCombine.cpp" line="82"/>
+        <location filename="../src/worker/AudioCombine.cpp" line="76"/>
+        <source>&lt;p class=&apos;warning&apos;&gt;Can not know bit depth from &quot;%1&quot;. Maybe this file id corrupted, or error happened during opening the file.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/worker/AudioCombine.cpp" line="89"/>
         <source>&lt;p class=&apos;warning&apos;&gt;There are %2 channel(s) in &quot;%1&quot;. Channels after No.%3 will be discarded.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;warning&apos;&gt;“%1”包含了%2个声道，位于%3号之后的声道数据会被丢弃。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/WavCombine.cpp" line="96"/>
+        <location filename="../src/worker/AudioCombine.cpp" line="103"/>
         <source>&lt;p class=&apos;warning&apos;&gt;Sample rate (%2 Hz) of &quot;%1&quot; is larger than target (&quot;%3&quot; Hz).The precision could be lost a bit when processing.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;warning&apos;&gt;“%1”的采样率（%2 Hz）比目标（%3 Hz）要大，处理时的重采样会造成一定的精度损失。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/WavCombine.cpp" line="129"/>
+        <location filename="../src/worker/AudioCombine.cpp" line="129"/>
         <source>&lt;p class=&apos;warning&apos;&gt;&quot;%1&quot; (%2) will be converted to integer format (%3). Floating-point audio has virtually unlimited headroom, but integer formats clip at 0 dBFS — any signal above that will be permanently burned in. Quiet signals may also lose detail due to the reduced dynamic range. TPDF dithering is applied automatically to reduce quantization artifacts.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;warning&apos;&gt;“%1” (%2) 将被转换为整型格式 (%3)。浮点音频拥有几乎无限的动态范围，但整型格式会在 0 dBFS 处出现削波——任何超过该电平的信号都将永久失真。由于动态范围的减小，在音频信号微弱的情况下会有丢失细节的可能性。程序已自动应用 TPDF 抖动以减少量化噪声。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/WavCombine.cpp" line="142"/>
+        <location filename="../src/worker/AudioCombine.cpp" line="141"/>
         <source>&lt;p class=&apos;warning&apos;&gt;&quot;%1&quot; (%2) will be converted to %3. There will be a slight reduction in floating-point precision, which is generally negligible for most audio work.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;warning&apos;&gt;“%1” (%2) 将被转换为 %3。浮点精度会有轻微下降，这对于大多数音频工作来说通常可以忽略不计。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/WavCombine.cpp" line="155"/>
+        <location filename="../src/worker/AudioCombine.cpp" line="153"/>
         <source>&lt;p class=&apos;warning&apos;&gt;&quot;%1&quot; (%2) will be converted to %3. This reduces the dynamic range, which means quiet signals may lose detail. TPDF dithering is applied automatically to reduce quantization artifacts.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;warning&apos;&gt;“%1” (%2) 将被转换为 %3。这会减小动态范围，意味着在音频信号微弱的情况下可能会丢失细节。程序已自动应用 TPDF 抖动以减少量化噪声。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/WavCombine.cpp" line="430"/>
+        <location filename="../src/worker/AudioCombine.cpp" line="277"/>
+        <source>Entry &quot;%1&quot; has duration which exceeds the maximum volume duration of %2 seconds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/worker/AudioCombine.cpp" line="531"/>
+        <source>Failed to write description file: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Entry &quot;%1&quot; has duration %2 which exceeds the maximum volume duration of %3 seconds.</source>
-        <translation>条目“%1”的时长 (%2) 超过了最大分卷时长 (%3 秒)。</translation>
+        <translation type="vanished">条目“%1”的时长 (%2) 超过了最大分卷时长 (%3 秒)。</translation>
     </message>
     <message>
         <source>&lt;p class=&apos;warning&apos;&gt;Bit depth (%2) of &quot;%1&quot; is larger than target.The precision could be lost a bit when processing.&lt;/p&gt;</source>
@@ -930,32 +969,36 @@ Open download page?</source>
         <translation type="vanished">文件%1写入的字节数（%2）和预期的（%3）不一致（即没有完全写入完成）。</translation>
     </message>
     <message>
-        <location filename="../src/worker/WavExtract.cpp" line="29"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="29"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Can not find description file &quot;%1&quot;. If you have renamed the WAV file, please also rename the desc file.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;找不到描述文件“%1”。如果您重命名了 WAV 文件，请同时也重命名相应的描述文件。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/WavExtract.cpp" line="38"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="38"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Can not open description file &quot;%1&quot;. Check your permission.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;无法打开描述文件“%1”。请检查权限。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/WavExtract.cpp" line="48"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="48"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Failed to parse description file &quot;%1&quot;: %2&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;解析描述文件“%1”失败：%2&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/WavExtract.cpp" line="60"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="60"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Description file &quot;%1&quot; is missing version field.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;描述文件“%1”缺失版本字段。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/WavExtract.cpp" line="69"/>
-        <source>&lt;p class=&apos;critical&apos;&gt;Description file &quot;%1&quot; has unsupported version %2. Expected version 3, 4, or 5.&lt;/p&gt;</source>
-        <translation>&lt;p class=&apos;critical&apos;&gt;描述文件“%1”的版本号 %2 不受支持。预期版本号为 3, 4 或 5。&lt;/p&gt;</translation>
+        <location filename="../src/worker/AudioExtract.cpp" line="69"/>
+        <source>&lt;p class=&apos;critical&apos;&gt;Description file &quot;%1&quot; has unsupported version %2. Expected version %3 to %4.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/worker/WavExtract.cpp" line="85"/>
+        <source>&lt;p class=&apos;critical&apos;&gt;Description file &quot;%1&quot; has unsupported version %2. Expected version 3, 4, or 5.&lt;/p&gt;</source>
+        <translation type="vanished">&lt;p class=&apos;critical&apos;&gt;描述文件“%1”的版本号 %2 不受支持。预期版本号为 3, 4 或 5。&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <location filename="../src/worker/AudioExtract.cpp" line="88"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Missing volume file: &quot;%1&quot;&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;缺少分卷文件：“%1”&lt;/p&gt;</translation>
     </message>
@@ -1281,64 +1324,66 @@ WAV 文件可以使用不同的容器格式，每种格式都有不同的限制�
 <context>
     <name>WavCombineDialog</name>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="48"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="49"/>
         <source>Some preparing work...</source>
         <translation>一些准备工作……</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="71"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="70"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="98"/>
         <source>Error</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="72"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="71"/>
         <source>Critical error found. Can not continue.</source>
         <translation>发现了一些严重问题，操作无法继续。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="81"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="80"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="82"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="81"/>
         <source>Some problems have been found but process can continue. Should we proceed?</source>
         <translation>发现了一些问题，不过操作仍然可以继续。请问要继续吗？</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="96"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="108"/>
+        <source>Reading, processing and writing audio files...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Reading WAV files and combining them...</source>
-        <translation>读取波形文件及拼接……</translation>
+        <translation type="vanished">读取波形文件及拼接……</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="117"/>
         <source>Writing combined file...</source>
-        <translation>写入合并后的文件……</translation>
+        <translation type="vanished">写入合并后的文件……</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="143"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="161"/>
         <source>Done</source>
         <translation>完成</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="151"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="166"/>
         <source>Wav files has been combined.</source>
         <translation>合并操作已经完成。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="153"/>
+        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="168"/>
         <source>Combined file has been stored at &quot;%1&quot;.Please do not change the time when you edit it, and do not delete or modify &quot;.kirawavtar-desc.json&quot; file sharing the same name with the WAV.</source>
         <translation>合并后的波形文件已经存储至%1。请注意在处理时不要修改波形文件内的时值，也不要删除和修改同名的“.kirawavtar-desc.json”描述文件。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="163"/>
         <source>Error occurred when writing combined WAV.</source>
-        <translation>写入合并结果文件时出现问题。</translation>
+        <translation type="vanished">写入合并结果文件时出现问题。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="164"/>
         <source>Please check potential causes and try again.</source>
-        <translation>请排查可能问题后再试。</translation>
+        <translation type="vanished">请排查可能问题后再试。</translation>
     </message>
 </context>
 <context>

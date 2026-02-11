@@ -1,19 +1,21 @@
 #include "WavExtractDialog.h"
 
 #include <QDialogButtonBox>
+#include <QFutureWatcher>
 #include <QHeaderView>
 #include <QLabel>
 #include <QMessageBox>
 #include <QProgressBar>
 #include <QPushButton>
 #include <QTableView>
+#include <QTimer>
 #include <QVBoxLayout>
 #include <QtConcurrent>
 
 #include "CommonHtmlDialog.h"
 #include "models/ExtractTargetSelectModel.h"
 #include "utils/Utils.h"
-#include "worker/WavExtract.h"
+#include "worker/AudioExtract.h"
 
 using namespace AudioExtract;
 using namespace utils;
@@ -58,8 +60,6 @@ void WavExtractDialog::startWork()
     connect(m_buttonBox, &QDialogButtonBox::rejected, watcher, &PreCheckFutureWatcher::cancel);
 }
 
-using ReadSrcWAVFileFutureWatcher = QFutureWatcher<decltype(std::function(readSrcAudioFile))::result_type>;
-
 void WavExtractDialog::preCheckDone()
 {
     if (auto watcher = dynamic_cast<PreCheckFutureWatcher *>(QObject::sender())) {
@@ -93,14 +93,16 @@ void WavExtractDialog::preCheckDone()
         }
             [[fallthrough]];
         case AudioExtract::CheckPassType::OK: {
+            m_descRoot = result.descRoot;
+
             // Populate volume file list for multi-volume
-            int volumeCount = result.descRoot["volume_count"].toInt(1);
+            int volumeCount = m_descRoot["volume_count"].toInt(1);
             m_allVolumeFiles.clear();
             for (int i = 0; i < volumeCount; ++i)
                 m_allVolumeFiles.append(utils::getVolumeFileName(m_srcWAVFileName, i));
 
             // Check for gap_duration (version 4+)
-            m_gapDurationTimecode = result.descRoot.value("gap_duration").toString();
+            m_gapDurationTimecode = m_descRoot.value("gap_duration").toString();
             if (!m_gapDurationTimecode.isEmpty() && m_gapDurationTimecode != QStringLiteral("00:00:00.000")) {
                 QMessageBox gapBox(this);
                 gapBox.setWindowTitle(tr("Space Between Entries"));
@@ -118,183 +120,196 @@ void WavExtractDialog::preCheckDone()
                 }
             }
 
-            auto nextFuture = QtConcurrent::run(readSrcAudioFile, m_srcWAVFileName, result.descRoot, m_targetFormat);
-            auto nextWatcher = new ReadSrcWAVFileFutureWatcher(this);
-            nextWatcher->setFuture(nextFuture);
-            m_label->setText(tr("Reading source WAV file..."));
-            connect(nextWatcher, &ReadSrcWAVFileFutureWatcher::finished, this, &WavExtractDialog::readSrcAudioFileDone);
-            connect(m_buttonBox, &QDialogButtonBox::rejected, nextWatcher, &ReadSrcWAVFileFutureWatcher::cancel);
+            // Target selection works on JSON array directly (no audio data needed)
+            QJsonArray descArray = m_descRoot["descriptions"].toArray();
+
+            if (m_extractResultSelection) {
+                auto selectDialog = new QDialog(this);
+                auto selectModel = new ExtractTargetSelectModel(&descArray, selectDialog);
+                auto selectDialogLayout = new QVBoxLayout(selectDialog);
+
+                auto selectLabel = new QLabel(tr("Choose which ones to extract."), selectDialog);
+                selectDialogLayout->addWidget(selectLabel);
+
+                auto selectView = new QTableView(selectDialog);
+                selectView->setModel(selectModel);
+                selectView->resizeColumnsToContents();
+                selectDialogLayout->addWidget(selectView);
+
+                auto buttonLayout = new QHBoxLayout;
+                auto selectAllButton = new QPushButton(tr("Select all"), selectDialog);
+                auto unselectAllButton = new QPushButton(tr("Unselect all"), selectDialog);
+                auto reverseSelectButton = new QPushButton(tr("Inverse"), selectDialog);
+                buttonLayout->addWidget(selectAllButton);
+                buttonLayout->addWidget(unselectAllButton);
+                buttonLayout->addWidget(reverseSelectButton);
+                buttonLayout->addStretch(1);
+                connect(selectAllButton, &QPushButton::clicked, [selectModel]() { selectModel->selectAll(); });
+                connect(unselectAllButton, &QPushButton::clicked, [selectModel]() { selectModel->unselectAll(); });
+                connect(reverseSelectButton, &QPushButton::clicked,
+                        [selectModel]() { selectModel->reverseSelect(); });
+                selectDialogLayout->addLayout(buttonLayout);
+
+                auto selectDialogButtonBox =
+                    new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, selectDialog);
+                connect(selectDialogButtonBox, &QDialogButtonBox::accepted, selectDialog, &QDialog::accept);
+                connect(selectDialogButtonBox, &QDialogButtonBox::rejected, selectDialog, &QDialog::reject);
+                selectDialogLayout->addWidget(selectDialogButtonBox);
+
+                selectDialog->setLayout(selectDialogLayout);
+                selectDialog->resize(800, 500);
+
+                if (selectDialog->exec() == QDialog::Rejected) {
+                    done(QDialog::Rejected);
+                    return;
+                }
+                // ExtractTargetSelectModel modifies the QJsonArray in-place (removes unchecked entries)
+            }
+
+            launchPipeline(descArray);
             break;
         }
         }
     }
 }
 
-using ExtractWorkFutureWatcher = QFutureWatcher<ExtractErrorDescription>;
-
-// Though use SrcData as param would be better, but it will expose this internal struct in wavextractdialog.h, so..
-void WavExtractDialog::doExtractCall(utils::AudioBufferPtr srcData, decltype(kfr::audio_format::samplerate) samplerate,
-                                     QJsonArray descArray)
+void WavExtractDialog::launchPipeline(QJsonArray filteredDescArray)
 {
-    m_label->setText(tr("Writing extracted file..."));
-    auto nextFuture = startExtract(srcData, samplerate, descArray, m_dstDirName, m_targetFormat, m_removeDCOffset,
-                                   m_extractGapMode, m_gapDurationTimecode);
-    auto nextWatcher = new ExtractWorkFutureWatcher(this);
+    ExtractPipelineParams pipelineParams;
+    pipelineParams.srcWAVFileName = m_srcWAVFileName;
+    pipelineParams.descRoot = m_descRoot;
+    pipelineParams.dstDirName = m_dstDirName;
+    pipelineParams.targetFormat = m_targetFormat;
+    pipelineParams.removeDCOffset = m_removeDCOffset;
+    pipelineParams.gapMode = m_extractGapMode;
+    pipelineParams.gapDurationTimecode = m_gapDurationTimecode;
+    pipelineParams.filteredDescArray = filteredDescArray;
+
+    // Set up progress tracking
+    m_pipelineProgress = std::make_shared<std::atomic<int>>(0);
+    m_tbbContext = std::make_shared<oneapi::tbb::task_group_context>();
+
+    int totalEntries = filteredDescArray.size();
+    m_label->setText(tr("Reading, processing and writing audio files..."));
+    m_progressBar->setMinimum(0);
+    m_progressBar->setMaximum(totalEntries);
+    m_progressBar->setValue(0);
+
+    // Start a timer to poll atomic progress
+    m_progressTimer = new QTimer(this);
+    auto progressPtr = m_pipelineProgress;
+    connect(m_progressTimer, &QTimer::timeout, this, [this, progressPtr]() {
+        m_progressBar->setValue(progressPtr->load(std::memory_order_relaxed));
+    });
+    m_progressTimer->start(100);
+
+    // Connect cancel button to TBB cancellation
+    auto tbbCtx = m_tbbContext;
+    connect(m_buttonBox, &QDialogButtonBox::rejected, this, [tbbCtx]() {
+        tbbCtx->cancel_group_execution();
+    });
+
+    // Run pipeline on worker thread
+    auto nextFuture = QtConcurrent::run([pipelineParams, progressPtr, tbbCtx]() {
+        return runExtractPipeline(pipelineParams, *progressPtr, *tbbCtx);
+    });
+    auto nextWatcher = new QFutureWatcher<ExtractPipelineResult>(this);
     nextWatcher->setFuture(nextFuture);
-    m_progressBar->setMinimum(nextWatcher->progressMinimum());
-    m_progressBar->setMaximum(nextWatcher->progressMaximum());
-    connect(nextWatcher, &QFutureWatcher<bool>::progressValueChanged, m_progressBar, &QProgressBar::setValue);
-    connect(nextWatcher, &QFutureWatcher<bool>::finished, this, &WavExtractDialog::extractWorkDone);
-    connect(m_buttonBox, &QDialogButtonBox::rejected, nextWatcher, &QFutureWatcher<bool>::cancel);
+    connect(nextWatcher, &QFutureWatcher<ExtractPipelineResult>::finished, this, &WavExtractDialog::pipelineDone);
 }
 
-void WavExtractDialog::readSrcAudioFileDone()
+void WavExtractDialog::pipelineDone()
 {
-    if (auto watcher = dynamic_cast<ReadSrcWAVFileFutureWatcher *>(QObject::sender())) {
-        if (!utils::checkFutureExceptionAndWarn(watcher->future()))
+    // Stop progress polling
+    if (m_progressTimer) {
+        m_progressTimer->stop();
+        m_progressTimer->deleteLater();
+        m_progressTimer = nullptr;
+    }
+
+    if (auto watcher = dynamic_cast<QFutureWatcher<ExtractPipelineResult> *>(QObject::sender())) {
+        if (!utils::checkFutureExceptionAndWarn(watcher->future())) {
+            done(QDialog::Rejected);
             return;
-        if (watcher->isCanceled())
-            return;
-        auto result = watcher->result();
-        if (m_extractResultSelection) {
-            auto selectDialog = new QDialog(this);
-            auto selectModel = new ExtractTargetSelectModel(&result.descArray, selectDialog);
-            auto selectDialogLayout = new QVBoxLayout(selectDialog);
-
-            auto selectLabel = new QLabel(tr("Choose which ones to extract."), selectDialog);
-            selectDialogLayout->addWidget(selectLabel);
-
-            auto selectView = new QTableView(selectDialog);
-            selectView->setModel(selectModel);
-            selectView->resizeColumnsToContents(); // FILENAME
-            // selectView->horizontalHeader()->setStretchLastSection(true);
-            // selectView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);//0 for FILENAME
-            selectDialogLayout->addWidget(selectView);
-
-            auto buttonLayout = new QHBoxLayout;
-            auto selectAllButton = new QPushButton(tr("Select all"), selectDialog);
-            auto unselectAllButton = new QPushButton(tr("Unselect all"), selectDialog);
-            auto reverseSelectButton = new QPushButton(tr("Inverse"), selectDialog);
-            buttonLayout->addWidget(selectAllButton);
-            buttonLayout->addWidget(unselectAllButton);
-            buttonLayout->addWidget(reverseSelectButton);
-            buttonLayout->addStretch(1);
-            connect(selectAllButton, &QPushButton::clicked, [selectModel]() { selectModel->selectAll(); });
-            connect(unselectAllButton, &QPushButton::clicked, [selectModel]() { selectModel->unselectAll(); });
-            connect(reverseSelectButton, &QPushButton::clicked, [selectModel]() { selectModel->reverseSelect(); });
-            selectDialogLayout->addLayout(buttonLayout);
-
-            auto selectDialogButtonBox =
-                new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, selectDialog);
-            connect(selectDialogButtonBox, &QDialogButtonBox::accepted, selectDialog, &QDialog::accept);
-            connect(selectDialogButtonBox, &QDialogButtonBox::rejected, selectDialog, &QDialog::reject);
-            selectDialogLayout->addWidget(selectDialogButtonBox);
-
-            selectDialog->setLayout(selectDialogLayout);
-
-            selectDialog->resize(800, 500);
-            auto selectDialogResult = selectDialog->exec();
-            if (selectDialogResult == QDialog::Rejected) {
-                done(QDialog::Rejected);
-                return;
-            }
-            // As model takes a pointer to result.second and modify it directly, there is no need for us to do extra
-            // work here.
         }
-        doExtractCall(result.srcData, result.samplerate, result.descArray);
+        if (watcher->isCanceled() ||
+            (m_tbbContext && m_tbbContext->is_group_execution_cancelled())) {
+            done(QDialog::Rejected);
+            return;
+        }
+
+        handlePipelineResult(watcher->result());
     }
 }
 
-void WavExtractDialog::extractWorkDone()
+void WavExtractDialog::handlePipelineResult(const ExtractPipelineResult &result)
 {
-    if (auto watcher = dynamic_cast<ExtractWorkFutureWatcher *>(QObject::sender())) {
-        if (!utils::checkFutureExceptionAndWarn(watcher->future()))
-            return;
-        if (watcher->isCanceled())
-            return;
-        m_label->setText(tr("Done"));
-        // Set progressbar as done
-        m_progressBar->setMaximum(1);
-        m_progressBar->setMinimum(0);
-        m_progressBar->setValue(1);
-        // We accumulate errors
-        auto allResults = watcher->future().results();
-        QList<ExtractErrorDescription> errors;
-        for (const auto &res : allResults) {
-            if (!res.description.isEmpty())
-                errors.append(res);
-        }
+    m_label->setText(tr("Done"));
+    m_progressBar->setMaximum(1);
+    m_progressBar->setMinimum(0);
+    m_progressBar->setValue(1);
 
-        if (errors.isEmpty()) {
-            QMessageBox msgBox(this);
-            msgBox.setIcon(QMessageBox::Icon::Information);
-            msgBox.setText(tr("The wav file has been extracted."));
-            msgBox.setInformativeText(tr("Extracted wav files has been stored at \"%1\"."
-                                         "Original folder structure has been kept too.")
-                                          .arg(m_dstDirName));
-            auto deleteSrcButton = new QPushButton(tr("Delete source file"), &msgBox);
-            connect(deleteSrcButton, &QPushButton::clicked, this, [this]() {
-                bool allOk = true;
-                for (const auto &volFile : std::as_const(m_allVolumeFiles)) {
-                    if (QFile::exists(volFile) && !QFile(volFile).remove()) {
-                        QMessageBox::critical(this, {}, tr("Can not delete %1").arg(volFile));
-                        allOk = false;
-                    }
-                }
-                auto removeDescFile = QFile(getDescFileNameFrom(m_srcWAVFileName)).remove();
-                if (!removeDescFile) {
-                    QMessageBox::critical(this, {}, tr("Can not delete %1").arg(getDescFileNameFrom(m_srcWAVFileName)));
+    if (result.errors.isEmpty()) {
+        QMessageBox msgBox(this);
+        msgBox.setIcon(QMessageBox::Icon::Information);
+        msgBox.setText(tr("The wav file has been extracted."));
+        msgBox.setInformativeText(tr("Extracted wav files has been stored at \"%1\"."
+                                     "Original folder structure has been kept too.")
+                                      .arg(m_dstDirName));
+        auto deleteSrcButton = new QPushButton(tr("Delete source file"), &msgBox);
+        connect(deleteSrcButton, &QPushButton::clicked, this, [this]() {
+            bool allOk = true;
+            for (const auto &volFile : std::as_const(m_allVolumeFiles)) {
+                if (QFile::exists(volFile) && !QFile(volFile).remove()) {
+                    QMessageBox::critical(this, {}, tr("Can not delete %1").arg(volFile));
                     allOk = false;
                 }
-                if (allOk)
-                    QMessageBox::information(this, {}, tr("Source files have been deleted successfully."));
-            });
-            msgBox.addButton(deleteSrcButton, QMessageBox::AcceptRole);
-            msgBox.addButton(QMessageBox::Ok);
-            msgBox.setDefaultButton(QMessageBox::Ok);
-            msgBox.exec();
-            done(QDialog::Accepted);
-        } else {
-            QMessageBox msgBoxInfomation;
-            msgBoxInfomation.setIcon(QMessageBox::Icon::Critical);
-            msgBoxInfomation.setText(tr("Error occurred when extracting."));
-            msgBoxInfomation.setInformativeText(
-                QtConcurrent::mappedReduced<QString>(
-                    errors,
-                    std::function([](const ExtractErrorDescription &value) -> QString { return value.description; }),
-                    [](QString &res, const QString &desc) {
-                        if (res.isEmpty())
-                            res = reportTextStyle;
-                        res.append(QString("<p class='critical'>%1</p>").arg(desc));
-                    })
-                    .result());
-            msgBoxInfomation.setStandardButtons(QMessageBox::Ok);
-            msgBoxInfomation.exec();
-            QMessageBox msgBoxRetry;
-            msgBoxRetry.setIcon(QMessageBox::Icon::Question);
-            msgBoxRetry.setText(tr("Should retry extracting these?"));
-            msgBoxRetry.setInformativeText(QtConcurrent::mappedReduced<QStringList>(
-                                               errors,
-                                               std::function([](const ExtractErrorDescription &value) -> QString {
-                                                   return value.descObj.value("file_name").toString();
-                                               }),
-                                               [](QStringList &res, const QString &fileName) { res.append(fileName); })
-                                               .result()
-                                               .join("\n"));
-            msgBoxRetry.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-            auto retryDialogCode = msgBoxRetry.exec();
-            if (retryDialogCode == QDialog::Rejected)
-                done(QDialog::Rejected);
-            else {
-                QJsonArray descArray;
-                for (const auto &i : std::as_const(errors)) {
-                    descArray.append(i.descObj);
-                }
-                auto srcData = errors.at(0).srcData;
-                auto srcSampleRate = errors.at(0).srcSampleRate;
-                doExtractCall(srcData, srcSampleRate, descArray);
             }
+            auto removeDescFile = QFile(getDescFileNameFrom(m_srcWAVFileName)).remove();
+            if (!removeDescFile) {
+                QMessageBox::critical(this, {}, tr("Can not delete %1").arg(getDescFileNameFrom(m_srcWAVFileName)));
+                allOk = false;
+            }
+            if (allOk)
+                QMessageBox::information(this, {}, tr("Source files have been deleted successfully."));
+        });
+        msgBox.addButton(deleteSrcButton, QMessageBox::AcceptRole);
+        msgBox.addButton(QMessageBox::Ok);
+        msgBox.setDefaultButton(QMessageBox::Ok);
+        msgBox.exec();
+        done(QDialog::Accepted);
+    } else {
+        // Show errors
+        QString errorHtml = reportTextStyle;
+        for (const auto &err : result.errors) {
+            errorHtml.append(QString("<p class='critical'>%1</p>").arg(err.description));
         }
+
+        QMessageBox msgBoxInformation;
+        msgBoxInformation.setIcon(QMessageBox::Icon::Critical);
+        msgBoxInformation.setText(tr("Error occurred when extracting."));
+        msgBoxInformation.setInformativeText(errorHtml);
+        msgBoxInformation.setStandardButtons(QMessageBox::Ok);
+        msgBoxInformation.exec();
+
+        // Offer retry
+        QStringList failedFiles;
+        QJsonArray retryDescArray;
+        for (const auto &err : result.errors) {
+            failedFiles.append(err.descObj.value("file_name").toString());
+            retryDescArray.append(err.descObj);
+        }
+
+        QMessageBox msgBoxRetry;
+        msgBoxRetry.setIcon(QMessageBox::Icon::Question);
+        msgBoxRetry.setText(tr("Should retry extracting these?"));
+        msgBoxRetry.setInformativeText(failedFiles.join("\n"));
+        msgBoxRetry.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+        auto retryDialogCode = msgBoxRetry.exec();
+        if (retryDialogCode == QDialog::Rejected)
+            done(QDialog::Rejected);
+        else
+            launchPipeline(retryDescArray);
     }
 }
 

@@ -23,8 +23,8 @@ There are no tests. No linter is configured.
 
 ### Core Processing (namespace-based, not class-based)
 
-- **`AudioCombine`** (`WavCombine.h/cpp`) — Static functions for combining audio files. Three-phase pipeline: pre-check (validate files, detect format conflicts) → read & combine (parallel via `QtConcurrent::mappedReduced`) → write result with JSON metadata. Supports WAV and FLAC input/output.
-- **`AudioExtract`** (`WavExtract.h/cpp`) — Static functions for extracting audio files. Three-phase pipeline: pre-check → read source audio → parallel extraction. Optional DC offset removal and resampling via KFR. Restores original container format (WAV or FLAC) when inheriting from input.
+- **`AudioCombine`** (`AudioCombine.h/cpp`) — Static functions for combining audio files. Three-phase pipeline: pre-check (validate files, detect format conflicts) → read & combine (parallel via `QtConcurrent::mappedReduced`) → write result with JSON metadata. Supports WAV and FLAC input/output.
+- **`AudioExtract`** (`AudioExtract.h/cpp`) — Static functions for extracting audio files. Three-phase pipeline: pre-check → read source audio → parallel extraction. Optional DC offset removal and resampling via KFR. Restores original container format (WAV or FLAC) when inheriting from input.
 
 ### UI Layer
 

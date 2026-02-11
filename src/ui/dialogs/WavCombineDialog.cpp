@@ -11,7 +11,7 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include "kfr/all.hpp"
-#include "worker/WavCombine.h"
+#include "worker/AudioCombine.h"
 
 using namespace AudioCombine;
 using namespace utils;

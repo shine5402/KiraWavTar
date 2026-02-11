@@ -1069,4 +1069,321 @@ void StreamingAudioWriter::close()
     m_isOpen = false;
 }
 
+// ---------- StreamingAudioReader implementation ----------
+
+struct StreamingAudioReader::WavState {
+    drwav wav{};
+};
+
+struct StreamingAudioReader::FlacState {
+    FLAC__StreamDecoder *decoder = nullptr;
+    unsigned bitsPerSample = 0;
+    unsigned channels = 0;
+    // Accumulation buffer for decoded frames (FLAC delivers in variable-size blocks)
+    kfr::univector2d<float> accumF32;
+    kfr::univector2d<double> accumF64;
+    size_t accumFrames = 0;
+    bool useDouble = false;
+    bool eof = false;
+    QString errorMsg;
+
+    ~FlacState() {
+        if (decoder) {
+            FLAC__stream_decoder_finish(decoder);
+            FLAC__stream_decoder_delete(decoder);
+            decoder = nullptr;
+        }
+    }
+};
+
+StreamingAudioReader::StreamingAudioReader() = default;
+
+StreamingAudioReader::~StreamingAudioReader()
+{
+    if (m_isOpen)
+        close();
+}
+
+StreamingAudioReader::StreamingAudioReader(StreamingAudioReader &&other) noexcept
+    : m_format(other.m_format),
+      m_isOpen(other.m_isOpen),
+      m_isWav(other.m_isWav),
+      m_wavState(std::move(other.m_wavState)),
+      m_flacState(std::move(other.m_flacState))
+{
+    other.m_isOpen = false;
+}
+
+StreamingAudioReader &StreamingAudioReader::operator=(StreamingAudioReader &&other) noexcept
+{
+    if (this != &other) {
+        if (m_isOpen)
+            close();
+        m_format = other.m_format;
+        m_isOpen = other.m_isOpen;
+        m_isWav = other.m_isWav;
+        m_wavState = std::move(other.m_wavState);
+        m_flacState = std::move(other.m_flacState);
+        other.m_isOpen = false;
+    }
+    return *this;
+}
+
+void StreamingAudioReader::open(const QString &fileName)
+{
+    if (m_isOpen)
+        throw std::runtime_error("StreamingAudioReader already open");
+
+    if (isFlacFileName(fileName)) {
+        // FLAC path
+        auto state = std::make_unique<FlacState>();
+
+        state->decoder = FLAC__stream_decoder_new();
+        if (!state->decoder)
+            throw std::runtime_error(
+                QCoreApplication::translate("AudioIO", "Failed to create FLAC decoder for: %1")
+                    .arg(fileName).toStdString());
+
+        // Metadata callback to capture format info
+        auto metaCb = [](const FLAC__StreamDecoder *, const FLAC__StreamMetadata *metadata, void *clientData) {
+            auto *s = static_cast<FlacState *>(clientData);
+            if (metadata->type == FLAC__METADATA_TYPE_STREAMINFO) {
+                const auto &info = metadata->data.stream_info;
+                s->bitsPerSample = info.bits_per_sample;
+                s->channels = info.channels;
+            }
+        };
+
+        // Write callback accumulates decoded frames into the buffer
+        auto writeCb = [](const FLAC__StreamDecoder *, const FLAC__Frame *frame,
+                          const FLAC__int32 *const buffer[], void *clientData) -> FLAC__StreamDecoderWriteStatus {
+            auto *s = static_cast<FlacState *>(clientData);
+            unsigned channels = frame->header.channels;
+            unsigned blocksize = frame->header.blocksize;
+            double scale = 1.0 / static_cast<double>(1ULL << (s->bitsPerSample - 1));
+
+            if (s->useDouble) {
+                if (s->accumF64.empty()) {
+                    s->accumF64.resize(channels);
+                }
+                for (unsigned c = 0; c < channels && c < s->accumF64.size(); ++c) {
+                    size_t oldSize = s->accumF64[c].size();
+                    s->accumF64[c].resize(oldSize + blocksize);
+                    for (unsigned i = 0; i < blocksize; ++i) {
+                        s->accumF64[c][oldSize + i] = buffer[c][i] * scale;
+                    }
+                }
+            } else {
+                if (s->accumF32.empty()) {
+                    s->accumF32.resize(channels);
+                }
+                for (unsigned c = 0; c < channels && c < s->accumF32.size(); ++c) {
+                    size_t oldSize = s->accumF32[c].size();
+                    s->accumF32[c].resize(oldSize + blocksize);
+                    for (unsigned i = 0; i < blocksize; ++i) {
+                        s->accumF32[c][oldSize + i] = static_cast<float>(buffer[c][i] * scale);
+                    }
+                }
+            }
+            s->accumFrames += blocksize;
+            return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
+        };
+
+        auto errorCb = [](const FLAC__StreamDecoder *, FLAC__StreamDecoderErrorStatus status, void *clientData) {
+            auto *s = static_cast<FlacState *>(clientData);
+            s->errorMsg = QString("FLAC decode error: %1").arg(static_cast<int>(status));
+        };
+
+        QByteArray path = fileName.toUtf8();
+        auto initStatus = FLAC__stream_decoder_init_file(state->decoder, path.constData(),
+                                                          writeCb, metaCb, errorCb, state.get());
+        if (initStatus != FLAC__STREAM_DECODER_INIT_STATUS_OK) {
+            throw std::runtime_error(
+                QCoreApplication::translate("AudioIO", "Failed to open FLAC file: %1")
+                    .arg(fileName).toStdString());
+        }
+
+        // Process metadata to get format info
+        FLAC__stream_decoder_process_until_end_of_metadata(state->decoder);
+
+        m_format.kfr_format.samplerate = FLAC__stream_decoder_get_sample_rate(state->decoder);
+        m_format.kfr_format.channels = state->channels;
+        m_format.kfr_format.type = mapFlacBitsToKfrType(state->bitsPerSample);
+        m_format.length = static_cast<qint64>(FLAC__stream_decoder_get_total_samples(state->decoder));
+        m_format.container = AudioFormat::Container::FLAC;
+
+        m_flacState = std::move(state);
+        m_isWav = false;
+    } else {
+        // WAV path
+        auto state = std::make_unique<WavState>();
+        if (!drwav_init_file_compat(&state->wav, fileName, nullptr)) {
+            throw std::runtime_error(
+                QCoreApplication::translate("AudioIO", "Failed to open file: %1")
+                    .arg(fileName).toStdString());
+        }
+
+        m_format = readAudioFormatFromInitialized(state->wav);
+        m_wavState = std::move(state);
+        m_isWav = true;
+    }
+
+    m_isOpen = true;
+}
+
+bool StreamingAudioReader::seekToFrame(qint64 frame)
+{
+    if (!m_isOpen)
+        return false;
+
+    if (m_isWav) {
+        return drwav_seek_to_pcm_frame(&m_wavState->wav, static_cast<drwav_uint64>(frame)) == DRWAV_TRUE;
+    } else {
+        // FLAC seek — clear accumulation buffer
+        m_flacState->accumF32.clear();
+        m_flacState->accumF64.clear();
+        m_flacState->accumFrames = 0;
+        m_flacState->eof = false;
+        if (frame == 0) {
+            // Seeking to 0 needs special handling: reset decoder
+            FLAC__stream_decoder_reset(m_flacState->decoder);
+            FLAC__stream_decoder_process_until_end_of_metadata(m_flacState->decoder);
+            return true;
+        }
+        return FLAC__stream_decoder_seek_absolute(m_flacState->decoder,
+                                                   static_cast<FLAC__uint64>(frame)) != 0;
+    }
+}
+
+kfr::univector2d<float> StreamingAudioReader::readFramesF32(qint64 frameCount)
+{
+    if (!m_isOpen || frameCount <= 0)
+        return {};
+
+    if (m_isWav) {
+        size_t channels = m_format.kfr_format.channels;
+        std::vector<float> interleaved(static_cast<size_t>(frameCount) * channels);
+        drwav_uint64 framesRead = drwav_read_pcm_frames_f32(&m_wavState->wav,
+                                                             static_cast<drwav_uint64>(frameCount),
+                                                             interleaved.data());
+        kfr::univector2d<float> result;
+        deinterleaveTo(result, interleaved.data(), static_cast<size_t>(framesRead), channels);
+        return result;
+    } else {
+        // FLAC: decode until we have enough frames
+        m_flacState->useDouble = false;
+        while (m_flacState->accumFrames < static_cast<size_t>(frameCount) && !m_flacState->eof) {
+            if (!FLAC__stream_decoder_process_single(m_flacState->decoder)) {
+                m_flacState->eof = true;
+                break;
+            }
+            if (FLAC__stream_decoder_get_state(m_flacState->decoder) == FLAC__STREAM_DECODER_END_OF_STREAM) {
+                m_flacState->eof = true;
+            }
+        }
+
+        size_t available = m_flacState->accumFrames;
+        size_t toReturn = std::min(available, static_cast<size_t>(frameCount));
+
+        kfr::univector2d<float> result(m_flacState->accumF32.size());
+        for (size_t c = 0; c < result.size(); ++c) {
+            result[c] = m_flacState->accumF32[c].slice(0, toReturn);
+        }
+
+        // Remove consumed frames from accumulation buffer
+        if (toReturn < available) {
+            for (size_t c = 0; c < m_flacState->accumF32.size(); ++c) {
+                std::copy(m_flacState->accumF32[c].begin() + toReturn,
+                          m_flacState->accumF32[c].end(),
+                          m_flacState->accumF32[c].begin());
+                m_flacState->accumF32[c].resize(available - toReturn);
+            }
+        } else {
+            for (size_t c = 0; c < m_flacState->accumF32.size(); ++c) {
+                m_flacState->accumF32[c].clear();
+            }
+        }
+        m_flacState->accumFrames = available - toReturn;
+
+        return result;
+    }
+}
+
+kfr::univector2d<double> StreamingAudioReader::readFramesF64(qint64 frameCount)
+{
+    if (!m_isOpen || frameCount <= 0)
+        return {};
+
+    if (m_isWav) {
+        // Read as f32 then promote to double (same pattern as readWavFileF64)
+        size_t channels = m_format.kfr_format.channels;
+        std::vector<float> interleavedF32(static_cast<size_t>(frameCount) * channels);
+        drwav_uint64 framesRead = drwav_read_pcm_frames_f32(&m_wavState->wav,
+                                                             static_cast<drwav_uint64>(frameCount),
+                                                             interleavedF32.data());
+        size_t actualFrames = static_cast<size_t>(framesRead);
+        std::vector<double> interleavedF64(actualFrames * channels);
+        for (size_t i = 0; i < interleavedF64.size(); ++i)
+            interleavedF64[i] = static_cast<double>(interleavedF32[i]);
+
+        kfr::univector2d<double> result;
+        deinterleaveTo(result, interleavedF64.data(), actualFrames, channels);
+        return result;
+    } else {
+        // FLAC: decode until we have enough frames
+        m_flacState->useDouble = true;
+        while (m_flacState->accumFrames < static_cast<size_t>(frameCount) && !m_flacState->eof) {
+            if (!FLAC__stream_decoder_process_single(m_flacState->decoder)) {
+                m_flacState->eof = true;
+                break;
+            }
+            if (FLAC__stream_decoder_get_state(m_flacState->decoder) == FLAC__STREAM_DECODER_END_OF_STREAM) {
+                m_flacState->eof = true;
+            }
+        }
+
+        size_t available = m_flacState->accumFrames;
+        size_t toReturn = std::min(available, static_cast<size_t>(frameCount));
+
+        kfr::univector2d<double> result(m_flacState->accumF64.size());
+        for (size_t c = 0; c < result.size(); ++c) {
+            result[c] = m_flacState->accumF64[c].slice(0, toReturn);
+        }
+
+        // Remove consumed frames from accumulation buffer
+        if (toReturn < available) {
+            for (size_t c = 0; c < m_flacState->accumF64.size(); ++c) {
+                std::copy(m_flacState->accumF64[c].begin() + toReturn,
+                          m_flacState->accumF64[c].end(),
+                          m_flacState->accumF64[c].begin());
+                m_flacState->accumF64[c].resize(available - toReturn);
+            }
+        } else {
+            for (size_t c = 0; c < m_flacState->accumF64.size(); ++c) {
+                m_flacState->accumF64[c].clear();
+            }
+        }
+        m_flacState->accumFrames = available - toReturn;
+
+        return result;
+    }
+}
+
+void StreamingAudioReader::close()
+{
+    if (!m_isOpen)
+        return;
+
+    if (m_isWav && m_wavState) {
+        drwav_uninit(&m_wavState->wav);
+        m_wavState.reset();
+    }
+
+    if (m_flacState) {
+        m_flacState.reset(); // ~FlacState handles decoder cleanup
+    }
+
+    m_isOpen = false;
+}
+
 } // namespace AudioIO

@@ -1,5 +1,5 @@
-#ifndef WAVCOMBINE_H
-#define WAVCOMBINE_H
+#ifndef AUDIOCOMBINE_H
+#define AUDIOCOMBINE_H
 
 #include <QFuture>
 #include <QJsonObject>
@@ -75,4 +75,4 @@ QJsonObject runCombinePipeline(
 
 Q_DECLARE_METATYPE(AudioCombine::CheckResult);
 
-#endif // WAVCOMBINE_H
+#endif // AUDIOCOMBINE_H
