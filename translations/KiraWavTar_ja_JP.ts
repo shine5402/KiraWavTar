@@ -71,6 +71,31 @@
 <context>
     <name>EngineSettingsDialog</name>
     <message>
+        <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="30"/>
+        <source>Draft</source>
+        <translation type="unfinished">簡易</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="31"/>
+        <source>Low</source>
+        <translation type="unfinished">低</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="32"/>
+        <source>Normal</source>
+        <translation type="unfinished">標準</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="33"/>
+        <source>High</source>
+        <translation type="unfinished">高</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="34"/>
+        <source>Perfect</source>
+        <translation type="unfinished">最高</translation>
+    </message>
+    <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="40"/>
         <source>Engine Settings</source>
         <translation type="unfinished">エンジン設定</translation>

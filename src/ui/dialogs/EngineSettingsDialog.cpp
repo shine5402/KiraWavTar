@@ -27,11 +27,11 @@ struct SrcQualityEntry
 };
 
 constexpr SrcQualityEntry kSrcQualities[] = {
-    {kfr::sample_rate_conversion_quality::draft, QT_TR_NOOP("Draft")},
-    {kfr::sample_rate_conversion_quality::low, QT_TR_NOOP("Low")},
-    {kfr::sample_rate_conversion_quality::normal, QT_TR_NOOP("Normal")},
-    {kfr::sample_rate_conversion_quality::high, QT_TR_NOOP("High")},
-    {kfr::sample_rate_conversion_quality::perfect, QT_TR_NOOP("Perfect")},
+    {kfr::sample_rate_conversion_quality::draft, QT_TRANSLATE_NOOP("EngineSettingsDialog", "Draft")},
+    {kfr::sample_rate_conversion_quality::low, QT_TRANSLATE_NOOP("EngineSettingsDialog", "Low")},
+    {kfr::sample_rate_conversion_quality::normal, QT_TRANSLATE_NOOP("EngineSettingsDialog", "Normal")},
+    {kfr::sample_rate_conversion_quality::high, QT_TRANSLATE_NOOP("EngineSettingsDialog", "High")},
+    {kfr::sample_rate_conversion_quality::perfect, QT_TRANSLATE_NOOP("EngineSettingsDialog", "Perfect")},
 };
 } // namespace
 
