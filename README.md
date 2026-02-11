@@ -38,7 +38,7 @@ These suggestions can be changed at any time before proceeding.
 
 While this utility handles a straightforward task, performance is still a priority so it fits naturally into your workflow without slowing you down.
 
-Under the hood, KiraWAVTar leverages the highly SIMD-optimized [KFR audio library](https://kfrlib.com/) for resampling and processes files in parallel to keep things moving fast.
+Under the hood, KiraWAVTar leverages the highly SIMD-optimized [KFR audio library](https://kfrlib.com/) for resampling and processes files in parallel using [oneTBB](https://github.com/uxlfoundation/oneTBB) to keep things moving fast.
 
 For reference, on an Intel i7-9750H with a WD MyPassport 25E1, combining 2,000 WAV files totaling 3 hours of audio takes around 48 seconds, while extracting them back takes around 34 seconds. (This is a casual benchmark with no resampling involved — your mileage may vary.)
 
@@ -103,4 +103,5 @@ This project is licensed under the GPL v3 License. See [LICENSE](LICENSE) for de
 - KFR - Fast, modern C++ DSP framework, under GNU GPL v2+.
 - dr_wav - Public domain single-header WAV reader/writer library by David Reid.
 - libFLAC - Free Lossless Audio Codec reference library by Xiph.Org Foundation, under BSD license.
+- oneTBB - Intel Threading Building Blocks, under Apache License 2.0 with LLVM exceptions.
 - nwp8861, for the original wavtar program.

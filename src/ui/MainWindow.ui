@@ -461,12 +461,12 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="srcQualityButton">
+       <widget class="QPushButton" name="engineSettingsButton">
         <property name="toolTip">
-         <string>Sample rate conversion quality</string>
+         <string>Configure audio processing engine settings</string>
         </property>
         <property name="text">
-         <string>SRC Quality</string>
+         <string>Engine Settings</string>
         </property>
        </widget>
       </item>

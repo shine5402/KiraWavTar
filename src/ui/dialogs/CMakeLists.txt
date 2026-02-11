@@ -3,6 +3,8 @@ target_sources(KiraWAVTar PRIVATE
     CommonHtmlDialog.cpp
     CommonHtmlDialog.h
     CommonHtmlDialog.ui
+    EngineSettingsDialog.cpp
+    EngineSettingsDialog.h
     WavCombineDialog.cpp
     WavCombineDialog.h
     WavExtractDialog.cpp

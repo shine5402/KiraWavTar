@@ -76,6 +76,12 @@ inline bool shouldUseDoubleInternalProcessing(kfr::audio_sample_type outputType)
 kfr::sample_rate_conversion_quality getSampleRateConversionQuality();
 void setSampleRateConversionQuality(kfr::sample_rate_conversion_quality quality);
 
+// Pipeline concurrency (max live tokens for parallel_pipeline).
+// 0 means "auto" (clamped idealThreadCount).
+int getMaxLiveTokens();
+void setMaxLiveTokens(int value);
+int effectiveMaxLiveTokens();
+
 // Description file versioning policy:
 // - desc_file_version is the CURRENT version written by WavCombine. Write side must ONLY use this.
 // - min_supported_desc_file_version is the oldest version WavExtract still accepts (backward compatibility).

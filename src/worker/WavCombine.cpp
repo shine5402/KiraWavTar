@@ -467,8 +467,10 @@ QJsonObject runCombinePipeline(const CombineLayout &layout, std::atomic<int> &pr
         });
 
     {
+        // Max live tokens controls how many audio chunks are in-flight simultaneously.
+        // Higher values increase throughput but consume more memory.
         const tbb::filter<void, void> &chain = filterChain;
-        tbb::parallel_pipeline(static_cast<size_t>(std::clamp(QThread::idealThreadCount(), 2, 8)), chain, ctx);
+        tbb::parallel_pipeline(static_cast<size_t>(utils::effectiveMaxLiveTokens()), chain, ctx);
     }
 
     // Close remaining writers

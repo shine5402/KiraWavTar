@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QStack>
 #include <QStackedWidget>
+#include <QThread>
 #include <atomic>
 #include <exception>
 
@@ -20,6 +21,26 @@ kfr::sample_rate_conversion_quality getSampleRateConversionQuality()
 void setSampleRateConversionQuality(kfr::sample_rate_conversion_quality quality)
 {
     g_sampleRateConversionQuality.store(static_cast<int>(quality));
+}
+
+static std::atomic<int> g_maxLiveTokens{0};
+
+int getMaxLiveTokens()
+{
+    return g_maxLiveTokens.load();
+}
+
+void setMaxLiveTokens(int value)
+{
+    g_maxLiveTokens.store(value);
+}
+
+int effectiveMaxLiveTokens()
+{
+    int v = g_maxLiveTokens.load();
+    if (v <= 0)
+        return std::clamp(QThread::idealThreadCount(), 2, 8);
+    return v;
 }
 
 QString getDescFileNameFrom(const QString &WAVFileName)
