@@ -15,6 +15,9 @@ class EngineSettingsDialog : public QDialog
 public:
     explicit EngineSettingsDialog(QWidget *parent = nullptr);
 
+    QSize sizeHint() const override;
+    QSize minimumSizeHint() const override { return sizeHint(); }
+
 private:
     void accept() override;
 

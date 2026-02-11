@@ -40,7 +40,8 @@ While this utility handles a straightforward task, performance is still a priori
 
 Under the hood, KiraWAVTar leverages the highly SIMD-optimized [KFR audio library](https://kfrlib.com/) for resampling and processes files in parallel using [oneTBB](https://github.com/uxlfoundation/oneTBB) to keep things moving fast.
 
-For reference, on an Intel i7-9750H with a WD MyPassport 25E1, combining 2,000 WAV files totaling 3 hours of audio takes around 48 seconds, while extracting them back takes around 34 seconds. (This is a casual benchmark with no resampling involved — your mileage may vary.)
+For reference, on a MacBook Pro M4 Max with its internal SSD, combining ~1600 WAV files totaling ~2 and a half hours of audio takes around 3 seconds to complete, while extracting them back takes around [test needed] seconds. Even if resampling is involved, it only takes around 11 seconds to combine and [test needed] seconds to extract.
+
 
 #### Easy to use
 

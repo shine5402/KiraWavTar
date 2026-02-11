@@ -11,7 +11,6 @@
 #include <QSlider>
 #include <QSpinBox>
 #include <QVBoxLayout>
-
 #include <kfr/all.hpp>
 
 #include "utils/Utils.h"
@@ -40,6 +39,8 @@ EngineSettingsDialog::EngineSettingsDialog(QWidget *parent) : QDialog(parent)
 {
     setWindowTitle(tr("Engine Settings"));
 
+    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+
     auto *mainLayout = new QVBoxLayout(this);
 
     // --- SRC Quality ---
@@ -64,10 +65,9 @@ EngineSettingsDialog::EngineSettingsDialog(QWidget *parent) : QDialog(parent)
     auto *concGroup = new QGroupBox(tr("Pipeline Concurrency"), this);
     auto *concLayout = new QVBoxLayout(concGroup);
 
-    auto *descLabel =
-        new QLabel(tr("Controls how many audio chunks are processed simultaneously during combine.\n"
-                      "Higher values may improve speed but use more memory."),
-                   this);
+    auto *descLabel = new QLabel(tr("Controls how many audio chunks are processed simultaneously during combine.\n"
+                                    "Higher values may improve speed but use more memory."),
+                                 this);
     descLabel->setWordWrap(true);
     concLayout->addWidget(descLabel);
 
@@ -75,9 +75,9 @@ EngineSettingsDialog::EngineSettingsDialog(QWidget *parent) : QDialog(parent)
 
     auto *sliderLayout = new QHBoxLayout;
     m_concurrencySlider = new QSlider(Qt::Horizontal, this);
-    m_concurrencySlider->setRange(1, 32);
+    m_concurrencySlider->setRange(2, QThread::idealThreadCount());
     m_concurrencySpinBox = new QSpinBox(this);
-    m_concurrencySpinBox->setRange(1, 32);
+    m_concurrencySpinBox->setRange(2, QThread::idealThreadCount());
     sliderLayout->addWidget(m_concurrencySlider);
     sliderLayout->addWidget(m_concurrencySpinBox);
 
@@ -104,12 +104,15 @@ EngineSettingsDialog::EngineSettingsDialog(QWidget *parent) : QDialog(parent)
     concLayout->addWidget(m_autoCheckBox);
     concLayout->addLayout(sliderLayout);
     mainLayout->addWidget(concGroup);
+    mainLayout->addStretch(1); // push groups to top
 
     // --- Button box ---
     auto *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
     connect(buttonBox, &QDialogButtonBox::accepted, this, &EngineSettingsDialog::accept);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     mainLayout->addWidget(buttonBox);
+
+    setFixedSize(sizeHint());
 }
 
 void EngineSettingsDialog::accept()
@@ -130,4 +133,9 @@ void EngineSettingsDialog::accept()
     settings.endGroup();
 
     QDialog::accept();
+}
+
+QSize EngineSettingsDialog::sizeHint() const
+{
+    return QSize(600, heightForWidth(600));
 }
