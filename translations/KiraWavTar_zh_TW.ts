@@ -73,47 +73,47 @@
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="30"/>
         <source>Draft</source>
-        <translation type="unfinished">草稿</translation>
+        <translation>草稿</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="31"/>
         <source>Low</source>
-        <translation type="unfinished">低</translation>
+        <translation>低</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="32"/>
         <source>Normal</source>
-        <translation type="unfinished">正常</translation>
+        <translation>正常</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="33"/>
         <source>High</source>
-        <translation type="unfinished">高</translation>
+        <translation>高</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="34"/>
         <source>Perfect</source>
-        <translation type="unfinished">完美</translation>
+        <translation>完美</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="40"/>
         <source>Engine Settings</source>
-        <translation type="unfinished">引擎設定</translation>
+        <translation>引擎設定</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="47"/>
         <source>Sample Rate Conversion Quality</source>
-        <translation type="unfinished">取樣率轉換品質</translation>
+        <translation>取樣率轉換品質</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="61"/>
         <source>Quality:</source>
-        <translation type="unfinished">品質：</translation>
+        <translation>品質：</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="65"/>
         <source>Pipeline Concurrency</source>
-        <translation type="unfinished">流水線並行</translation>
+        <translation>並行處理</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="69"/>
@@ -126,13 +126,13 @@ Higher values may improve speed but use more memory.</source>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="68"/>
         <source>Controls how many audio chunks are processed simultaneously during combine.
 Higher values may improve speed but use more memory.</source>
-        <translation type="unfinished">控制在合併過程中同時處理的音訊區塊數量。
+        <translation>控制在合併過程中同時處理的音訊區塊數量。
 較高的值可能會提高速度，但會使用更多記憶體。</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="74"/>
         <source>Auto (recommended)</source>
-        <translation type="unfinished">自動（建議）</translation>
+        <translation>自動（建議）</translation>
     </message>
 </context>
 <context>
@@ -286,12 +286,12 @@ Higher values may improve speed but use more memory.</source>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="466"/>
         <source>Configure audio processing engine settings</source>
-        <translation type="unfinished">設定音訊處理引擎設置</translation>
+        <translation>音訊處理引擎的設定</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="469"/>
         <source>Engine Settings</source>
-        <translation type="unfinished">引擎設定</translation>
+        <translation>引擎設定</translation>
     </message>
     <message>
         <source>Sample rate conversion quality</source>
@@ -309,7 +309,7 @@ Higher values may improve speed but use more memory.</source>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="506"/>
         <source>Run</source>
-        <translation type="unfinished">執行</translation>
+        <translation>執行</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="37"/>
@@ -534,7 +534,7 @@ Open download page?</source>
     <message>
         <location filename="../src/worker/AudioCombine.cpp" line="36"/>
         <source>&lt;p class=&apos;critical&apos;&gt;There are not any audio files in the given folder. Please check the path, or if you forget to turn &quot;scan subfolders&quot; on?&lt;/p&gt;</source>
-        <translation>&lt;p class=&apos;critical&apos;&gt;沒有在所給資料夾中找到任何音訊檔案。請檢查提供的路徑，或者忘記勾選「包含子資料夾」了？&lt;/p&gt;</translation>
+        <translation>&lt;p class=&apos;critical&apos;&gt;找不到音訊檔案，請檢查路徑或確認勾選「包含子資料夾」。&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/worker/AudioCombine.cpp" line="62"/>
@@ -548,7 +548,7 @@ Open download page?</source>
     <message>
         <location filename="../src/worker/AudioCombine.cpp" line="76"/>
         <source>&lt;p class=&apos;warning&apos;&gt;Can not know bit depth from &quot;%1&quot;. Maybe this file id corrupted, or error happened during opening the file.&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p class=&apos;warning&apos;&gt;我們無法得知「%1」儲存的位元深度，可能該檔案已損壞，或者檔案打開時出現了問題。&lt;/p&gt;</translation>
+        <translation>&lt;p class=&apos;warning&apos;&gt;無法取得「%1」的位元深度，可能該檔案已損壞，或者檔案打開時出現了問題。&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/worker/AudioCombine.cpp" line="89"/>
@@ -558,12 +558,12 @@ Open download page?</source>
     <message>
         <location filename="../src/worker/AudioCombine.cpp" line="103"/>
         <source>&lt;p class=&apos;warning&apos;&gt;Sample rate (%2 Hz) of &quot;%1&quot; is larger than target (&quot;%3&quot; Hz).The precision could be lost a bit when processing.&lt;/p&gt;</source>
-        <translation>&lt;p class=&apos;warning&apos;&gt;「%1」的采樣率（%2 Hz）比目標（%3 Hz）要大，處理時的重采樣會造成一定的精度損失。&lt;/p&gt;</translation>
+        <translation>&lt;p class=&apos;warning&apos;&gt;「%1」的取樣率（%2 Hz）比目標（%3 Hz）高，處理時的重新取樣會造成一定的精度損失。&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/worker/AudioCombine.cpp" line="129"/>
         <source>&lt;p class=&apos;warning&apos;&gt;&quot;%1&quot; (%2) will be converted to integer format (%3). Floating-point audio has virtually unlimited headroom, but integer formats clip at 0 dBFS — any signal above that will be permanently burned in. Quiet signals may also lose detail due to the reduced dynamic range. TPDF dithering is applied automatically to reduce quantization artifacts.&lt;/p&gt;</source>
-        <translation>&lt;p class=&apos;warning&apos;&gt;「%1」 (%2) 將被轉換為整型格式 (%3)。浮點音訊擁有幾乎無限的動態範圍，但整型格式會在 0 dBFS 處出現削波——任何超過該電平的訊號都將永久失真。由於動態範圍的減小，在音訊訊號微弱的情況下會有丟失細節的可能性。程式已自動應用 TPDF 抖動以減少量化噪聲。&lt;/p&gt;</translation>
+        <translation>&lt;p class=&apos;warning&apos;&gt;「%1」 (%2) 將被轉換為整數格式 (%3)。浮點音訊擁有幾乎無限的動態範圍，但整數格式會在 0 dBFS 處出現削波——任何超過該值的訊號都將永久失真。由於動態範圍的減小，在音訊訊號微弱的情況下會有丟失細節的可能性。已自動套用 TPDF 抖動處理，以減少量化損失。&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/worker/AudioCombine.cpp" line="141"/>
@@ -573,17 +573,17 @@ Open download page?</source>
     <message>
         <location filename="../src/worker/AudioCombine.cpp" line="153"/>
         <source>&lt;p class=&apos;warning&apos;&gt;&quot;%1&quot; (%2) will be converted to %3. This reduces the dynamic range, which means quiet signals may lose detail. TPDF dithering is applied automatically to reduce quantization artifacts.&lt;/p&gt;</source>
-        <translation>&lt;p class=&apos;warning&apos;&gt;「%1」 (%2) 將被轉換為 %3。這會減小動態範圍，意味著在音訊訊號微弱的情況下可能會丟失細節。程式已自動應用 TPDF 抖動以減少量化噪聲。&lt;/p&gt;</translation>
+        <translation>&lt;p class=&apos;warning&apos;&gt;「%1」 (%2) 將被轉換為 %3。這會減小動態範圍，意味著在音訊訊號微弱的情況下可能會丟失細節。已自動套用 TPDF 抖動處理，以減少量化損失。&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/worker/AudioCombine.cpp" line="277"/>
         <source>Entry &quot;%1&quot; has duration which exceeds the maximum volume duration of %2 seconds.</source>
-        <translation type="unfinished">項目「%1」的長度超過了最大分卷長度 (%2 秒)。</translation>
+        <translation>項目「%1」的長度超過了最大的分卷長度 (%2 秒)。</translation>
     </message>
     <message>
         <location filename="../src/worker/AudioCombine.cpp" line="531"/>
         <source>Failed to write description file: %1</source>
-        <translation type="unfinished">無法寫入描述檔案：%1</translation>
+        <translation>無法寫入描述檔案：%1</translation>
     </message>
     <message>
         <source>Entry &quot;%1&quot; has duration %2 which exceeds the maximum volume duration of %3 seconds.</source>
@@ -615,18 +615,18 @@ Open download page?</source>
     <message>
         <location filename="../src/worker/AudioExtract.cpp" line="73"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Description file &quot;%1&quot; has unsupported version %2. Expected version %3 to %4.&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p class=&apos;critical&apos;&gt;描述檔案「%1」的版本號 %2 不受支援。預期版本號為 %3 至 %4。&lt;/p&gt;</translation>
+        <translation>&lt;p class=&apos;critical&apos;&gt;描述檔案「%1」的版本號 %2 不受支援。預期版本號為 %3 至 %4。&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/worker/AudioExtract.cpp" line="346"/>
         <source>Failed to seek in source file</source>
-        <translation type="unfinished"></translation>
+        <translation>找不到原始檔案</translation>
     </message>
     <message>
         <location filename="../src/worker/AudioExtract.cpp" line="360"/>
         <location filename="../src/worker/AudioExtract.cpp" line="400"/>
         <source>Unknown Error</source>
-        <translation type="unfinished"></translation>
+        <translation>未知錯誤</translation>
     </message>
     <message>
         <source>&lt;p class=&apos;critical&apos;&gt;Description file &quot;%1&quot; has unsupported version %2. Expected version 3, 4, or 5.&lt;/p&gt;</source>
@@ -643,12 +643,12 @@ Open download page?</source>
     <message>
         <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="34"/>
         <source>Sample rate</source>
-        <translation type="unfinished">取樣率</translation>
+        <translation>取樣率</translation>
     </message>
     <message>
         <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="64"/>
         <source>Bit depth</source>
-        <translation type="unfinished">位元深度</translation>
+        <translation>位元深度</translation>
     </message>
     <message>
         <location filename="../src/ui/widgets/WavFormatChooserWidget.ui" line="91"/>
@@ -692,7 +692,7 @@ Open download page?</source>
     <message>
         <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="261"/>
         <source>2 (Stereo)</source>
-        <translation>2 (雙聲道/立體聲)</translation>
+        <translation>2 (立體聲)</translation>
     </message>
     <message>
         <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="262"/>
@@ -712,7 +712,7 @@ Open download page?</source>
     <message>
         <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="287"/>
         <source>Audio Container Format Information</source>
-        <translation>音訊容器格式信息</translation>
+        <translation>音訊容器格式資料</translation>
     </message>
     <message>
         <location filename="../src/ui/widgets/WavFormatChooserWidget.cpp" line="289"/>
@@ -831,7 +831,7 @@ Audio files can use different container formats, each with different limitations
     <message>
         <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="108"/>
         <source>Reading, processing and writing audio files...</source>
-        <translation type="unfinished">讀取、處理並寫入音訊檔案……</translation>
+        <translation>讀取、處理並寫入音訊檔案……</translation>
     </message>
     <message>
         <source>Reading WAV files and combining them...</source>
@@ -849,7 +849,7 @@ Audio files can use different container formats, each with different limitations
     <message>
         <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="166"/>
         <source>Wav files has been combined.</source>
-        <translation>合併操作已經完成。</translation>
+        <translation>合併已完成。</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="168"/>
@@ -925,7 +925,7 @@ How would you like to extract?</source>
     <message>
         <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="131"/>
         <source>Choose which ones to extract.</source>
-        <translation>請選擇要被拆分的項。</translation>
+        <translation>請選擇要被拆分的來源。</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="140"/>
@@ -945,7 +945,7 @@ How would you like to extract?</source>
     <message>
         <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="193"/>
         <source>Reading, processing and writing audio files...</source>
-        <translation type="unfinished">讀取、處理並寫入音訊檔案……</translation>
+        <translation>讀取、處理並寫入音訊檔案……</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="247"/>
@@ -955,7 +955,7 @@ How would you like to extract?</source>
     <message>
         <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="255"/>
         <source>The wav file has been extracted.</source>
-        <translation>拆分操作已經完成。</translation>
+        <translation>拆分已完成。</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="256"/>
