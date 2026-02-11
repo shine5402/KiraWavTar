@@ -116,6 +116,13 @@
         <translation type="unfinished">流水線並行</translation>
     </message>
     <message>
+        <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="69"/>
+        <source>Controls how many audio chunks are processed simultaneously during the processing.
+Higher values may improve speed but use more memory.</source>
+        <translation>控制在處理過程中同時處理的音訊區塊數量。
+較高的值可能會提高速度，但會使用更多記憶體。</translation>
+    </message>
+    <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="68"/>
         <source>Controls how many audio chunks are processed simultaneously during combine.
 Higher values may improve speed but use more memory.</source>

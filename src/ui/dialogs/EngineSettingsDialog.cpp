@@ -65,9 +65,10 @@ EngineSettingsDialog::EngineSettingsDialog(QWidget *parent) : QDialog(parent)
     auto *concGroup = new QGroupBox(tr("Pipeline Concurrency"), this);
     auto *concLayout = new QVBoxLayout(concGroup);
 
-    auto *descLabel = new QLabel(tr("Controls how many audio chunks are processed simultaneously during combine.\n"
-                                    "Higher values may improve speed but use more memory."),
-                                 this);
+    auto *descLabel =
+        new QLabel(tr("Controls how many audio chunks are processed simultaneously during the processing.\n"
+                      "Higher values may improve speed but use more memory."),
+                   this);
     descLabel->setWordWrap(true);
     concLayout->addWidget(descLabel);
 

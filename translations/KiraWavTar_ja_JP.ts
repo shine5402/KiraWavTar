@@ -116,6 +116,13 @@
         <translation type="unfinished">パイプライン並列処理</translation>
     </message>
     <message>
+        <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="69"/>
+        <source>Controls how many audio chunks are processed simultaneously during the processing.
+Higher values may improve speed but use more memory.</source>
+        <translation>処理中に同時処理するオーディオチャンク数を制御します。
+値が大きいほど処理速度が向上する可能性がありますが、より多くのメモリを使用します。</translation>
+    </message>
+    <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="68"/>
         <source>Controls how many audio chunks are processed simultaneously during combine.
 Higher values may improve speed but use more memory.</source>

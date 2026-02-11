@@ -114,12 +114,17 @@
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="65"/>
         <source>Pipeline Concurrency</source>
         <translation type="unfinished">流水线并发</translation>
+    <message>
+        <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="69"/>
+        <source>Controls how many audio chunks are processed simultaneously during the processing.
+Higher values may improve speed but use more memory.</source>
+        <translation>控制在处理过程中同时处理的音频块数量。
+较高的值可能会提高速度，但会使用更多内存。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="68"/>
         <source>Controls how many audio chunks are processed simultaneously during combine.
 Higher values may improve speed but use more memory.</source>
-        <translation type="unfinished">控制在合并过程中同时处理的音频块数量。
+        <translation type="obsolete">控制在合并过程中同时处理的音频块数量。
 较高的值可能会提高速度，但会使用更多内存。</translation>
     </message>
     <message>
