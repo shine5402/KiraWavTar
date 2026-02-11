@@ -7,9 +7,16 @@
 #include "utils/Utils.h"
 #include "worker/AudioIO.h"
 
+// TBB's profiling.h has void emit() which conflicts with Qt's 'emit' macro
+#pragma push_macro("emit")
+#undef emit
+#include <oneapi/tbb/task_group.h>
+#pragma pop_macro("emit")
+
 class QLabel;
 class QProgressBar;
 class QDialogButtonBox;
+class QTimer;
 
 class WavCombineDialog : public QDialog
 {
@@ -29,13 +36,13 @@ signals:
 private slots:
     void startWork();
     void preCheckDone();
-    void readAndCombineWorkDone();
-    void writeResultDone();
+    void pipelineDone();
 
 private:
     QLabel *m_label;
     QProgressBar *m_progressBar;
     QDialogButtonBox *m_buttonBox;
+    QTimer *m_progressTimer = nullptr;
 
     QString m_rootDirName;
     bool m_recursive;
@@ -43,6 +50,10 @@ private:
     QString m_saveFileName;
     int m_gapMs;
     utils::VolumeConfig m_volumeConfig;
+
+    // Pipeline progress + cancellation
+    std::shared_ptr<std::atomic<int>> m_pipelineProgress;
+    std::shared_ptr<oneapi::tbb::task_group_context> m_tbbContext;
 };
 
 #endif // WAVCOMBINEDIALOG_H

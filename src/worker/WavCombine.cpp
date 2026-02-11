@@ -10,6 +10,11 @@
 #include <type_traits>
 #include <variant>
 
+#pragma push_macro("emit")
+#undef emit
+#include <oneapi/tbb/parallel_pipeline.h>
+#pragma pop_macro("emit")
+
 #include "AudioIO.h"
 #include "utils/Filesystem.h"
 #include "utils/KfrHelper.h"
@@ -18,6 +23,8 @@
 using namespace utils;
 
 namespace AudioCombine {
+
+// --- preCheck (unchanged) ---
 
 CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive, AudioIO::AudioFormat targetFormat)
 {
@@ -69,7 +76,7 @@ CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive
         warningMsg.append(QCoreApplication::translate("WAVCombine",
                                                       "<p class='warning'>Can not know bit depth from \"%1\"."
                                                       " Maybe this file id corrupted, "
-                                                      "or error happend during openning the file.</p>")
+                                                      "or error happened during opening the file.</p>")
                               .arg(i.first));
     }
 
@@ -103,11 +110,6 @@ CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive
     }
 
     // --- Sample type conversion warnings ---
-    // Categorized by conversion scenario for more informative messages:
-    //   int→float: safe, no warning
-    //   float→int: dynamic range loss, clipping burns in, dithering applied
-    //   int→int (higher→lower): dynamic range loss, dithering applied
-    //   f64→f32: subtle precision loss
     for (const auto &[fileName, fileFormat] : std::as_const(formats)) {
         auto srcType = fileFormat.kfr_format.type;
         auto dstType = targetFormat.kfr_format.type;
@@ -119,12 +121,10 @@ CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive
         bool dstIsFloat = kfr::audio_sample_is_float(dstType);
 
         if (!srcIsFloat && dstIsFloat) {
-            // int → float: always safe, superior representation. No warning.
             continue;
         }
 
         if (srcIsFloat && !dstIsFloat) {
-            // float → int: always warn about dynamic range loss and permanent clipping
             warningMsg.append(
                 QCoreApplication::translate(
                     "WAVCombine",
@@ -137,7 +137,6 @@ CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive
                     .arg(kfr::audio_sample_type_to_string(srcType).data())
                     .arg(kfr::audio_sample_type_to_string(dstType).data()));
         } else if (srcIsFloat && dstIsFloat) {
-            // f64 → f32: subtle precision loss
             if (kfr::audio_sample_type_to_precision(srcType) > kfr::audio_sample_type_to_precision(dstType)) {
                 warningMsg.append(QCoreApplication::translate(
                                       "WAVCombine", "<p class='warning'>\"%1\" (%2) will be converted to %3. "
@@ -148,7 +147,6 @@ CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive
                                       .arg(kfr::audio_sample_type_to_string(dstType).data()));
             }
         } else {
-            // int → int: warn if losing bit depth (e.g., 24-bit → 16-bit)
             int srcBits = kfr::audio_sample_type_to_precision(srcType);
             int dstBits = kfr::audio_sample_type_to_precision(dstType);
             if (srcBits > dstBits) {
@@ -170,380 +168,373 @@ CheckResult preCheck(QString rootDirName, QString dstWAVFileName, bool recursive
     return {CheckPassType::WARNING, warningMsg, wavFileNames};
 }
 
-QFuture<QPair<utils::AudioBufferPtr, QJsonObject>>
-startReadAndCombineWork(QStringList WAVFileNames, QString rootDirName, AudioIO::AudioFormat targetFormat, int gapMs)
+// --- Helper: container format to integer for JSON ---
+
+static int containerFormatToInt(AudioIO::AudioFormat::Container c)
 {
-    const bool useDouble = utils::shouldUseDoubleInternalProcessing(targetFormat.kfr_format.type);
-    const qint64 gapSamples = qRound64(gapMs / 1000.0 * targetFormat.kfr_format.samplerate);
-
-    return QtConcurrent::mappedReduced(
-        WAVFileNames,
-        // Map
-        std::function([rootDirName, targetFormat,
-                       useDouble](const QString &fileName) -> QPair<utils::AudioBufferPtr, QJsonObject> {
-            // TODO: handle exceptions
-
-            auto processTyped = [&](auto &&readResult) -> QPair<utils::AudioBufferPtr, QJsonObject> {
-                using T = std::decay_t<decltype(readResult.data[0][0])>;
-
-                auto &inputData = readResult.data;
-                size_t inputChannels = readResult.format.kfr_format.channels;
-                size_t inputLength = readResult.format.length;
-                double inputSampleRate = readResult.format.kfr_format.samplerate;
-
-                size_t outputChannels = targetFormat.kfr_format.channels;
-                double outputSampleRate = targetFormat.kfr_format.samplerate;
-
-                // Channel mix (Truncate extra channels, or pad with zero)
-                kfr::univector2d<T> processedData(outputChannels);
-                for (size_t c = 0; c < outputChannels; ++c) {
-                    if (c < inputChannels) {
-                        processedData[c] = inputData[c];
-                    } else {
-                        processedData[c].resize(inputLength, T(0));
-                    }
-                }
-
-                // Resample if needed
-                if (std::abs(inputSampleRate - outputSampleRate) > 1e-5) {
-                    kfr::univector2d<T> resampledData(outputChannels);
-                    for (size_t c = 0; c < outputChannels; ++c) {
-                        if (c >= processedData.size())
-                            continue;
-                        auto converter = kfr::sample_rate_converter<T>(
-                            utils::getSampleRateConversionQuality(), (size_t)outputSampleRate, (size_t)inputSampleRate);
-                        size_t outSize = converter.output_size_for_input(processedData[c].size());
-                        resampledData[c].resize(outSize);
-                        converter.process(resampledData[c], processedData[c]);
-                    }
-                    processedData = std::move(resampledData);
-                }
-
-                // Create Meta Object
-                QJsonObject metaObj;
-                metaObj.insert("file_name", QDir(rootDirName).relativeFilePath(fileName));
-                metaObj.insert("sample_rate", readResult.format.kfr_format.samplerate);
-                metaObj.insert("sample_type", (qint64)readResult.format.kfr_format.type);
-
-                int originalContainerFormat = 0; // RIFF
-                switch (readResult.format.container) {
-                case AudioIO::AudioFormat::Container::RIFF:
-                    originalContainerFormat = 0;
-                    break;
-                case AudioIO::AudioFormat::Container::RF64:
-                    originalContainerFormat = 2;
-                    break;
-                case AudioIO::AudioFormat::Container::W64:
-                    originalContainerFormat = 1;
-                    break;
-                case AudioIO::AudioFormat::Container::FLAC:
-                    originalContainerFormat = 3;
-                    break;
-                default:
-                    break;
-                }
-                metaObj.insert("container_format", originalContainerFormat);
-                metaObj.insert("channel_count", (qint64)readResult.format.kfr_format.channels);
-                metaObj.insert("duration",
-                               samplesToTimecode(readResult.format.length, readResult.format.kfr_format.samplerate));
-
-                auto retData = std::make_shared<kfr::univector2d<T>>(std::move(processedData));
-                utils::AudioBufferPtr buf;
-                if constexpr (std::is_same_v<T, float>)
-                    buf = retData;
-                else
-                    buf = retData;
-                return {buf, metaObj};
-            };
-
-            if (useDouble) {
-                auto result = AudioIO::readAudioFileF64(fileName);
-                return processTyped(std::move(result));
-            }
-
-            auto result = AudioIO::readAudioFileF32(fileName);
-            return processTyped(std::move(result));
-        }),
-
-        // Reduce
-        std::function([targetFormat, useDouble, gapSamples](QPair<utils::AudioBufferPtr, QJsonObject> &total,
-                                                            const QPair<utils::AudioBufferPtr, QJsonObject> &input) {
-            // Initialization
-            if (total.second.isEmpty()) {
-                if (useDouble) {
-                    total.first = std::make_shared<utils::AudioBufferF64>(targetFormat.kfr_format.channels);
-                } else {
-                    total.first = std::make_shared<utils::AudioBufferF32>(targetFormat.kfr_format.channels);
-                }
-
-                QJsonObject jsonRoot;
-                jsonRoot.insert("version", utils::desc_file_version);
-                jsonRoot.insert("sample_rate", targetFormat.kfr_format.samplerate);
-                jsonRoot.insert("sample_type", (int)targetFormat.kfr_format.type);
-                jsonRoot.insert("channel_count", (int)targetFormat.kfr_format.channels);
-                jsonRoot.insert("gap_duration", samplesToTimecode(gapSamples, targetFormat.kfr_format.samplerate));
-                jsonRoot.insert("descriptions", QJsonArray());
-                total.second = jsonRoot;
-            }
-
-            size_t nChannels = targetFormat.kfr_format.channels;
-
-            // Insert leading silence padding for this entry
-            size_t currentSize = 0;
-            std::visit([&](auto &totalPtr, const auto &) { currentSize = totalPtr->operator[](0).size(); }, total.first,
-                       input.first);
-
-            if (gapSamples > 0) {
-                std::visit(
-                    [&](auto &totalPtr, const auto &) {
-                        for (size_t c = 0; c < nChannels; ++c) {
-                            totalPtr->operator[](c).resize(currentSize + gapSamples, 0);
-                        }
-                    },
-                    total.first, input.first);
-                currentSize += gapSamples;
-            }
-
-            // Append Data (typed)
-            size_t appendSize = 0;
-            std::visit(
-                [&](auto &totalPtr, const auto &inputPtr) {
-                    using TotalPtrT = std::decay_t<decltype(totalPtr)>;
-                    using InputPtrT = std::decay_t<decltype(inputPtr)>;
-                    if constexpr (std::is_same_v<TotalPtrT, InputPtrT>) {
-                        currentSize = totalPtr->operator[](0).size();
-                        appendSize = inputPtr->operator[](0).size();
-                        for (size_t c = 0; c < nChannels; ++c) {
-                            totalPtr->operator[](c).resize(currentSize + appendSize);
-                            std::copy(inputPtr->operator[](c).begin(), inputPtr->operator[](c).end(),
-                                      totalPtr->operator[](c).begin() + currentSize);
-                        }
-                    } else {
-                        throw std::runtime_error("Internal buffer type mismatch");
-                    }
-                },
-                total.first, input.first);
-
-            // Insert trailing silence padding for this entry
-            if (gapSamples > 0) {
-                size_t sizeAfterAppend = 0;
-                std::visit(
-                    [&](auto &totalPtr, const auto &) {
-                        sizeAfterAppend = totalPtr->operator[](0).size();
-                        for (size_t c = 0; c < nChannels; ++c) {
-                            totalPtr->operator[](c).resize(sizeAfterAppend + gapSamples, 0);
-                        }
-                    },
-                    total.first, input.first);
-            }
-
-            // Append Meta
-            QJsonObject meta = input.second;
-            meta.insert("begin_time", samplesToTimecode(currentSize, targetFormat.kfr_format.samplerate));
-
-            QJsonArray arr = total.second["descriptions"].toArray();
-            arr.append(meta);
-            total.second.insert("descriptions", arr);
-
-            // Update Total Duration (includes trailing gap)
-            size_t finalSize = 0;
-            std::visit([&](auto &totalPtr, const auto &) { finalSize = totalPtr->operator[](0).size(); }, total.first,
-                       input.first);
-            total.second.insert("total_duration", samplesToTimecode(finalSize, targetFormat.kfr_format.samplerate));
-        }));
+    switch (c) {
+    case AudioIO::AudioFormat::Container::RIFF:
+        return 0;
+    case AudioIO::AudioFormat::Container::W64:
+        return 1;
+    case AudioIO::AudioFormat::Container::RF64:
+        return 2;
+    case AudioIO::AudioFormat::Container::FLAC:
+        return 3;
+    default:
+        return 0;
+    }
 }
 
-bool writeCombineResult(utils::AudioBufferPtr data, QJsonObject descObj, QString wavFileName,
-                        AudioIO::AudioFormat targetFormat, const utils::VolumeConfig &volumeConfig)
+// --- computeLayout ---
+
+CombineLayout computeLayout(const QStringList &wavFileNames, const QString &rootDirName, const QString &saveFileName,
+                            const AudioIO::AudioFormat &targetFormat, int gapMs,
+                            const utils::VolumeConfig &volumeConfig)
 {
-    double sampleRate = descObj["sample_rate"].toDouble();
-    QJsonArray descriptions = descObj["descriptions"].toArray();
-    QString gapDuration = descObj["gap_duration"].toString();
-    qint64 gapSamples = timecodeToSamples(gapDuration, sampleRate);
+    CombineLayout layout;
+    layout.targetFormat = targetFormat;
+    layout.gapSamples = qRound64(gapMs / 1000.0 * targetFormat.kfr_format.samplerate);
+    layout.useDouble = utils::shouldUseDoubleInternalProcessing(targetFormat.kfr_format.type);
+    layout.rootDirName = rootDirName;
 
-    // Single-volume (no splitting)
-    if (volumeConfig.mode == utils::VolumeSplitMode::None) {
+    QDir rootDir(rootDirName);
+
+    // Read formats for all files (reuse cached info from preCheck where possible)
+    layout.entries.reserve(wavFileNames.size());
+    for (const auto &fileName : wavFileNames) {
+        EntryLayout entry;
+        entry.filePath = fileName;
+        entry.relativePath = rootDir.relativeFilePath(fileName);
         try {
-            std::visit(
-                [&](auto &ptr) {
-                    if (!ptr)
-                        throw std::runtime_error("Null audio buffer");
-                    using PtrT = std::decay_t<decltype(ptr)>;
-                    if constexpr (std::is_same_v<PtrT, std::shared_ptr<utils::AudioBufferF32>>) {
-                        AudioIO::writeAudioFileF32(wavFileName, *ptr, targetFormat);
-                    } else {
-                        AudioIO::writeAudioFileF64(wavFileName, *ptr, targetFormat);
-                    }
-                },
-                data);
+            entry.sourceFormat = AudioIO::readAudioFormat(fileName);
         } catch (...) {
-            return false;
+            entry.sourceFormat = {};
         }
-
-        QString descFileName = getDescFileNameFrom(wavFileName);
-        QFile descFile(descFileName);
-        if (!descFile.open(QIODevice::WriteOnly))
-            return false;
-        QJsonDocument doc(descObj);
-        descFile.write(doc.toJson());
-        descFile.close();
-        return true;
+        layout.entries.append(entry);
     }
 
-    // Multi-volume: partition entries into volumes
-    struct VolumeInfo
-    {
-        int entryBeginIndex = 0;
-        int entryEndIndex = 0;
-        qint64 startSample = 0;
-        qint64 endSample = 0;
+    // Estimate per-entry output frame counts
+    auto estimateOutputFrames = [&](const EntryLayout &entry) -> qint64 {
+        if (entry.sourceFormat.length <= 0)
+            return 0;
+        double inputRate = entry.sourceFormat.kfr_format.samplerate;
+        double outputRate = targetFormat.kfr_format.samplerate;
+        if (std::abs(inputRate - outputRate) > 1e-5 && inputRate > 0) {
+            return static_cast<qint64>(
+                std::ceil(static_cast<double>(entry.sourceFormat.length) * outputRate / inputRate));
+        }
+        return entry.sourceFormat.length;
     };
-    QList<VolumeInfo> volumes;
 
-    int entryCount = descriptions.size();
-    if (entryCount == 0)
-        return false;
-
-    if (volumeConfig.mode == utils::VolumeSplitMode::ByCount) {
+    if (volumeConfig.mode == utils::VolumeSplitMode::None) {
+        // Single volume
+        VolumeLayout vol;
+        vol.outputFilePath = saveFileName;
+        qint64 totalFrames = 0;
+        for (int i = 0; i < layout.entries.size(); ++i) {
+            layout.entries[i].volumeIndex = 0;
+            vol.entryIndices.append(i);
+            qint64 entryFrames = estimateOutputFrames(layout.entries[i]);
+            totalFrames += entryFrames + 2 * layout.gapSamples; // leading + trailing gap
+        }
+        vol.totalFrames = totalFrames;
+        layout.volumes.append(vol);
+    } else if (volumeConfig.mode == utils::VolumeSplitMode::ByCount) {
         int maxPerVol = volumeConfig.maxEntriesPerVolume;
-        for (int i = 0; i < entryCount; i += maxPerVol) {
-            VolumeInfo vi;
-            vi.entryBeginIndex = i;
-            vi.entryEndIndex = std::min(i + maxPerVol, entryCount);
-            volumes.append(vi);
+        int volIndex = 0;
+        for (int i = 0; i < layout.entries.size(); i += maxPerVol) {
+            VolumeLayout vol;
+            vol.outputFilePath = getVolumeFileName(saveFileName, volIndex);
+            qint64 totalFrames = 0;
+            int end = std::min(i + maxPerVol, static_cast<int>(layout.entries.size()));
+            for (int j = i; j < end; ++j) {
+                layout.entries[j].volumeIndex = volIndex;
+                vol.entryIndices.append(j);
+                totalFrames += estimateOutputFrames(layout.entries[j]) + 2 * layout.gapSamples;
+            }
+            vol.totalFrames = totalFrames;
+            layout.volumes.append(vol);
+            ++volIndex;
         }
     } else {
         // ByDuration
+        double sampleRate = targetFormat.kfr_format.samplerate;
         qint64 maxDurationSamples =
             static_cast<qint64>(volumeConfig.maxDurationSeconds) * static_cast<qint64>(sampleRate);
-        VolumeInfo currentVol;
-        currentVol.entryBeginIndex = 0;
+
+        int volIndex = 0;
+        VolumeLayout currentVol;
+        currentVol.outputFilePath = getVolumeFileName(saveFileName, volIndex);
         qint64 accumulatedSamples = 0;
 
-        for (int i = 0; i < entryCount; ++i) {
-            auto entry = descriptions[i].toObject();
-            qint64 entryDurSamples = timecodeToSamples(entry["duration"].toString(), sampleRate);
-            qint64 footprint = 2 * gapSamples + entryDurSamples;
+        for (int i = 0; i < layout.entries.size(); ++i) {
+            qint64 entryFrames = estimateOutputFrames(layout.entries[i]);
+            qint64 footprint = 2 * layout.gapSamples + entryFrames;
 
             if (footprint > maxDurationSamples) {
                 throw std::runtime_error(
                     QCoreApplication::translate(
                         "WAVCombine",
-                        "Entry \"%1\" has duration %2 which exceeds the maximum volume duration of %3 seconds.")
-                        .arg(entry["file_name"].toString())
-                        .arg(entry["duration"].toString())
+                        "Entry \"%1\" has duration which exceeds the maximum volume duration of %2 seconds.")
+                        .arg(layout.entries[i].relativePath)
                         .arg(volumeConfig.maxDurationSeconds)
                         .toStdString());
             }
 
             if (accumulatedSamples > 0 && accumulatedSamples + footprint > maxDurationSamples) {
-                currentVol.entryEndIndex = i;
-                volumes.append(currentVol);
+                currentVol.totalFrames = accumulatedSamples;
+                layout.volumes.append(currentVol);
+                ++volIndex;
                 currentVol = {};
-                currentVol.entryBeginIndex = i;
+                currentVol.outputFilePath = getVolumeFileName(saveFileName, volIndex);
                 accumulatedSamples = 0;
             }
+
+            layout.entries[i].volumeIndex = volIndex;
+            currentVol.entryIndices.append(i);
             accumulatedSamples += footprint;
         }
-        currentVol.entryEndIndex = entryCount;
-        volumes.append(currentVol);
+        currentVol.totalFrames = accumulatedSamples;
+        layout.volumes.append(currentVol);
     }
 
-    // Compute volume sample boundaries
-    size_t totalBufferSize = 0;
-    std::visit([&](const auto &ptr) { totalBufferSize = ptr->operator[](0).size(); }, data);
+    return layout;
+}
 
-    for (int v = 0; v < volumes.size(); ++v) {
-        auto &vol = volumes[v];
-        auto firstEntry = descriptions[vol.entryBeginIndex].toObject();
-        qint64 firstBeginSample = timecodeToSamples(firstEntry["begin_time"].toString(), sampleRate);
-        vol.startSample = std::max(qint64(0), firstBeginSample - gapSamples);
+// --- Pipeline token ---
 
-        if (v + 1 < volumes.size()) {
-            auto nextFirstEntry = descriptions[volumes[v + 1].entryBeginIndex].toObject();
-            qint64 nextBeginSample = timecodeToSamples(nextFirstEntry["begin_time"].toString(), sampleRate);
-            vol.endSample = std::max(qint64(0), nextBeginSample - gapSamples);
-        } else {
-            vol.endSample = static_cast<qint64>(totalBufferSize);
-        }
+struct CombineToken
+{
+    utils::AudioBufferPtr processedAudio;
+    QJsonObject entryMeta;
+    int entryIndex;
+};
+
+// --- runCombinePipeline ---
+
+QJsonObject runCombinePipeline(const CombineLayout &layout, std::atomic<int> &progress,
+                               oneapi::tbb::task_group_context &ctx)
+{
+    // Open all volume writers (non-copyable, so use vector of unique_ptr)
+    std::vector<std::unique_ptr<AudioIO::StreamingAudioWriter>> writers;
+    writers.reserve(layout.volumes.size());
+    for (int v = 0; v < layout.volumes.size(); ++v) {
+        auto w = std::make_unique<AudioIO::StreamingAudioWriter>();
+        w->open(layout.volumes[v].outputFilePath, layout.targetFormat, layout.volumes[v].totalFrames);
+        writers.push_back(std::move(w));
     }
 
-    // Write each volume WAV
-    for (int v = 0; v < volumes.size(); ++v) {
-        const auto &vol = volumes[v];
-        QString volFileName = getVolumeFileName(wavFileName, v);
-        qint64 sliceStart = vol.startSample;
-        qint64 sliceLen = vol.endSample - vol.startSample;
+    int currentVolume = 0;
+    QJsonArray descriptionsArray;
+    qint64 currentSamplePos = 0;
+    bool isFirstEntryInVolume = true;
 
-        try {
-            std::visit(
-                [&](auto &ptr) {
-                    if (!ptr)
-                        throw std::runtime_error("Null audio buffer");
-                    using PtrT = std::decay_t<decltype(ptr)>;
-                    using T = typename PtrT::element_type::value_type::value_type;
-                    size_t nChannels = ptr->size();
-                    kfr::univector2d<T> slice(nChannels);
-                    for (size_t c = 0; c < nChannels; ++c) {
-                        slice[c] = ptr->operator[](c).slice(sliceStart, sliceLen);
+    int totalEntries = layout.entries.size();
+    int nextIndex = 0;
+
+    auto filterChain =
+        // Stage 1: serial_in_order — emit entry indices
+        tbb::make_filter<void, int>(tbb::filter_mode::serial_in_order,
+                                    [&nextIndex, totalEntries](tbb::flow_control &fc) -> int {
+                                        if (nextIndex >= totalEntries) {
+                                            fc.stop();
+                                            return -1;
+                                        }
+                                        return nextIndex++;
+                                    }) &
+        // Stage 2: parallel — read file, resample, channel mix
+        tbb::make_filter<int, CombineToken>(
+            tbb::filter_mode::parallel,
+            [&layout](int entryIndex) -> CombineToken {
+                const auto &entry = layout.entries[entryIndex];
+                const auto &targetFormat = layout.targetFormat;
+
+                auto processTyped = [&](auto &&readResult) -> CombineToken {
+                    using T = std::decay_t<decltype(readResult.data[0][0])>;
+
+                    auto &inputData = readResult.data;
+                    size_t inputChannels = readResult.format.kfr_format.channels;
+                    size_t inputLength = readResult.format.length;
+                    double inputSampleRate = readResult.format.kfr_format.samplerate;
+
+                    size_t outputChannels = targetFormat.kfr_format.channels;
+                    double outputSampleRate = targetFormat.kfr_format.samplerate;
+
+                    // Channel mix (truncate extra or pad with zeros)
+                    kfr::univector2d<T> processedData(outputChannels);
+                    for (size_t c = 0; c < outputChannels; ++c) {
+                        if (c < inputChannels) {
+                            processedData[c] = inputData[c];
+                        } else {
+                            processedData[c].resize(inputLength, T(0));
+                        }
                     }
-                    if constexpr (std::is_same_v<T, float>) {
-                        AudioIO::writeAudioFileF32(volFileName, slice, targetFormat);
+
+                    // Resample if needed
+                    if (std::abs(inputSampleRate - outputSampleRate) > 1e-5) {
+                        kfr::univector2d<T> resampledData(outputChannels);
+                        for (size_t c = 0; c < outputChannels; ++c) {
+                            if (c >= processedData.size())
+                                continue;
+                            auto converter =
+                                kfr::sample_rate_converter<T>(utils::getSampleRateConversionQuality(),
+                                                              (size_t)outputSampleRate, (size_t)inputSampleRate);
+                            size_t outSize = converter.output_size_for_input(processedData[c].size());
+                            resampledData[c].resize(outSize);
+                            converter.process(resampledData[c], processedData[c]);
+                        }
+                        processedData = std::move(resampledData);
+                    }
+
+                    // Build per-entry metadata
+                    QJsonObject metaObj;
+                    metaObj.insert("file_name", entry.relativePath);
+                    metaObj.insert("sample_rate", readResult.format.kfr_format.samplerate);
+                    metaObj.insert("sample_type", (qint64)readResult.format.kfr_format.type);
+                    metaObj.insert("container_format", containerFormatToInt(readResult.format.container));
+                    metaObj.insert("channel_count", (qint64)readResult.format.kfr_format.channels);
+                    metaObj.insert("duration", samplesToTimecode(readResult.format.length,
+                                                                 readResult.format.kfr_format.samplerate));
+
+                    auto retData = std::make_shared<kfr::univector2d<T>>(std::move(processedData));
+                    utils::AudioBufferPtr buf;
+                    if constexpr (std::is_same_v<T, float>)
+                        buf = retData;
+                    else
+                        buf = retData;
+
+                    return CombineToken{buf, metaObj, entryIndex};
+                };
+
+                if (layout.useDouble) {
+                    auto result = AudioIO::readAudioFileF64(entry.filePath);
+                    return processTyped(std::move(result));
+                }
+                auto result = AudioIO::readAudioFileF32(entry.filePath);
+                return processTyped(std::move(result));
+            }) &
+        // Stage 3: serial_in_order — write sequentially to output
+        tbb::make_filter<CombineToken, void>(tbb::filter_mode::serial_in_order, [&](CombineToken token) {
+            const auto &entry = layout.entries[token.entryIndex];
+
+            // Check if we need to advance to next volume
+            if (entry.volumeIndex != currentVolume) {
+                writers[currentVolume]->close();
+                currentVolume = entry.volumeIndex;
+                currentSamplePos = 0;
+                isFirstEntryInVolume = true;
+            }
+
+            // Write leading gap silence
+            if (layout.gapSamples > 0) {
+                writers[currentVolume]->writeSilence(layout.gapSamples);
+                currentSamplePos += layout.gapSamples;
+            }
+
+            // Record begin_time in metadata
+            token.entryMeta.insert("begin_time",
+                                   samplesToTimecode(currentSamplePos, layout.targetFormat.kfr_format.samplerate));
+            if (layout.volumes.size() > 1)
+                token.entryMeta.insert("volume_index", currentVolume);
+
+            // Write audio data
+            qint64 entryFrames = 0;
+            std::visit(
+                [&](const auto &ptr) {
+                    if (!ptr)
+                        throw std::runtime_error("Null audio buffer in pipeline");
+                    entryFrames = static_cast<qint64>(ptr->operator[](0).size());
+                    using PtrT = std::decay_t<decltype(ptr)>;
+                    if constexpr (std::is_same_v<PtrT, std::shared_ptr<utils::AudioBufferF32>>) {
+                        writers[currentVolume]->writeFramesF32(*ptr);
                     } else {
-                        AudioIO::writeAudioFileF64(volFileName, slice, targetFormat);
+                        writers[currentVolume]->writeFramesF64(*ptr);
                     }
                 },
-                data);
-        } catch (...) {
-            return false;
-        }
+                token.processedAudio);
+            currentSamplePos += entryFrames;
+
+            // Write trailing gap silence
+            if (layout.gapSamples > 0) {
+                writers[currentVolume]->writeSilence(layout.gapSamples);
+                currentSamplePos += layout.gapSamples;
+            }
+
+            descriptionsArray.append(token.entryMeta);
+            isFirstEntryInVolume = false;
+            progress.fetch_add(1, std::memory_order_relaxed);
+        });
+
+    {
+        const tbb::filter<void, void> &chain = filterChain;
+        tbb::parallel_pipeline(static_cast<size_t>(std::clamp(QThread::idealThreadCount(), 2, 8)), chain, ctx);
     }
 
-    // Build multi-volume description JSON
-    QJsonObject multiVolRoot;
-    multiVolRoot.insert("version", utils::desc_file_version);
-    multiVolRoot.insert("sample_rate", descObj["sample_rate"]);
-    multiVolRoot.insert("sample_type", descObj["sample_type"]);
-    multiVolRoot.insert("channel_count", descObj["channel_count"]);
-    multiVolRoot.insert("gap_duration", descObj["gap_duration"]);
-    multiVolRoot.insert("total_duration", descObj["total_duration"]);
-    multiVolRoot.insert("volume_count", volumes.size());
-
-    QJsonArray volumesArray;
-    QJsonArray newDescriptions;
-
-    for (int v = 0; v < volumes.size(); ++v) {
-        const auto &vol = volumes[v];
-
-        QJsonObject volObj;
-        qint64 volDurationSamples = vol.endSample - vol.startSample;
-        volObj.insert("total_duration", samplesToTimecode(volDurationSamples, sampleRate));
-        volObj.insert("entry_begin_index", vol.entryBeginIndex);
-        volObj.insert("entry_end_index", vol.entryEndIndex);
-        volumesArray.append(volObj);
-
-        for (int i = vol.entryBeginIndex; i < vol.entryEndIndex; ++i) {
-            QJsonObject entry = descriptions[i].toObject();
-            qint64 globalBeginSample = timecodeToSamples(entry["begin_time"].toString(), sampleRate);
-            qint64 perVolumeBeginSample = globalBeginSample - vol.startSample;
-            entry.insert("begin_time", samplesToTimecode(perVolumeBeginSample, sampleRate));
-            entry.insert("volume_index", v);
-            newDescriptions.append(entry);
-        }
+    // Close remaining writers
+    for (auto &w : writers) {
+        if (w->isOpen())
+            w->close();
     }
 
-    multiVolRoot.insert("volumes", volumesArray);
-    multiVolRoot.insert("descriptions", newDescriptions);
+    // Build description JSON
+    QJsonObject descObj;
+    descObj.insert("version", utils::desc_file_version);
+    descObj.insert("sample_rate", layout.targetFormat.kfr_format.samplerate);
+    descObj.insert("sample_type", static_cast<int>(layout.targetFormat.kfr_format.type));
+    descObj.insert("channel_count", static_cast<int>(layout.targetFormat.kfr_format.channels));
+    descObj.insert("gap_duration", samplesToTimecode(layout.gapSamples, layout.targetFormat.kfr_format.samplerate));
 
-    // Write single desc JSON
-    QString descFileName = getDescFileNameFrom(wavFileName);
+    if (layout.volumes.size() == 1) {
+        // Single volume — total_duration from the writer
+        descObj.insert("total_duration",
+                       samplesToTimecode(writers[0]->framesWritten(), layout.targetFormat.kfr_format.samplerate));
+        descObj.insert("descriptions", descriptionsArray);
+    } else {
+        // Multi-volume
+        descObj.insert("volume_count", layout.volumes.size());
+
+        // Compute per-volume total_duration from writer frames
+        QJsonArray volumesArray;
+        for (size_t v = 0; v < writers.size(); ++v) {
+            QJsonObject volObj;
+            volObj.insert("total_duration",
+                          samplesToTimecode(writers[v]->framesWritten(), layout.targetFormat.kfr_format.samplerate));
+            volObj.insert("entry_begin_index", layout.volumes[v].entryIndices.first());
+            volObj.insert("entry_end_index", layout.volumes[v].entryIndices.last() + 1);
+            volumesArray.append(volObj);
+        }
+        descObj.insert("volumes", volumesArray);
+
+        // Compute overall total_duration as sum of all volume durations
+        qint64 totalFrames = 0;
+        for (auto &w : writers)
+            totalFrames += w->framesWritten();
+        descObj.insert("total_duration", samplesToTimecode(totalFrames, layout.targetFormat.kfr_format.samplerate));
+
+        descObj.insert("descriptions", descriptionsArray);
+    }
+
+    // Write description JSON file
+    QString descFileName;
+    if (layout.volumes.size() == 1) {
+        descFileName = getDescFileNameFrom(layout.volumes[0].outputFilePath);
+    } else {
+        // For multi-volume, the desc file is named after the base filename (volume 0)
+        descFileName = getDescFileNameFrom(layout.volumes[0].outputFilePath);
+    }
+
     QFile descFile(descFileName);
-    if (!descFile.open(QIODevice::WriteOnly))
-        return false;
-    QJsonDocument doc(multiVolRoot);
+    if (!descFile.open(QIODevice::WriteOnly)) {
+        throw std::runtime_error(QCoreApplication::translate("WAVCombine", "Failed to write description file: %1")
+                                     .arg(descFileName)
+                                     .toStdString());
+    }
+    QJsonDocument doc(descObj);
     descFile.write(doc.toJson());
     descFile.close();
 
-    return true;
+    return descObj;
 }
+
 } // namespace AudioCombine

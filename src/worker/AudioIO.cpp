@@ -718,4 +718,355 @@ size_t writeAudioFileF64(const QString &fileName, const kfr::univector2d<double>
     fmt.container = AudioFormat::Container::RIFF; // Default
     return writeAudioFileF64(fileName, data, fmt);
 }
+// ---------- StreamingAudioWriter implementation ----------
+
+// Platform compat wrapper for drwav_init_file_write (non-sequential — header patched on close)
+#ifdef Q_OS_WIN
+static drwav_bool32 drwav_init_file_write_compat(drwav *pWav, const QString &fileName,
+                                                  const drwav_data_format *pFormat,
+                                                  const drwav_allocation_callbacks *pAllocationCallbacks)
+{
+    return drwav_init_file_write_w(pWav, reinterpret_cast<const wchar_t *>(fileName.utf16()),
+                                   pFormat, pAllocationCallbacks);
+}
+#else
+static drwav_bool32 drwav_init_file_write_compat(drwav *pWav, const QString &fileName,
+                                                  const drwav_data_format *pFormat,
+                                                  const drwav_allocation_callbacks *pAllocationCallbacks)
+{
+    return drwav_init_file_write(pWav, fileName.toUtf8().constData(), pFormat, pAllocationCallbacks);
+}
+#endif
+
+struct StreamingAudioWriter::WavState {
+    drwav wav{};
+    drwav_data_format format{};
+};
+
+struct StreamingAudioWriter::FlacState {
+    FLAC__StreamEncoder *encoder = nullptr;
+    unsigned bitsPerSample = 0;
+    unsigned channels = 0;
+
+    ~FlacState() {
+        if (encoder) {
+            FLAC__stream_encoder_delete(encoder);
+            encoder = nullptr;
+        }
+    }
+};
+
+struct StreamingAudioWriter::DitherState {
+    // KFR audio_quantization holds TPDF dither generator state
+    kfr::audio_quantization quantization;
+    explicit DitherState(unsigned bits) : quantization(bits, kfr::audio_dithering::triangular) {}
+};
+
+StreamingAudioWriter::StreamingAudioWriter() = default;
+
+StreamingAudioWriter::~StreamingAudioWriter()
+{
+    if (m_isOpen)
+        close();
+}
+
+StreamingAudioWriter::StreamingAudioWriter(StreamingAudioWriter &&other) noexcept
+    : m_format(other.m_format),
+      m_framesWritten(other.m_framesWritten),
+      m_isOpen(other.m_isOpen),
+      m_wavState(std::move(other.m_wavState)),
+      m_isWav(other.m_isWav),
+      m_flacState(std::move(other.m_flacState)),
+      m_ditherState(std::move(other.m_ditherState))
+{
+    other.m_isOpen = false;
+    other.m_framesWritten = 0;
+}
+
+StreamingAudioWriter &StreamingAudioWriter::operator=(StreamingAudioWriter &&other) noexcept
+{
+    if (this != &other) {
+        if (m_isOpen)
+            close();
+        m_format = other.m_format;
+        m_framesWritten = other.m_framesWritten;
+        m_isOpen = other.m_isOpen;
+        m_wavState = std::move(other.m_wavState);
+        m_isWav = other.m_isWav;
+        m_flacState = std::move(other.m_flacState);
+        m_ditherState = std::move(other.m_ditherState);
+        other.m_isOpen = false;
+        other.m_framesWritten = 0;
+    }
+    return *this;
+}
+
+void StreamingAudioWriter::open(const QString &fileName, const AudioFormat &targetFormat,
+                                qint64 totalFrameCountHint)
+{
+    if (m_isOpen)
+        throw std::runtime_error("StreamingAudioWriter already open");
+
+    m_format = targetFormat;
+    m_framesWritten = 0;
+
+    if (targetFormat.isFlac()) {
+        // FLAC path
+        auto state = std::make_unique<FlacState>();
+        state->bitsPerSample = kfrTypeToFlacBits(targetFormat.kfr_format.type);
+        state->channels = targetFormat.kfr_format.channels;
+
+        state->encoder = FLAC__stream_encoder_new();
+        if (!state->encoder)
+            throw std::runtime_error(
+                QCoreApplication::translate("AudioIO", "Failed to create FLAC encoder for: %1")
+                    .arg(fileName).toStdString());
+
+        FLAC__stream_encoder_set_channels(state->encoder, state->channels);
+        FLAC__stream_encoder_set_bits_per_sample(state->encoder, state->bitsPerSample);
+        FLAC__stream_encoder_set_sample_rate(state->encoder,
+                                             static_cast<unsigned>(targetFormat.kfr_format.samplerate));
+        FLAC__stream_encoder_set_compression_level(state->encoder, 5);
+        if (totalFrameCountHint > 0)
+            FLAC__stream_encoder_set_total_samples_estimate(state->encoder,
+                                                            static_cast<FLAC__uint64>(totalFrameCountHint));
+
+        QByteArray path = fileName.toUtf8();
+        auto initStatus = FLAC__stream_encoder_init_file(state->encoder, path.constData(), nullptr, nullptr);
+        if (initStatus != FLAC__STREAM_ENCODER_INIT_STATUS_OK) {
+            throw std::runtime_error(
+                QCoreApplication::translate("AudioIO", "Failed to open FLAC file for writing: %1")
+                    .arg(fileName).toStdString());
+        }
+
+        m_flacState = std::move(state);
+        m_isWav = false;
+
+        // Set up dither state for FLAC (always integer output)
+        m_ditherState = std::make_unique<DitherState>(m_flacState->bitsPerSample);
+    } else {
+        // WAV path (RIFF, RF64, W64)
+        auto state = std::make_unique<WavState>();
+        state->format = toDrWavDataFormat(targetFormat);
+
+        if (!drwav_init_file_write_compat(&state->wav, fileName, &state->format, nullptr)) {
+            throw std::runtime_error(
+                QCoreApplication::translate("AudioIO", "Failed to open file for writing: %1")
+                    .arg(fileName).toStdString());
+        }
+
+        m_wavState = std::move(state);
+        m_isWav = true;
+
+        // Set up dither state for PCM WAV output
+        if (m_wavState->format.format == DR_WAVE_FORMAT_PCM) {
+            m_ditherState = std::make_unique<DitherState>(m_wavState->format.bitsPerSample);
+        }
+    }
+
+    m_isOpen = true;
+}
+
+void StreamingAudioWriter::writeFramesF32(const kfr::univector2d<float> &data)
+{
+    if (!m_isOpen || data.empty())
+        return;
+
+    if (m_isWav) {
+        size_t frameCount = data[0].size();
+        size_t channels = data.size();
+
+        if (m_wavState->format.format == DR_WAVE_FORMAT_PCM) {
+            // Need to promote to double for KFR's dithered quantization with persistent state
+            auto dataDouble = promoteToDouble(data);
+            auto ptrs = planarPointers(dataDouble);
+            size_t totalSamples = frameCount * channels;
+            auto &quant = m_ditherState->quantization;
+
+            if (m_wavState->format.bitsPerSample == 16) {
+                std::vector<kfr::i16> buf(totalSamples);
+                kfr::samples_store(buf.data(), ptrs.data(), channels, frameCount, quant);
+                drwav_write_pcm_frames(&m_wavState->wav, frameCount, buf.data());
+            } else if (m_wavState->format.bitsPerSample == 24) {
+                std::vector<kfr::i24> buf(totalSamples);
+                kfr::samples_store(buf.data(), ptrs.data(), channels, frameCount, quant);
+                drwav_write_pcm_frames(&m_wavState->wav, frameCount, buf.data());
+            } else if (m_wavState->format.bitsPerSample == 32) {
+                std::vector<kfr::i32> buf(totalSamples);
+                kfr::samples_store(buf.data(), ptrs.data(), channels, frameCount, quant);
+                drwav_write_pcm_frames(&m_wavState->wav, frameCount, buf.data());
+            }
+        } else if (m_wavState->format.format == DR_WAVE_FORMAT_IEEE_FLOAT &&
+                   m_wavState->format.bitsPerSample == 32) {
+            std::vector<float> interleaved;
+            interleaveFrom(interleaved, data);
+            drwav_write_pcm_frames(&m_wavState->wav, frameCount, interleaved.data());
+        } else if (m_wavState->format.format == DR_WAVE_FORMAT_IEEE_FLOAT &&
+                   m_wavState->format.bitsPerSample == 64) {
+            auto dataDouble = promoteToDouble(data);
+            std::vector<double> interleaved;
+            interleaveFrom(interleaved, dataDouble);
+            drwav_write_pcm_frames(&m_wavState->wav, frameCount, interleaved.data());
+        }
+    } else {
+        // FLAC path
+        size_t frameCount = data[0].size();
+        size_t channels = data.size();
+        unsigned bps = m_flacState->bitsPerSample;
+        double scale = static_cast<double>(1ULL << (bps - 1));
+        double maxVal = scale - 1.0;
+        double minVal = -scale;
+        auto &quant = m_ditherState->quantization;
+
+        constexpr size_t chunkFrames = 4096;
+        std::vector<FLAC__int32> buffer(chunkFrames * channels);
+
+        for (size_t offset = 0; offset < frameCount; offset += chunkFrames) {
+            size_t thisChunk = std::min(chunkFrames, frameCount - offset);
+            for (size_t i = 0; i < thisChunk; ++i) {
+                for (size_t c = 0; c < channels; ++c) {
+                    double sample = static_cast<double>(data[c][offset + i]);
+                    double dithered = std::clamp(sample + quant.dither(), -1.0, 1.0);
+                    double scaled = dithered * scale;
+                    scaled = std::clamp(scaled, minVal, maxVal);
+                    buffer[i * channels + c] = static_cast<FLAC__int32>(std::llround(scaled));
+                }
+            }
+            if (!FLAC__stream_encoder_process_interleaved(m_flacState->encoder, buffer.data(),
+                                                          static_cast<unsigned>(thisChunk))) {
+                throw std::runtime_error("FLAC streaming encode error");
+            }
+        }
+    }
+
+    m_framesWritten += static_cast<qint64>(data[0].size());
+}
+
+void StreamingAudioWriter::writeFramesF64(const kfr::univector2d<double> &data)
+{
+    if (!m_isOpen || data.empty())
+        return;
+
+    if (m_isWav) {
+        size_t frameCount = data[0].size();
+        size_t channels = data.size();
+
+        if (m_wavState->format.format == DR_WAVE_FORMAT_PCM) {
+            auto ptrs = planarPointers(data);
+            size_t totalSamples = frameCount * channels;
+            auto &quant = m_ditherState->quantization;
+
+            if (m_wavState->format.bitsPerSample == 16) {
+                std::vector<kfr::i16> buf(totalSamples);
+                kfr::samples_store(buf.data(), ptrs.data(), channels, frameCount, quant);
+                drwav_write_pcm_frames(&m_wavState->wav, frameCount, buf.data());
+            } else if (m_wavState->format.bitsPerSample == 24) {
+                std::vector<kfr::i24> buf(totalSamples);
+                kfr::samples_store(buf.data(), ptrs.data(), channels, frameCount, quant);
+                drwav_write_pcm_frames(&m_wavState->wav, frameCount, buf.data());
+            } else if (m_wavState->format.bitsPerSample == 32) {
+                std::vector<kfr::i32> buf(totalSamples);
+                kfr::samples_store(buf.data(), ptrs.data(), channels, frameCount, quant);
+                drwav_write_pcm_frames(&m_wavState->wav, frameCount, buf.data());
+            }
+        } else if (m_wavState->format.format == DR_WAVE_FORMAT_IEEE_FLOAT &&
+                   m_wavState->format.bitsPerSample == 64) {
+            std::vector<double> interleaved;
+            interleaveFrom(interleaved, data);
+            drwav_write_pcm_frames(&m_wavState->wav, frameCount, interleaved.data());
+        } else if (m_wavState->format.format == DR_WAVE_FORMAT_IEEE_FLOAT &&
+                   m_wavState->format.bitsPerSample == 32) {
+            // double -> float
+            std::vector<float> interleavedF32(frameCount * channels);
+            for (size_t i = 0; i < frameCount; ++i) {
+                for (size_t c = 0; c < channels; ++c) {
+                    double v = (c < data.size() && i < data[c].size()) ? data[c][i] : 0.0;
+                    interleavedF32[i * channels + c] = static_cast<float>(v);
+                }
+            }
+            drwav_write_pcm_frames(&m_wavState->wav, frameCount, interleavedF32.data());
+        }
+    } else {
+        // FLAC path
+        size_t frameCount = data[0].size();
+        size_t channels = data.size();
+        unsigned bps = m_flacState->bitsPerSample;
+        double scale = static_cast<double>(1ULL << (bps - 1));
+        double maxVal = scale - 1.0;
+        double minVal = -scale;
+        auto &quant = m_ditherState->quantization;
+
+        constexpr size_t chunkFrames = 4096;
+        std::vector<FLAC__int32> buffer(chunkFrames * channels);
+
+        for (size_t offset = 0; offset < frameCount; offset += chunkFrames) {
+            size_t thisChunk = std::min(chunkFrames, frameCount - offset);
+            for (size_t i = 0; i < thisChunk; ++i) {
+                for (size_t c = 0; c < channels; ++c) {
+                    double sample = data[c][offset + i];
+                    double dithered = std::clamp(sample + quant.dither(), -1.0, 1.0);
+                    double scaled = dithered * scale;
+                    scaled = std::clamp(scaled, minVal, maxVal);
+                    buffer[i * channels + c] = static_cast<FLAC__int32>(std::llround(scaled));
+                }
+            }
+            if (!FLAC__stream_encoder_process_interleaved(m_flacState->encoder, buffer.data(),
+                                                          static_cast<unsigned>(thisChunk))) {
+                throw std::runtime_error("FLAC streaming encode error");
+            }
+        }
+    }
+
+    m_framesWritten += static_cast<qint64>(data[0].size());
+}
+
+void StreamingAudioWriter::writeSilence(qint64 frameCount)
+{
+    if (!m_isOpen || frameCount <= 0)
+        return;
+
+    size_t channels = m_format.kfr_format.channels;
+    constexpr qint64 chunkSize = 4096;
+
+    // Allocate a small zero-filled buffer and loop
+    kfr::univector2d<float> silenceBuf(channels);
+    for (size_t c = 0; c < channels; ++c)
+        silenceBuf[c].resize(static_cast<size_t>(std::min(frameCount, chunkSize)), 0.0f);
+
+    qint64 remaining = frameCount;
+    while (remaining > 0) {
+        qint64 thisChunk = std::min(remaining, chunkSize);
+        if (thisChunk < chunkSize) {
+            for (size_t c = 0; c < channels; ++c)
+                silenceBuf[c].resize(static_cast<size_t>(thisChunk));
+        }
+        writeFramesF32(silenceBuf);
+        // Correct framesWritten — writeFramesF32 already increments it,
+        // but the increment was based on data[0].size() which may differ
+        // from what we want for the last chunk.
+        remaining -= thisChunk;
+    }
+}
+
+void StreamingAudioWriter::close()
+{
+    if (!m_isOpen)
+        return;
+
+    if (m_isWav && m_wavState) {
+        drwav_uninit(&m_wavState->wav);
+        m_wavState.reset();
+    }
+
+    if (m_flacState) {
+        if (m_flacState->encoder) {
+            FLAC__stream_encoder_finish(m_flacState->encoder);
+        }
+        m_flacState.reset();
+    }
+
+    m_ditherState.reset();
+    m_isOpen = false;
+}
+
 } // namespace AudioIO

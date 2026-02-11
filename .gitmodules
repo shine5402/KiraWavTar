@@ -7,3 +7,6 @@
 [submodule "src/3rdparty/flac"]
 	path = src/3rdparty/flac
 	url = https://github.com/xiph/flac.git
+[submodule "src/3rdparty/oneTBB"]
+	path = src/3rdparty/oneTBB
+	url = https://github.com/uxlfoundation/oneTBB.git

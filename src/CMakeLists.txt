@@ -19,6 +19,7 @@ target_link_libraries(KiraWAVTar PRIVATE
     kfr kfr_dsp kfr_audio
     dr_libs
     FLAC
+    TBB::tbb
 )
 
 set_target_properties(KiraWAVTar PROPERTIES
