@@ -7,6 +7,7 @@
         <location filename="../src/worker/AudioIO.cpp" line="105"/>
         <location filename="../src/worker/AudioIO.cpp" line="176"/>
         <location filename="../src/worker/AudioIO.cpp" line="196"/>
+        <location filename="../src/worker/AudioIO.cpp" line="1222"/>
         <source>Failed to open file: %1</source>
         <translation>无法打开文件：%1</translation>
     </message>
@@ -19,12 +20,14 @@
     <message>
         <location filename="../src/worker/AudioIO.cpp" line="416"/>
         <location filename="../src/worker/AudioIO.cpp" line="536"/>
+        <location filename="../src/worker/AudioIO.cpp" line="1144"/>
         <source>Failed to create FLAC decoder for: %1</source>
         <translation>无法为以下文件创建 FLAC 解码器：%1</translation>
     </message>
     <message>
         <location filename="../src/worker/AudioIO.cpp" line="449"/>
         <location filename="../src/worker/AudioIO.cpp" line="547"/>
+        <location filename="../src/worker/AudioIO.cpp" line="1202"/>
         <source>Failed to open FLAC file: %1</source>
         <translation>无法打开 FLAC 文件：%1</translation>
     </message>
@@ -70,33 +73,34 @@
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="40"/>
         <source>Engine Settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">引擎设置</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="47"/>
         <source>Sample Rate Conversion Quality</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">采样率转换质量</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="61"/>
         <source>Quality:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">质量：</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="65"/>
         <source>Pipeline Concurrency</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">流水线并发</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="68"/>
         <source>Controls how many audio chunks are processed simultaneously during combine.
 Higher values may improve speed but use more memory.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">控制在合并过程中同时处理的音频块数量。
+较高的值可能会提高速度，但会使用更多内存。</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="74"/>
         <source>Auto (recommended)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">自动（推荐）</translation>
     </message>
 </context>
 <context>
@@ -227,12 +231,12 @@ Higher values may improve speed but use more memory.</source>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="466"/>
         <source>Configure audio processing engine settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">配置音频处理引擎设置</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="469"/>
         <source>Engine Settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">引擎设置</translation>
     </message>
     <message>
         <source>Sample rate conversion quality</source>
@@ -797,7 +801,7 @@ Open download page?</source>
     <message>
         <location filename="../src/worker/AudioCombine.cpp" line="76"/>
         <source>&lt;p class=&apos;warning&apos;&gt;Can not know bit depth from &quot;%1&quot;. Maybe this file id corrupted, or error happened during opening the file.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;p class=&apos;warning&apos;&gt;我们无法得知&quot;%1&quot;存储的位深，可能该文件已损坏，或者文件打开时出现了问题。&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/worker/AudioCombine.cpp" line="89"/>
@@ -827,12 +831,12 @@ Open download page?</source>
     <message>
         <location filename="../src/worker/AudioCombine.cpp" line="277"/>
         <source>Entry &quot;%1&quot; has duration which exceeds the maximum volume duration of %2 seconds.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">条目&quot;%1&quot;的时长超过了最大分卷时长 (%2 秒)。</translation>
     </message>
     <message>
         <location filename="../src/worker/AudioCombine.cpp" line="531"/>
         <source>Failed to write description file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">无法写入描述文件：%1</translation>
     </message>
     <message>
         <source>Entry &quot;%1&quot; has duration %2 which exceeds the maximum volume duration of %3 seconds.</source>
@@ -969,28 +973,39 @@ Open download page?</source>
         <translation type="vanished">文件%1写入的字节数（%2）和预期的（%3）不一致（即没有完全写入完成）。</translation>
     </message>
     <message>
-        <location filename="../src/worker/AudioExtract.cpp" line="29"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="33"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Can not find description file &quot;%1&quot;. If you have renamed the WAV file, please also rename the desc file.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;找不到描述文件“%1”。如果您重命名了 WAV 文件，请同时也重命名相应的描述文件。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/AudioExtract.cpp" line="38"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="42"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Can not open description file &quot;%1&quot;. Check your permission.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;无法打开描述文件“%1”。请检查权限。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/AudioExtract.cpp" line="48"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="52"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Failed to parse description file &quot;%1&quot;: %2&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;解析描述文件“%1”失败：%2&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/AudioExtract.cpp" line="60"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="64"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Description file &quot;%1&quot; is missing version field.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;描述文件“%1”缺失版本字段。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/AudioExtract.cpp" line="69"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="73"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Description file &quot;%1&quot; has unsupported version %2. Expected version %3 to %4.&lt;/p&gt;</source>
+        <translation type="unfinished">&lt;p class=&apos;critical&apos;&gt;描述文件&quot;%1&quot;的版本号 %2 不受支持。预期版本号为 %3 至 %4。&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <location filename="../src/worker/AudioExtract.cpp" line="346"/>
+        <source>Failed to seek in source file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/worker/AudioExtract.cpp" line="360"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="400"/>
+        <source>Unknown Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -998,7 +1013,7 @@ Open download page?</source>
         <translation type="vanished">&lt;p class=&apos;critical&apos;&gt;描述文件“%1”的版本号 %2 不受支持。预期版本号为 3, 4 或 5。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/AudioExtract.cpp" line="88"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="92"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Missing volume file: &quot;%1&quot;&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;缺少分卷文件：“%1”&lt;/p&gt;</translation>
     </message>
@@ -1352,7 +1367,7 @@ WAV 文件可以使用不同的容器格式，每种格式都有不同的限制�
     <message>
         <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="108"/>
         <source>Reading, processing and writing audio files...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">读取、处理并写入音频文件……</translation>
     </message>
     <message>
         <source>Reading WAV files and combining them...</source>
@@ -1389,7 +1404,7 @@ WAV 文件可以使用不同的容器格式，每种格式都有不同的限制�
 <context>
     <name>WavExtractDialog</name>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="51"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="53"/>
         <source>Some preparing work...</source>
         <translation>一些准备工作……</translation>
     </message>
@@ -1414,95 +1429,98 @@ WAV 文件可以使用不同的容器格式，每种格式都有不同的限制�
         <translation>发现了一些问题，不过操作仍然可以继续。请问要继续吗？</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="106"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="108"/>
         <source>Space Between Entries</source>
         <translation>条目间距</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="107"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="109"/>
         <source>The combined file has %1 of silence padding on each side of every entry.
 How would you like to extract?</source>
         <translation>合并后的文件在每个条目的前后都有 %1 的静音填充。
 您想如何进行拆分？</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="110"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="112"/>
         <source>Original range</source>
         <translation>原始范围</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="111"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="113"/>
         <source>Include space</source>
         <translation>包含间距</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="124"/>
         <source>Reading source WAV file...</source>
-        <translation>读取源波形文件……</translation>
+        <translation type="vanished">读取源波形文件……</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="139"/>
         <source>Writing extracted file...</source>
-        <translation>拆分波形文件并写入……</translation>
+        <translation type="vanished">拆分波形文件并写入……</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="164"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="131"/>
         <source>Choose which ones to extract.</source>
         <translation>请选择要被拆分的项。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="175"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="140"/>
         <source>Select all</source>
         <translation>选择全部</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="176"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="141"/>
         <source>Unselect all</source>
         <translation>取消选择全部</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="177"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="142"/>
         <source>Inverse</source>
         <translation>选择反向</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="215"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="193"/>
+        <source>Reading, processing and writing audio files...</source>
+        <translation type="unfinished">读取、处理并写入音频文件……</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="247"/>
         <source>Done</source>
         <translation>完成</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="231"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="255"/>
         <source>The wav file has been extracted.</source>
         <translation>拆分操作已经完成。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="232"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="256"/>
         <source>Extracted wav files has been stored at &quot;%1&quot;.Original folder structure has been kept too.</source>
         <translation>拆分后的波形文件已经存储至%1，原先的文件夹结构也已经被还原（如果有）。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="235"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="259"/>
         <source>Delete source file</source>
         <translation>删除源文件</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="240"/>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="246"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="264"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="270"/>
         <source>Can not delete %1</source>
         <translation>无法删除%1</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="250"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="274"/>
         <source>Source files have been deleted successfully.</source>
         <translation>成功删除了源文件。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="260"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="290"/>
         <source>Error occurred when extracting.</source>
         <translation>拆分时出现错误。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="275"/>
+        <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="305"/>
         <source>Should retry extracting these?</source>
         <translation>要重试拆分这些文件吗？</translation>
     </message>

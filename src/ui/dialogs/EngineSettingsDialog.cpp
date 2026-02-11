@@ -137,5 +137,5 @@ void EngineSettingsDialog::accept()
 
 QSize EngineSettingsDialog::sizeHint() const
 {
-    return QSize(600, heightForWidth(600));
+    return QSize(480, heightForWidth(480));
 }
