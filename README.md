@@ -107,5 +107,5 @@ This project is licensed under the GPL v3 License. See [LICENSE](LICENSE) for de
 - KFR - Fast, modern C++ DSP framework, under GNU GPL v2+.
 - dr_wav - Public domain single-header WAV reader/writer library by David Reid.
 - libFLAC - Free Lossless Audio Codec reference library by Xiph.Org Foundation, under BSD license.
-- oneTBB - Intel Threading Building Blocks, under Apache License 2.0 with LLVM exceptions.
+- oneTBB - Intel Threading Building Blocks, under Apache License 2.0.
 - nwp8861, for the original wavtar program.

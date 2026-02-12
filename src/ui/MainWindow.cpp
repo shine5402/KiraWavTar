@@ -318,6 +318,7 @@ along with this program.  If not, see <a href="https://www.gnu.org/licenses/">ht
 <li><a href="https://www.kfrlib.com/">KFR - Fast, modern C++ DSP framework</a>, under GNU GPL v2+</li>
 <li>dr_wav - Public domain single-header WAV reader/writer library by David Reid.</li>
 <li>libFLAC - reference implementation of the Free Lossless Audio Codec, under BSD-3-Clause.</li>
+<li>oneTBB - Intel Threading Building Blocks, under Apache-2.0 License.</li>
 </ul>
 <h4>Translators</h4>
 <p>This program includes translations with contributions from the community. See our <a href="https://github.com/shine5402/KiraWAVTar?tab=readme-ov-file#translations">homepage</a> for acknowledgements.</p>
