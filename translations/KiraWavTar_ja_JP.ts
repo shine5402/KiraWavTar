@@ -73,47 +73,47 @@
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="30"/>
         <source>Draft</source>
-        <translation type="unfinished">簡易</translation>
+        <translation>簡易</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="31"/>
         <source>Low</source>
-        <translation type="unfinished">低</translation>
+        <translation>低</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="32"/>
         <source>Normal</source>
-        <translation type="unfinished">標準</translation>
+        <translation>標準</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="33"/>
         <source>High</source>
-        <translation type="unfinished">高</translation>
+        <translation>高</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="34"/>
         <source>Perfect</source>
-        <translation type="unfinished">最高</translation>
+        <translation>最高</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="40"/>
         <source>Engine Settings</source>
-        <translation type="unfinished">エンジン設定</translation>
+        <translation>エンジン設定</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="47"/>
         <source>Sample Rate Conversion Quality</source>
-        <translation type="unfinished">サンプルレート変換品質</translation>
+        <translation>サンプルレート変換品質</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="61"/>
         <source>Quality:</source>
-        <translation type="unfinished">品質：</translation>
+        <translation>品質：</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="65"/>
         <source>Pipeline Concurrency</source>
-        <translation type="unfinished">パイプライン並列処理</translation>
+        <translation>並列処理</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="69"/>
@@ -123,16 +123,15 @@ Higher values may improve speed but use more memory.</source>
 値が大きいほど処理速度が向上する可能性がありますが、より多くのメモリを使用します。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="68"/>
         <source>Controls how many audio chunks are processed simultaneously during combine.
 Higher values may improve speed but use more memory.</source>
-        <translation type="unfinished">結合時に同時処理するオーディオチャンク数を制御します。
+        <translation type="obsolete">結合時に同時処理するオーディオチャンク数を制御します。
 値が大きいほど処理速度が向上する可能性がありますが、より多くのメモリを使用します。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="74"/>
+        <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="75"/>
         <source>Auto (recommended)</source>
-        <translation type="unfinished">自動（推奨）</translation>
+        <translation>自動（推奨）</translation>
     </message>
 </context>
 <context>
@@ -575,12 +574,12 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
     <message>
         <location filename="../src/ui/MainWindow.ui" line="466"/>
         <source>Configure audio processing engine settings</source>
-        <translation type="unfinished">オーディオ処理エンジンの設定</translation>
+        <translation>オーディオ処理エンジンの設定</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="469"/>
         <source>Engine Settings</source>
-        <translation type="unfinished">エンジン設定</translation>
+        <translation>エンジン設定</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="347"/>
@@ -823,7 +822,7 @@ Open download page?</source>
     <message>
         <location filename="../src/worker/AudioCombine.cpp" line="76"/>
         <source>&lt;p class=&apos;warning&apos;&gt;Can not know bit depth from &quot;%1&quot;. Maybe this file id corrupted, or error happened during opening the file.&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p class=&apos;warning&apos;&gt;「%1」のビット深度を取得できませんでした。ファイルが破損しているか、ファイルを開く際にエラーが発生した可能性があります。&lt;/p&gt;</translation>
+        <translation>&lt;p class=&apos;warning&apos;&gt;「%1」のビット深度を取得できませんでした。ファイルが破損しているか、ファイルを開く際にエラーが発生した可能性があります。&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/worker/AudioCombine.cpp" line="89"/>
@@ -853,12 +852,12 @@ Open download page?</source>
     <message>
         <location filename="../src/worker/AudioCombine.cpp" line="277"/>
         <source>Entry &quot;%1&quot; has duration which exceeds the maximum volume duration of %2 seconds.</source>
-        <translation type="unfinished">項目「%1」の長さが最大分巻長（%2 秒）を超えています。</translation>
+        <translation>項目「%1」の長さが最大分巻長（%2 秒）を超えています。</translation>
     </message>
     <message>
         <location filename="../src/worker/AudioCombine.cpp" line="531"/>
         <source>Failed to write description file: %1</source>
-        <translation type="unfinished">記述ファイルの書き込みに失敗しました：%1</translation>
+        <translation>記述ファイルの書き込みに失敗しました：%1</translation>
     </message>
     <message>
         <source>Entry &quot;%1&quot; has duration %2 which exceeds the maximum volume duration of %3 seconds.</source>
@@ -1017,18 +1016,18 @@ Open download page?</source>
     <message>
         <location filename="../src/worker/AudioExtract.cpp" line="73"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Description file &quot;%1&quot; has unsupported version %2. Expected version %3 to %4.&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p class=&apos;critical&apos;&gt;記述ファイル「%1」のバージョン %2 はサポートされていません。期待されるバージョンは %3 から %4 です。&lt;/p&gt;</translation>
+        <translation>&lt;p class=&apos;critical&apos;&gt;記述ファイル「%1」のバージョン %2 はサポートされていません。サポートされているバージョンは %3 から %4 までです。&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/worker/AudioExtract.cpp" line="346"/>
         <source>Failed to seek in source file</source>
-        <translation type="unfinished"></translation>
+        <translation>ソースファイルの読み取り位置を移動できませんでした</translation>
     </message>
     <message>
         <location filename="../src/worker/AudioExtract.cpp" line="360"/>
         <location filename="../src/worker/AudioExtract.cpp" line="400"/>
         <source>Unknown Error</source>
-        <translation type="unfinished"></translation>
+        <translation>原因不明のエラー</translation>
     </message>
     <message>
         <source>&lt;p class=&apos;critical&apos;&gt;Description file &quot;%1&quot; has unsupported version %2. Expected version 3, 4, or 5.&lt;/p&gt;</source>
@@ -1377,7 +1376,7 @@ WAVファイルは、制限や互換性が異なる複数のコンテナ形式�
     <message>
         <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="108"/>
         <source>Reading, processing and writing audio files...</source>
-        <translation type="unfinished">オーディオファイルを読み込み、処理して書き込んでいます...</translation>
+        <translation>音声ファイルを読み込み、処理して書き込んでいます...</translation>
     </message>
     <message>
         <source>Reading WAV files and combining them...</source>
@@ -1491,7 +1490,7 @@ How would you like to extract?</source>
     <message>
         <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="193"/>
         <source>Reading, processing and writing audio files...</source>
-        <translation type="unfinished">オーディオファイルを読み込み、処理して書き込んでいます...</translation>
+        <translation>音声ファイルを読み込み、処理して書き込んでいます...</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="247"/>

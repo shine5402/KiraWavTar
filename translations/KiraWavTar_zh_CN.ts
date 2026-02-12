@@ -73,47 +73,48 @@
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="30"/>
         <source>Draft</source>
-        <translation type="unfinished">草稿</translation>
+        <translation>草稿</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="31"/>
         <source>Low</source>
-        <translation type="unfinished">低</translation>
+        <translation>低</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="32"/>
         <source>Normal</source>
-        <translation type="unfinished">正常</translation>
+        <translation>正常</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="33"/>
         <source>High</source>
-        <translation type="unfinished">高</translation>
+        <translation>高</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="34"/>
         <source>Perfect</source>
-        <translation type="unfinished">完美</translation>
+        <translation>完美</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="40"/>
         <source>Engine Settings</source>
-        <translation type="unfinished">引擎设置</translation>
+        <translation>引擎设置</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="47"/>
         <source>Sample Rate Conversion Quality</source>
-        <translation type="unfinished">采样率转换质量</translation>
+        <translation>采样率转换质量</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="61"/>
         <source>Quality:</source>
-        <translation type="unfinished">质量：</translation>
+        <translation>质量：</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="65"/>
         <source>Pipeline Concurrency</source>
-        <translation type="unfinished">流水线并发</translation>
+        <translation>并行处理</translation>
+    </message>
     <message>
         <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="69"/>
         <source>Controls how many audio chunks are processed simultaneously during the processing.
@@ -128,9 +129,9 @@ Higher values may improve speed but use more memory.</source>
 较高的值可能会提高速度，但会使用更多内存。</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="74"/>
+        <location filename="../src/ui/dialogs/EngineSettingsDialog.cpp" line="75"/>
         <source>Auto (recommended)</source>
-        <translation type="unfinished">自动（推荐）</translation>
+        <translation>自动（推荐）</translation>
     </message>
 </context>
 <context>
@@ -241,7 +242,7 @@ Higher values may improve speed but use more memory.</source>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="274"/>
         <source>Silence padding around each entry:</source>
-        <translation>每个条目前后的静音填充：</translation>
+        <translation>在每个条目前后填充静音：</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="281"/>
@@ -261,12 +262,12 @@ Higher values may improve speed but use more memory.</source>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="466"/>
         <source>Configure audio processing engine settings</source>
-        <translation type="unfinished">配置音频处理引擎设置</translation>
+        <translation>调整音频处理引擎的设置</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="469"/>
         <source>Engine Settings</source>
-        <translation type="unfinished">引擎设置</translation>
+        <translation>引擎设置</translation>
     </message>
     <message>
         <source>Sample rate conversion quality</source>
@@ -831,7 +832,7 @@ Open download page?</source>
     <message>
         <location filename="../src/worker/AudioCombine.cpp" line="76"/>
         <source>&lt;p class=&apos;warning&apos;&gt;Can not know bit depth from &quot;%1&quot;. Maybe this file id corrupted, or error happened during opening the file.&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p class=&apos;warning&apos;&gt;我们无法得知&quot;%1&quot;存储的位深，可能该文件已损坏，或者文件打开时出现了问题。&lt;/p&gt;</translation>
+        <translation>&lt;p class=&apos;warning&apos;&gt;我们无法得知&quot;%1&quot;的位深度信息，可能该文件已损坏，或者文件打开时出现了问题。&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/worker/AudioCombine.cpp" line="89"/>
@@ -861,12 +862,12 @@ Open download page?</source>
     <message>
         <location filename="../src/worker/AudioCombine.cpp" line="277"/>
         <source>Entry &quot;%1&quot; has duration which exceeds the maximum volume duration of %2 seconds.</source>
-        <translation type="unfinished">条目&quot;%1&quot;的时长超过了最大分卷时长 (%2 秒)。</translation>
+        <translation>条目&quot;%1&quot;的时长超过了分卷可容纳时长的最大值 (%2 秒)。</translation>
     </message>
     <message>
         <location filename="../src/worker/AudioCombine.cpp" line="531"/>
         <source>Failed to write description file: %1</source>
-        <translation type="unfinished">无法写入描述文件：%1</translation>
+        <translation>无法保存描述文件：%1</translation>
     </message>
     <message>
         <source>Entry &quot;%1&quot; has duration %2 which exceeds the maximum volume duration of %3 seconds.</source>
@@ -1025,18 +1026,18 @@ Open download page?</source>
     <message>
         <location filename="../src/worker/AudioExtract.cpp" line="73"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Description file &quot;%1&quot; has unsupported version %2. Expected version %3 to %4.&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p class=&apos;critical&apos;&gt;描述文件&quot;%1&quot;的版本号 %2 不受支持。预期版本号为 %3 至 %4。&lt;/p&gt;</translation>
+        <translation>&lt;p class=&apos;critical&apos;&gt;描述文件&quot;%1&quot;的版本号 %2 不受支持。支持的版本号为 %3 到 %4之间。&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/worker/AudioExtract.cpp" line="346"/>
         <source>Failed to seek in source file</source>
-        <translation type="unfinished"></translation>
+        <translation>在源文件中跳转时失败</translation>
     </message>
     <message>
         <location filename="../src/worker/AudioExtract.cpp" line="360"/>
         <location filename="../src/worker/AudioExtract.cpp" line="400"/>
         <source>Unknown Error</source>
-        <translation type="unfinished"></translation>
+        <translation>未知错误</translation>
     </message>
     <message>
         <source>&lt;p class=&apos;critical&apos;&gt;Description file &quot;%1&quot; has unsupported version %2. Expected version 3, 4, or 5.&lt;/p&gt;</source>
@@ -1397,7 +1398,7 @@ WAV 文件可以使用不同的容器格式，每种格式都有不同的限制�
     <message>
         <location filename="../src/ui/dialogs/WavCombineDialog.cpp" line="108"/>
         <source>Reading, processing and writing audio files...</source>
-        <translation type="unfinished">读取、处理并写入音频文件……</translation>
+        <translation>读取、处理并保存音频文件中……</translation>
     </message>
     <message>
         <source>Reading WAV files and combining them...</source>
@@ -1511,7 +1512,7 @@ How would you like to extract?</source>
     <message>
         <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="193"/>
         <source>Reading, processing and writing audio files...</source>
-        <translation type="unfinished">读取、处理并写入音频文件……</translation>
+        <translation>读取、处理并保存音频文件中……</translation>
     </message>
     <message>
         <location filename="../src/ui/dialogs/WavExtractDialog.cpp" line="247"/>
