@@ -482,6 +482,7 @@ QJsonObject runCombinePipeline(const CombineLayout &layout, std::atomic<int> &pr
     // Build description JSON
     QJsonObject descObj;
     descObj.insert("version", utils::desc_file_version);
+    descObj.insert("combiner", "wavtar");
     descObj.insert("sample_rate", layout.targetFormat.kfr_format.samplerate);
     descObj.insert("sample_type", static_cast<int>(layout.targetFormat.kfr_format.type));
     descObj.insert("channel_count", static_cast<int>(layout.targetFormat.kfr_format.channels));

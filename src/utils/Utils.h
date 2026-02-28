@@ -43,6 +43,17 @@ inline qint64 timecodeToSamples(const QString &timecode, double sampleRate)
     return qRound64(totalSeconds * sampleRate);
 }
 
+// Parse timecode "HH:MM:SS.fff" to seconds (no sample rate needed)
+inline double timecodeToSeconds(const QString &timecode)
+{
+    if (timecode.isEmpty())
+        return 0.0;
+    auto parts = timecode.split(':');
+    if (parts.size() != 3)
+        return 0.0;
+    return parts[0].toDouble() * 3600.0 + parts[1].toDouble() * 60.0 + parts[2].toDouble();
+}
+
 template <typename T> bool checkFutureExceptionAndWarn(QFuture<T> future)
 {
     try {

@@ -80,9 +80,36 @@ CheckResult preCheck(QString srcWAVFileName, QString dstDirName)
                 {}};
     }
 
+    // Read "combiner" field — identifies the tool that generated this desc file.
+    // "wavtar" = KiraWavTar (default); "nastro_inst" = KiraNastroInst JUCE plugin.
+    QString combiner = root["combiner"].toString("wavtar");
+
+    // Scan descriptions for max end time (used by subsequent checks)
+    double maxEndTimeSeconds = 0.0;
+    const QJsonArray descArr = root["descriptions"].toArray();
+    for (const auto &v : descArr) {
+        auto d = v.toObject();
+        double end = timecodeToSeconds(d["begin_time"].toString())
+                   + timecodeToSeconds(d["duration"].toString());
+        maxEndTimeSeconds = std::max(maxEndTimeSeconds, end);
+    }
+
+    // Check 1 (wavtar only): descriptions must not extend beyond total_duration
+    if (combiner == "wavtar" && root.contains("total_duration")) {
+        double totalSecs = timecodeToSeconds(root["total_duration"].toString());
+        if (maxEndTimeSeconds > totalSecs + 1e-3) {
+            return {CheckPassType::CRITICAL,
+                    QCoreApplication::translate(
+                        "WAVExtract",
+                        "<p class='critical'>Description file is internally inconsistent: entries extend beyond "
+                        "total_duration. The file may be corrupted.</p>"),
+                    {}};
+        }
+    }
+
     // Validate all volume files exist for multi-volume
+    int volumeCount = root["volume_count"].toInt(1);
     {
-        int volumeCount = root["volume_count"].toInt(1);
         if (volumeCount > 1) {
             QString missingFiles;
             for (int i = 0; i < volumeCount; ++i) {
@@ -96,6 +123,53 @@ CheckResult preCheck(QString srcWAVFileName, QString dstDirName)
             if (!missingFiles.isEmpty()) {
                 return {CheckPassType::CRITICAL, missingFiles, {}};
             }
+        }
+    }
+
+    // Check 2: verify actual audio file length against what the desc expects
+    if (volumeCount == 1) {
+        try {
+            auto actualFormat = AudioIO::readAudioFormat(srcWAVFileName);
+            double actualSecs = (actualFormat.kfr_format.samplerate > 0)
+                ? (double)actualFormat.length / actualFormat.kfr_format.samplerate : 0.0;
+
+            if (combiner == "wavtar") {
+                double refSecs = root.contains("total_duration")
+                    ? timecodeToSeconds(root["total_duration"].toString())
+                    : maxEndTimeSeconds;
+                if (actualSecs < refSecs - 1e-3 || actualSecs < maxEndTimeSeconds - 1e-3) {
+                    return {CheckPassType::CRITICAL,
+                            QCoreApplication::translate(
+                                "WAVExtract",
+                                "<p class='critical'>The combined audio file is shorter than what the description file "
+                                "records. The files may be corrupted or mismatched.</p>"),
+                            {}};
+                }
+            } else {
+                // nastro_inst: warn about entries whose start time exceeds the actual file length
+                QStringList skippedFiles;
+                for (const auto &v : descArr) {
+                    auto d = v.toObject();
+                    double beginSecs = timecodeToSeconds(d["begin_time"].toString());
+                    if (beginSecs >= actualSecs - 1e-3) {
+                        skippedFiles.append(d["file_name"].toString());
+                    }
+                }
+                if (!skippedFiles.isEmpty()) {
+                    QString msg = QCoreApplication::translate(
+                        "WAVExtract",
+                        "<p class='warning'>The audio file appears shorter than expected. "
+                        "You may have exported the wrong range from your DAW. "
+                        "If you proceed, the following entries will be skipped because their start time is beyond "
+                        "the file end:</p><ul>");
+                    for (const auto &f : skippedFiles)
+                        msg += "<li>" + f.toHtmlEscaped() + "</li>";
+                    msg += "</ul>";
+                    return {CheckPassType::WARNING, msg, root};
+                }
+            }
+        } catch (...) {
+            // If we can't read the file format, skip the check (file-not-found is caught later by the pipeline)
         }
     }
 
@@ -119,7 +193,8 @@ template <typename T>
 static void processAndWriteEntry(kfr::univector2d<T> &slice, const QJsonObject &descObj,
                                  double srcSampleRate, const QString &dstDirName,
                                  const std::optional<AudioIO::AudioFormat> &targetFormat,
-                                 bool removeDCOffset)
+                                 bool removeDCOffset,
+                                 const AudioIO::AudioFormat &srcActualFormat)
 {
     if (removeDCOffset) {
         for (size_t c = 0; c < slice.size(); ++c) {
@@ -132,10 +207,13 @@ static void processAndWriteEntry(kfr::univector2d<T> &slice, const QJsonObject &
     QString relativePath = descObj["file_name"].toString();
 
     if (!targetFormat.has_value()) {
-        // "Same as source when combining" — inherit everything from description
-        outputFormat.kfr_format.samplerate = descObj["sample_rate"].toDouble();
-        outputFormat.kfr_format.type = (kfr::audio_sample_type)descObj["sample_type"].toInt();
-        outputFormat.kfr_format.channels = descObj["channel_count"].toInt();
+        // "Same as source when combining" — inherit from description, fall back to srcActualFormat
+        outputFormat.kfr_format.samplerate = descObj.contains("sample_rate")
+            ? descObj["sample_rate"].toDouble() : srcActualFormat.kfr_format.samplerate;
+        outputFormat.kfr_format.type = descObj.contains("sample_type")
+            ? (kfr::audio_sample_type)descObj["sample_type"].toInt() : srcActualFormat.kfr_format.type;
+        outputFormat.kfr_format.channels = descObj.contains("channel_count")
+            ? descObj["channel_count"].toInt() : (int)srcActualFormat.kfr_format.channels;
         int cfmt = descObj.contains("container_format") ? descObj["container_format"].toInt()
                                                         : descObj["wav_format"].toInt();
         switch (cfmt) {
@@ -157,13 +235,18 @@ static void processAndWriteEntry(kfr::univector2d<T> &slice, const QJsonObject &
         }
     } else {
         const auto &fmt = *targetFormat;
+        double fallbackRate = descObj.contains("sample_rate")
+            ? descObj["sample_rate"].toDouble() : srcActualFormat.kfr_format.samplerate;
+        auto fallbackType = descObj.contains("sample_type")
+            ? (kfr::audio_sample_type)descObj["sample_type"].toInt() : srcActualFormat.kfr_format.type;
+        int fallbackChannels = descObj.contains("channel_count")
+            ? descObj["channel_count"].toInt() : (int)srcActualFormat.kfr_format.channels;
         outputFormat.kfr_format.samplerate =
-            (fmt.kfr_format.samplerate < 1e-5) ? descObj["sample_rate"].toDouble() : fmt.kfr_format.samplerate;
+            (fmt.kfr_format.samplerate < 1e-5) ? fallbackRate : fmt.kfr_format.samplerate;
         outputFormat.kfr_format.type = (fmt.kfr_format.type == kfr::audio_sample_type::unknown)
-                                           ? (kfr::audio_sample_type)descObj["sample_type"].toInt()
-                                           : fmt.kfr_format.type;
+                                           ? fallbackType : fmt.kfr_format.type;
         outputFormat.kfr_format.channels =
-            (fmt.kfr_format.channels == 0) ? descObj["channel_count"].toInt() : fmt.kfr_format.channels;
+            (fmt.kfr_format.channels == 0) ? fallbackChannels : fmt.kfr_format.channels;
         outputFormat.container = fmt.container;
     }
 
@@ -232,7 +315,19 @@ ExtractPipelineResult runExtractPipeline(const ExtractPipelineParams &params,
                                           oneapi::tbb::task_group_context &ctx)
 {
     const QJsonObject &descRoot = params.descRoot;
-    double sampleRate = descRoot["sample_rate"].toDouble();
+    // Bug fix: always read actual sample rate from the source WAV, not from desc JSON.
+    // The desc sample_rate may differ (e.g. nastro_inst desc has BGM rate, not DAW export rate).
+    AudioIO::AudioFormat actualSrcFormat;
+    double sampleRate;
+    try {
+        actualSrcFormat = AudioIO::readAudioFormat(params.srcWAVFileName);
+        sampleRate = actualSrcFormat.kfr_format.samplerate;
+    } catch (...) {
+        sampleRate = descRoot["sample_rate"].toDouble(); // fallback
+        actualSrcFormat.kfr_format.samplerate = sampleRate;
+        actualSrcFormat.kfr_format.type = (kfr::audio_sample_type)descRoot["sample_type"].toInt();
+        actualSrcFormat.kfr_format.channels = descRoot["channel_count"].toInt();
+    }
     int volumeCount = descRoot["volume_count"].toInt(1);
 
     // Decide internal processing precision
@@ -388,7 +483,7 @@ ExtractPipelineResult runExtractPipeline(const ExtractPipelineParams &params,
                             kfr::univector2d<T> slice = *ptr;
                             processAndWriteEntry(slice, token.descObj, token.srcSampleRate,
                                                  params.dstDirName, params.targetFormat,
-                                                 params.removeDCOffset);
+                                                 params.removeDCOffset, actualSrcFormat);
                         },
                         token.audio);
                 } catch (const std::exception &e) {
