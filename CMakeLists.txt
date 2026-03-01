@@ -16,8 +16,10 @@ qt_standard_project_setup(
 add_subdirectory(src)
 
 # --- Testing ---
-option(BUILD_TESTING "Build tests" ON)
-if(BUILD_TESTING)
+# Use KIRAWAVTAR_BUILD_TESTING instead of BUILD_TESTING to avoid collision
+# with libFLAC which also uses BUILD_TESTING (we disable it in 3rdparty/CMakeLists.txt)
+option(KIRAWAVTAR_BUILD_TESTING "Build KiraWavTar tests" ON)
+if(KIRAWAVTAR_BUILD_TESTING)
     enable_testing()
     add_subdirectory(tests)
 endif()
