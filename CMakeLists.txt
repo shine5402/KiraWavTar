@@ -14,3 +14,10 @@ qt_standard_project_setup(
 
 # --- Main application ---
 add_subdirectory(src)
+
+# --- Testing ---
+option(BUILD_TESTING "Build tests" ON)
+if(BUILD_TESTING)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
