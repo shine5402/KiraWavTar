@@ -22,6 +22,8 @@ private slots:
     void roundtrip_wav_formatChange();
     void roundtrip_multipleFiles();
     void roundtrip_withGap();
+    void roundtrip_flacContainer();
+    void roundtrip_multiVolume();
 
 private:
     QString fixturesDir() const { return QString::fromUtf8(TEST_FIXTURES_DIR); }
@@ -270,6 +272,138 @@ void TestRoundtripFull::roundtrip_withGap()
         auto comparison = AudioCompare::compareAudioBuffers(originalData, extractedData, 0.99, 0.01);
         QVERIFY2(comparison.passed,
                  QString("File %1 should be preserved with gap: %2").arg(srcInfo.fileName(), comparison.message).toUtf8());
+    }
+}
+
+void TestRoundtripFull::roundtrip_flacContainer()
+{
+    QString inputDir = fixturesDir();
+    QString combinedFile = m_tempDir + "/roundtrip_flac.flac";
+    QString outputDir = m_tempDir + "/roundtrip_flac_out";
+
+    AudioIO::AudioFormat targetFormat;
+    targetFormat.kfr_format.samplerate = 22050.0;
+    targetFormat.kfr_format.channels = 1;
+    targetFormat.kfr_format.type = kfr::audio_sample_type::i16;
+    targetFormat.container = AudioIO::AudioFormat::Container::FLAC;
+
+    auto checkResult = AudioCombine::preCheck(inputDir, combinedFile, false, targetFormat);
+    QStringList filesToCombine = checkResult.wavFileNames.mid(0, 3);
+
+    QMap<QString, kfr::univector2d<float>> originalDataMap;
+    for (const auto &file : filesToCombine) {
+        originalDataMap[file] = AudioIO::readAudioFileF32(file).data;
+    }
+
+    utils::VolumeConfig volumeConfig;
+    auto layout = AudioCombine::computeLayout(filesToCombine, inputDir, combinedFile, targetFormat, 0, volumeConfig);
+
+    std::atomic<int> combineProgress{0};
+    oneapi::tbb::task_group_context combineCtx;
+    AudioCombine::runCombinePipeline(layout, combineProgress, combineCtx);
+
+    QVERIFY(QFile::exists(combinedFile));
+    auto combinedFormat = AudioIO::readAudioFormat(combinedFile);
+    QCOMPARE(combinedFormat.container, AudioIO::AudioFormat::Container::FLAC);
+
+    auto extractCheck = AudioExtract::preCheck(combinedFile, outputDir);
+
+    AudioExtract::ExtractPipelineParams params;
+    params.srcWAVFileName = combinedFile;
+    params.descRoot = extractCheck.descRoot;
+    params.dstDirName = outputDir;
+    params.removeDCOffset = false;
+    params.gapMode = AudioExtract::ExtractGapMode::OriginalRange;
+    params.filteredDescArray = extractCheck.descRoot["descriptions"].toArray();
+
+    std::atomic<int> extractProgress{0};
+    oneapi::tbb::task_group_context extractCtx;
+    auto result = AudioExtract::runExtractPipeline(params, extractProgress, extractCtx);
+
+    QVERIFY(result.errors.isEmpty());
+
+    for (const auto &file : filesToCombine) {
+        QFileInfo srcInfo(file);
+        QString extractedPath = outputDir + "/" + srcInfo.fileName();
+
+        QVERIFY2(QFile::exists(extractedPath),
+                 QString("Extracted file should exist: %1").arg(extractedPath).toUtf8());
+
+        auto extractedData = AudioIO::readAudioFileF32(extractedPath).data;
+        auto &originalData = originalDataMap[file];
+
+        auto comparison = AudioCompare::compareAudioBuffers(originalData, extractedData, 0.98, 0.02);
+        QVERIFY2(comparison.passed,
+                 QString("File %1 should be preserved through FLAC roundtrip: %2")
+                     .arg(srcInfo.fileName(), comparison.message)
+                     .toUtf8());
+    }
+}
+
+void TestRoundtripFull::roundtrip_multiVolume()
+{
+    QString inputDir = fixturesDir();
+    QString combinedFile = m_tempDir + "/roundtrip_multivol.wav";
+    QString outputDir = m_tempDir + "/roundtrip_multivol_out";
+
+    AudioIO::AudioFormat targetFormat;
+    targetFormat.kfr_format.samplerate = 22050.0;
+    targetFormat.kfr_format.channels = 1;
+    targetFormat.kfr_format.type = kfr::audio_sample_type::i16;
+    targetFormat.container = AudioIO::AudioFormat::Container::RIFF;
+
+    auto checkResult = AudioCombine::preCheck(inputDir, combinedFile, false, targetFormat);
+    QVERIFY(checkResult.wavFileNames.size() >= 5);
+
+    QStringList filesToCombine = checkResult.wavFileNames.mid(0, 5);
+
+    QMap<QString, kfr::univector2d<float>> originalDataMap;
+    for (const auto &file : filesToCombine) {
+        originalDataMap[file] = AudioIO::readAudioFileF32(file).data;
+    }
+
+    utils::VolumeConfig volumeConfig;
+    volumeConfig.mode = utils::VolumeSplitMode::ByCount;
+    volumeConfig.maxEntriesPerVolume = 2;
+
+    auto layout = AudioCombine::computeLayout(filesToCombine, inputDir, combinedFile, targetFormat, 0, volumeConfig);
+
+    QCOMPARE(layout.volumes.size(), 3);
+
+    std::atomic<int> combineProgress{0};
+    oneapi::tbb::task_group_context combineCtx;
+    AudioCombine::runCombinePipeline(layout, combineProgress, combineCtx);
+
+    for (int i = 0; i < 3; ++i) {
+        QString volumeFile = utils::getVolumeFileName(combinedFile, i);
+        QVERIFY2(QFile::exists(volumeFile),
+                 QString("Volume file %1 should exist").arg(volumeFile).toUtf8());
+    }
+
+    QStringList allVolumeFiles;
+    for (int i = 0; i < 3; ++i) {
+        allVolumeFiles.append(utils::getVolumeFileName(combinedFile, i));
+    }
+
+    for (const auto &volumeFile : allVolumeFiles) {
+        QString volumeOutputDir = outputDir + "/" + QFileInfo(volumeFile).completeBaseName();
+
+        auto extractCheck = AudioExtract::preCheck(volumeFile, volumeOutputDir);
+
+        AudioExtract::ExtractPipelineParams params;
+        params.srcWAVFileName = volumeFile;
+        params.descRoot = extractCheck.descRoot;
+        params.dstDirName = volumeOutputDir;
+        params.removeDCOffset = false;
+        params.gapMode = AudioExtract::ExtractGapMode::OriginalRange;
+        params.filteredDescArray = extractCheck.descRoot["descriptions"].toArray();
+
+        std::atomic<int> extractProgress{0};
+        oneapi::tbb::task_group_context extractCtx;
+        auto result = AudioExtract::runExtractPipeline(params, extractProgress, extractCtx);
+
+        QVERIFY2(result.errors.isEmpty(),
+                 QString("Extraction from %1 should succeed").arg(volumeFile).toUtf8());
     }
 }
 
