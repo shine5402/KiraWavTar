@@ -74,6 +74,12 @@ if(KIRAWAVTAR_INSTALL)
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
 
+    # oneTBB is built as a shared library; deploy it alongside the executable.
+    install(TARGETS tbb
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}   # .dll (Windows)
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}    # .so/.dylib (Unix)
+    )
+
     qt_generate_deploy_app_script(
         TARGET KiraWAVTar
         OUTPUT_SCRIPT deploy_script

@@ -25,8 +25,13 @@ set(INSTALL_PKGCONFIG_MODULES OFF CACHE BOOL "" FORCE)
 add_subdirectory(flac EXCLUDE_FROM_ALL)
 
 # oneTBB (parallel pipeline framework)
+# oneTBB must be built as a shared library — static builds are unsupported and
+# cause thread-local-storage issues.  libFLAC (added above) sets
+# BUILD_SHARED_LIBS=OFF in the cache, so we force it back to ON here.
 set(TBB_TEST OFF CACHE BOOL "" FORCE)
 set(TBB_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(TBB_STRICT OFF CACHE BOOL "" FORCE)
 set(TBBMALLOC_BUILD OFF CACHE BOOL "" FORCE)
+set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
 add_subdirectory(oneTBB EXCLUDE_FROM_ALL)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
