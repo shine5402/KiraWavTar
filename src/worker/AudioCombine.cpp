@@ -347,6 +347,7 @@ QJsonObject runCombinePipeline(const CombineLayout &layout, std::atomic<int> &pr
         tbb::make_filter<int, CombineToken>(
             tbb::filter_mode::parallel,
             [&layout](int entryIndex) -> CombineToken {
+              try {
                 const auto &entry = layout.entries[entryIndex];
                 const auto &targetFormat = layout.targetFormat;
 
@@ -413,9 +414,21 @@ QJsonObject runCombinePipeline(const CombineLayout &layout, std::atomic<int> &pr
                 }
                 auto result = AudioIO::readAudioFileF32(entry.filePath);
                 return processTyped(std::move(result));
+              } catch (const std::exception &e) {
+                throw std::runtime_error(
+                    QCoreApplication::translate("WAVCombine", "Error reading \"%1\": %2")
+                        .arg(layout.entries[entryIndex].relativePath, QString::fromUtf8(e.what()))
+                        .toStdString());
+              } catch (...) {
+                throw std::runtime_error(
+                    QCoreApplication::translate("WAVCombine", "Unknown error reading \"%1\"")
+                        .arg(layout.entries[entryIndex].relativePath)
+                        .toStdString());
+              }
             }) &
         // Stage 3: serial_in_order — write sequentially to output
         tbb::make_filter<CombineToken, void>(tbb::filter_mode::serial_in_order, [&](CombineToken token) {
+          try {
             const auto &entry = layout.entries[token.entryIndex];
 
             // Check if we need to advance to next volume
@@ -464,6 +477,12 @@ QJsonObject runCombinePipeline(const CombineLayout &layout, std::atomic<int> &pr
             descriptionsArray.append(token.entryMeta);
             isFirstEntryInVolume = false;
             progress.fetch_add(1, std::memory_order_relaxed);
+          } catch (const std::exception &e) {
+            throw std::runtime_error(
+                QCoreApplication::translate("WAVCombine", "Error writing entry \"%1\": %2")
+                    .arg(layout.entries[token.entryIndex].relativePath, QString::fromUtf8(e.what()))
+                    .toStdString());
+          }
         });
 
     {

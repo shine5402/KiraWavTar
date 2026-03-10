@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include <QString>
 #include <QStringList>
+#include <QUnhandledException>
 #include <QtMath>
 #include <kfr/all.hpp>
 #include <memory>
@@ -54,16 +55,33 @@ inline double timecodeToSeconds(const QString &timecode)
     return parts[0].toDouble() * 3600.0 + parts[1].toDouble() * 60.0 + parts[2].toDouble();
 }
 
+// Extract a human-readable message from an exception.
+// Unwraps QUnhandledException to retrieve the original exception's what().
+inline QString exceptionToString(std::exception_ptr eptr)
+{
+    if (!eptr)
+        return {};
+    try {
+        std::rethrow_exception(eptr);
+    } catch (const QUnhandledException &e) {
+        if (e.exception())
+            return exceptionToString(e.exception());
+        return e.what();
+    } catch (const std::exception &e) {
+        return QString::fromUtf8(e.what());
+    } catch (...) {
+        return QCoreApplication::translate("Utils", "Unknown error occurred.");
+    }
+}
+
 template <typename T> bool checkFutureExceptionAndWarn(QFuture<T> future)
 {
     try {
         future.waitForFinished();
         return true;
-    } catch (const std::exception &e) {
-        QMessageBox::critical(nullptr, {}, e.what());
-        return false;
     } catch (...) {
-        QMessageBox::critical(nullptr, {}, QCoreApplication::translate("Utils", "Unknown error occurred."));
+        auto msg = exceptionToString(std::current_exception());
+        QMessageBox::critical(nullptr, {}, msg);
         return false;
     }
 }
