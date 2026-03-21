@@ -90,3 +90,5 @@ jobs:
 
       - name: Test
         run: ctest --preset ${{ matrix.preset }} --output-on-failure
+        env:
+          QT_QPA_PLATFORM: ${{ runner.os == 'Linux' && 'offscreen' || '' }}
