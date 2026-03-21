@@ -1,0 +1,124 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install tools
+        run: |
+          brew list ninja || brew install ninja
+          brew list create-dmg || brew install create-dmg
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: "6.10.2"
+          arch: clang_64
+          cache: true
+
+      - name: Generate CI presets
+        run: |
+          cat > CMakeUserPresets.json << 'PRESETS'
+          {
+            "version": 8,
+            "configurePresets": [{
+              "name": "ci-macos",
+              "inherits": "macos-relwithdebinfo",
+              "cacheVariables": {
+                "CMAKE_PREFIX_PATH": "${{ env.QT_ROOT_DIR }}"
+              }
+            }],
+            "buildPresets": [{"name": "ci-macos", "configurePreset": "ci-macos"}]
+          }
+          PRESETS
+
+      - name: Configure
+        run: cmake --preset ci-macos
+
+      - name: Build
+        run: cmake --build --preset ci-macos
+
+      - name: Install
+        run: cmake --install build
+
+      - name: Package DMG
+        run: bash scripts/package-macos.sh
+
+      - name: Upload DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: KiraWavTar-macOS
+          path: build/KiraWavTar-*.dmg
+          retention-days: 7
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Ninja
+        run: choco install ninja
+
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: "6.10.2"
+          arch: win64_msvc2022_64
+          cache: true
+
+      - name: Generate CI presets
+        shell: bash
+        run: |
+          cat > CMakeUserPresets.json << 'PRESETS'
+          {
+            "version": 8,
+            "configurePresets": [{
+              "name": "ci-windows",
+              "inherits": "windows-relwithdebinfo",
+              "cacheVariables": {
+                "CMAKE_PREFIX_PATH": "${{ env.QT_ROOT_DIR }}"
+              }
+            }],
+            "buildPresets": [{"name": "ci-windows", "configurePreset": "ci-windows"}]
+          }
+          PRESETS
+
+      - name: Configure
+        run: cmake --preset ci-windows
+
+      - name: Build
+        run: cmake --build --preset ci-windows
+
+      - name: Install
+        run: cmake --install build
+
+      - name: Install Inno Setup
+        run: choco install innosetup
+
+      - name: Build installer
+        run: iscc scripts\installer-windows.iss
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: KiraWavTar-Windows
+          path: build/KiraWavTar-*-setup.exe
+          retention-days: 7

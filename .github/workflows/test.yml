@@ -1,0 +1,78 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            preset: ci-macos
+            platform-preset: macos-relwithdebinfo
+            qt-arch: clang_64
+          - os: windows-latest
+            preset: ci-windows
+            platform-preset: windows-relwithdebinfo
+            qt-arch: win64_msvc2022_64
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Ninja (macOS)
+        if: runner.os == 'macOS'
+        run: brew list ninja || brew install ninja
+
+      - name: Install Ninja (Windows)
+        if: runner.os == 'Windows'
+        run: choco install ninja
+
+      - name: Setup MSVC (Windows)
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: "6.10.2"
+          arch: ${{ matrix.qt-arch }}
+          cache: true
+
+      - name: Generate CI presets
+        shell: bash
+        run: |
+          cat > CMakeUserPresets.json << 'PRESETS'
+          {
+            "version": 8,
+            "configurePresets": [{
+              "name": "${{ matrix.preset }}",
+              "inherits": "${{ matrix.platform-preset }}",
+              "cacheVariables": {
+                "CMAKE_PREFIX_PATH": "${{ env.QT_ROOT_DIR }}"
+              }
+            }],
+            "buildPresets": [{"name": "${{ matrix.preset }}", "configurePreset": "${{ matrix.preset }}"}],
+            "testPresets": [{"name": "${{ matrix.preset }}", "configurePreset": "${{ matrix.preset }}"}]
+          }
+          PRESETS
+
+      - name: Configure
+        run: cmake --preset ${{ matrix.preset }}
+
+      - name: Build
+        run: cmake --build --preset ${{ matrix.preset }}
+
+      - name: Test
+        run: ctest --preset ${{ matrix.preset }} --output-on-failure
