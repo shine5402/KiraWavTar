@@ -75,10 +75,18 @@ if(KIRAWAVTAR_INSTALL)
     )
 
     # oneTBB is built as a shared library; deploy it alongside the executable.
-    install(TARGETS tbb
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}   # .dll (Windows)
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}    # .so/.dylib (Unix)
-    )
+    if(APPLE)
+        # macOS: place the dylib inside the app bundle's Frameworks directory
+        # so that @rpath resolution finds it at runtime.
+        install(TARGETS tbb
+            LIBRARY DESTINATION KiraWAVTar.app/Contents/Frameworks
+        )
+    else()
+        install(TARGETS tbb
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}   # .dll (Windows)
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}    # .so (Linux)
+        )
+    endif()
 
     option(KIRAWAVTAR_DEPLOY_QT "Run Qt deploy script to bundle Qt runtime dependencies" ON)
     if(KIRAWAVTAR_DEPLOY_QT)
