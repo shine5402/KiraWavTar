@@ -99,7 +99,7 @@ if(KIRAWAVTAR_INSTALL)
         install(FILES "${CMAKE_SOURCE_DIR}/data/top.shine5402.KiraWavTar.metainfo.xml"
             DESTINATION "${CMAKE_INSTALL_DATADIR}/metainfo"
         )
-        install(FILES "${CMAKE_SOURCE_DIR}/assets/icon.svg"
+        install(FILES "${CMAKE_SOURCE_DIR}/assets/icon-square.svg"
             DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps"
             RENAME "top.shine5402.KiraWavTar.svg"
         )
