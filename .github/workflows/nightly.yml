@@ -45,7 +45,8 @@ jobs:
 
           **Packages included:**
           - **macOS** (Universal): DMG installer
-          - **Windows** (x64): Inno Setup installer" \
+          - **Windows** (x64): Inno Setup installer
+          - **Linux** (x86_64): Flatpak bundle" \
             --prerelease \
             artifacts/*
 
