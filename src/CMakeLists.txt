@@ -80,12 +80,15 @@ if(KIRAWAVTAR_INSTALL)
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}    # .so/.dylib (Unix)
     )
 
-    qt_generate_deploy_app_script(
-        TARGET KiraWAVTar
-        OUTPUT_SCRIPT deploy_script
-        NO_UNSUPPORTED_PLATFORM_ERROR
-    )
-    install(SCRIPT ${deploy_script})
+    option(KIRAWAVTAR_DEPLOY_QT "Run Qt deploy script to bundle Qt runtime dependencies" ON)
+    if(KIRAWAVTAR_DEPLOY_QT)
+        qt_generate_deploy_app_script(
+            TARGET KiraWAVTar
+            OUTPUT_SCRIPT deploy_script
+            NO_UNSUPPORTED_PLATFORM_ERROR
+        )
+        install(SCRIPT ${deploy_script})
+    endif()
 
     # Linux desktop integration
     if(UNIX AND NOT APPLE)

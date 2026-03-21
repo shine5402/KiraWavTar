@@ -28,7 +28,8 @@
             },
             "config-opts": [
                 "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
-                "-DKIRAWAVTAR_BUILD_TESTING=OFF"
+                "-DKIRAWAVTAR_BUILD_TESTING=OFF",
+                "-DKIRAWAVTAR_DEPLOY_QT=OFF"
             ],
             "sources": [
                 {
