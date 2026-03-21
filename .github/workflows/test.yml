@@ -72,5 +72,13 @@ jobs:
       - name: Build
         run: cmake --build --preset ${{ matrix.preset }}
 
+      - name: Add DLLs to PATH (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          "$env:QT_ROOT_DIR/bin" | Out-File -Append $env:GITHUB_PATH
+          # oneTBB is built as a shared library; find and add its DLL directory
+          (Get-ChildItem -Path build -Filter tbb12.dll -Recurse | Select-Object -First 1).DirectoryName | Out-File -Append $env:GITHUB_PATH
+
       - name: Test
         run: ctest --preset ${{ matrix.preset }} --output-on-failure

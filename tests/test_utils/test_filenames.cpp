@@ -30,9 +30,16 @@ void TestFilenames::getDescFileNameFrom_flac()
 
 void TestFilenames::getDescFileNameFrom_withPath()
 {
-    QString result = utils::getDescFileNameFrom("/home/user/project/output.wav");
+#ifdef Q_OS_WIN
+    QString input = "C:/Users/test/project/output.wav";
+    QString expectedDir = "C:/Users/test/project";
+#else
+    QString input = "/home/user/project/output.wav";
+    QString expectedDir = "/home/user/project";
+#endif
+    QString result = utils::getDescFileNameFrom(input);
     QCOMPARE(QFileInfo(result).fileName(), QString("output.kirawavtar-desc.json"));
-    QVERIFY(result.startsWith("/home/user/project/"));
+    QCOMPARE(QFileInfo(result).absolutePath(), expectedDir);
 }
 
 void TestFilenames::getVolumeFileName_first()
