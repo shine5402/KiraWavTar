@@ -40,7 +40,8 @@ jobs:
 
           gh release create "$tag" \
             --title "Nightly build ($tag)" \
-            --notes "Automated nightly build from \`main\` branch.
+            --target dev \
+            --notes "Automated nightly build from \`dev\` branch.
 
           **Packages included:**
           - **macOS** (Universal): DMG installer
