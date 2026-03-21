@@ -139,6 +139,7 @@ jobs:
         with:
           manifest-path: flatpak/top.shine5402.KiraWavTar.json
           bundle: KiraWavTar.flatpak
+          upload-bundles: false
           cache-key: flatpak-builder-${{ github.sha }}
 
       - name: Upload Flatpak
