@@ -23,6 +23,9 @@
         {
             "name": "kirawavtar",
             "buildsystem": "cmake-ninja",
+            "build-options": {
+                "build-args": ["--share=network"]
+            },
             "config-opts": [
                 "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
                 "-DKIRAWAVTAR_BUILD_TESTING=OFF"
