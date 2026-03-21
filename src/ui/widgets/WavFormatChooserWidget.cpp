@@ -1,5 +1,5 @@
 #include "WavFormatChooserWidget.h"
-#include "ui_wavformatchooserwidget.h"
+#include "ui_WavFormatChooserWidget.h"
 
 #include <kfr/all.hpp>
 #include <span>
