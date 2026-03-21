@@ -43,6 +43,7 @@ Name: "{autodesktop}\KiraWavTar"; Filename: "{app}\bin\KiraWAVTar.exe"; Tasks: d
 [Languages]
 Name: "en"; MessagesFile: "compiler:Default.isl"
 Name: "zh_CN"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
+Name: "zh_TW"; MessagesFile: "compiler:Languages\ChineseTraditional.isl"
 Name: "ja"; MessagesFile: "compiler:Languages\Japanese.isl"
 
 
