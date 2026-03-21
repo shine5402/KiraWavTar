@@ -29,20 +29,17 @@ jobs:
           cache: true
 
       - name: Generate CI presets
+        shell: python3 {0}
         run: |
-          cat > CMakeUserPresets.json << 'PRESETS'
-          {
-            "version": 8,
-            "configurePresets": [{
-              "name": "ci-macos",
-              "inherits": "macos-relwithdebinfo",
-              "cacheVariables": {
-                "CMAKE_PREFIX_PATH": "${{ env.QT_ROOT_DIR }}"
-              }
-            }],
-            "buildPresets": [{"name": "ci-macos", "configurePreset": "ci-macos"}]
+          import json, os
+          qt_root = os.environ["QT_ROOT_DIR"].replace("\\", "/")
+          data = {
+              "version": 8,
+              "configurePresets": [{"name": "ci-macos", "inherits": "macos-relwithdebinfo", "cacheVariables": {"CMAKE_PREFIX_PATH": qt_root}}],
+              "buildPresets": [{"name": "ci-macos", "configurePreset": "ci-macos"}],
           }
-          PRESETS
+          with open("CMakeUserPresets.json", "w") as f:
+              json.dump(data, f, indent=2)
 
       - name: Configure
         run: cmake --preset ci-macos
@@ -85,21 +82,17 @@ jobs:
           cache: true
 
       - name: Generate CI presets
-        shell: bash
+        shell: python3 {0}
         run: |
-          cat > CMakeUserPresets.json << 'PRESETS'
-          {
-            "version": 8,
-            "configurePresets": [{
-              "name": "ci-windows",
-              "inherits": "windows-relwithdebinfo",
-              "cacheVariables": {
-                "CMAKE_PREFIX_PATH": "${{ env.QT_ROOT_DIR }}"
-              }
-            }],
-            "buildPresets": [{"name": "ci-windows", "configurePreset": "ci-windows"}]
+          import json, os
+          qt_root = os.environ["QT_ROOT_DIR"].replace("\\", "/")
+          data = {
+              "version": 8,
+              "configurePresets": [{"name": "ci-windows", "inherits": "windows-relwithdebinfo", "cacheVariables": {"CMAKE_PREFIX_PATH": qt_root}}],
+              "buildPresets": [{"name": "ci-windows", "configurePreset": "ci-windows"}],
           }
-          PRESETS
+          with open("CMakeUserPresets.json", "w") as f:
+              json.dump(data, f, indent=2)
 
       - name: Configure
         run: cmake --preset ci-windows

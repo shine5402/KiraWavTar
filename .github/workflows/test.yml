@@ -51,22 +51,20 @@ jobs:
           cache: true
 
       - name: Generate CI presets
-        shell: bash
+        shell: python3 {0}
         run: |
-          cat > CMakeUserPresets.json << 'PRESETS'
-          {
-            "version": 8,
-            "configurePresets": [{
-              "name": "${{ matrix.preset }}",
-              "inherits": "${{ matrix.platform-preset }}",
-              "cacheVariables": {
-                "CMAKE_PREFIX_PATH": "${{ env.QT_ROOT_DIR }}"
-              }
-            }],
-            "buildPresets": [{"name": "${{ matrix.preset }}", "configurePreset": "${{ matrix.preset }}"}],
-            "testPresets": [{"name": "${{ matrix.preset }}", "configurePreset": "${{ matrix.preset }}"}]
+          import json, os
+          qt_root = os.environ["QT_ROOT_DIR"].replace("\\", "/")
+          preset = "${{ matrix.preset }}"
+          platform_preset = "${{ matrix.platform-preset }}"
+          data = {
+              "version": 8,
+              "configurePresets": [{"name": preset, "inherits": platform_preset, "cacheVariables": {"CMAKE_PREFIX_PATH": qt_root}}],
+              "buildPresets": [{"name": preset, "configurePreset": preset}],
+              "testPresets": [{"name": preset, "configurePreset": preset}],
           }
-          PRESETS
+          with open("CMakeUserPresets.json", "w") as f:
+              json.dump(data, f, indent=2)
 
       - name: Configure
         run: cmake --preset ${{ matrix.preset }}
