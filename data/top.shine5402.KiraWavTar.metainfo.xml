@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>top.shine5402.KiraWavTar</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+
+  <name>KiraWavTar</name>
+  <summary>Combine multiple audio files into one and extract them back</summary>
+  <description>
+    <p>
+      KiraWavTar combines multiple WAV and FLAC audio files into a single file
+      with metadata, enabling batch audio editing workflows. Combine your files,
+      apply effects in a DAW, then split them back out — preserving original
+      formats and metadata.
+    </p>
+    <p>Features:</p>
+    <ul>
+      <li>Combine WAV and FLAC files into a single audio file</li>
+      <li>Extract individual files back with original format preservation</li>
+      <li>Support for multiple container formats: RIFF WAV, RF64, W64, and FLAC</li>
+      <li>Configurable sample rate, bit depth, and channel count</li>
+      <li>DC offset removal and high-quality resampling</li>
+      <li>Multi-volume archive support for large collections</li>
+    </ul>
+  </description>
+
+  <launchable type="desktop-id">top.shine5402.KiraWavTar.desktop</launchable>
+
+  <url type="homepage">https://github.com/shine5402/KiraWAVTar</url>
+  <url type="bugtracker">https://github.com/shine5402/KiraWAVTar/issues</url>
+
+  <developer id="top.shine5402">
+    <name>shine5402</name>
+  </developer>
+
+  <provides>
+    <binary>KiraWAVTar</binary>
+  </provides>
+
+  <content_rating type="oars-1.1" />
+
+  <branding>
+    <color type="primary" scheme_preference="light">#4a90d9</color>
+    <color type="primary" scheme_preference="dark">#1c5a9e</color>
+  </branding>
+</component>

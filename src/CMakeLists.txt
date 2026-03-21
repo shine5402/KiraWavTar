@@ -86,4 +86,23 @@ if(KIRAWAVTAR_INSTALL)
         NO_UNSUPPORTED_PLATFORM_ERROR
     )
     install(SCRIPT ${deploy_script})
+
+    # Linux desktop integration
+    if(UNIX AND NOT APPLE)
+        include(GNUInstallDirs)
+        install(FILES "${CMAKE_SOURCE_DIR}/data/top.shine5402.KiraWavTar.desktop"
+            DESTINATION "${CMAKE_INSTALL_DATADIR}/applications"
+        )
+        install(FILES "${CMAKE_SOURCE_DIR}/data/top.shine5402.KiraWavTar.metainfo.xml"
+            DESTINATION "${CMAKE_INSTALL_DATADIR}/metainfo"
+        )
+        install(FILES "${CMAKE_SOURCE_DIR}/assets/icon.svg"
+            DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps"
+            RENAME "top.shine5402.KiraWavTar.svg"
+        )
+        install(FILES "${CMAKE_SOURCE_DIR}/assets/icon256.png"
+            DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/256x256/apps"
+            RENAME "top.shine5402.KiraWavTar.png"
+        )
+    endif()
 endif()

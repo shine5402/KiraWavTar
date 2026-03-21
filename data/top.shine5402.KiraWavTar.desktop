@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=KiraWavTar
+GenericName=Audio Combiner/Extractor
+Comment=Combine multiple audio files into one and extract them back
+Exec=KiraWAVTar %F
+Icon=top.shine5402.KiraWavTar
+Terminal=false
+Categories=Audio;AudioVideo;Utility;
+Keywords=audio;wav;flac;combine;extract;split;
