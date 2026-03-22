@@ -1,25 +1,44 @@
 add_subdirectory(3rdparty)
 
+# --- Shared core library (worker + utils, no Qt Widgets) ---
+add_library(kirawavtar_core OBJECT)
+
+target_include_directories(kirawavtar_core PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+target_link_libraries(kirawavtar_core PUBLIC
+    Qt6::Core Qt6::Concurrent
+    kfr kfr_dsp kfr_audio
+    dr_libs
+    FLAC
+    TBB::tbb
+)
+
+# Add core source modules
+add_subdirectory(worker)
+add_subdirectory(utils)
+
+# --- GUI Application ---
 qt_add_executable(KiraWAVTar
     main.cpp
     resources.qrc
 )
 
-# Add module subdirectories
-# Each module manages its own source files via target_sources()
 add_subdirectory(ui)
-add_subdirectory(worker)
-add_subdirectory(utils)
 
-# Root include directory for cross-module includes
+# GUI-only utility sources (depend on Qt Widgets / Network)
+target_sources(KiraWAVTar PRIVATE
+    utils/GuiUtils.h
+    utils/TranslationManager.cpp
+    utils/TranslationManager.h
+    utils/UpdateChecker.cpp
+    utils/UpdateChecker.h
+)
+
 target_include_directories(KiraWAVTar PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(KiraWAVTar PRIVATE
-    Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Concurrent Qt6::Network
-    kfr kfr_dsp kfr_audio
-    dr_libs
-    FLAC
-    TBB::tbb
+    kirawavtar_core
+    Qt6::Gui Qt6::Widgets Qt6::Network
 )
 
 set_target_properties(KiraWAVTar PROPERTIES
@@ -65,12 +84,19 @@ qt_add_translations(KiraWAVTar
     MERGE_QT_TRANSLATIONS
 )
 
+# --- CLI Application ---
+add_subdirectory(cli)
+
 # --- Install & Deploy ---
 option(KIRAWAVTAR_INSTALL "Enable install and deploy rules" ON)
 
 if(KIRAWAVTAR_INSTALL)
     install(TARGETS KiraWAVTar
         BUNDLE  DESTINATION .
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    )
+
+    install(TARGETS kirawavtar-cli
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
 

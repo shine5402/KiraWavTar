@@ -28,7 +28,8 @@ struct CheckResult
     QJsonObject descRoot;
 };
 
-CheckResult preCheck(QString srcWAVFileName, QString dstDirName);
+// descFileName: if non-empty, use this instead of auto-derived desc file path
+CheckResult preCheck(QString srcWAVFileName, QString dstDirName, QString descFileName = {});
 
 struct ExtractErrorDescription
 {

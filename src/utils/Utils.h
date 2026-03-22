@@ -3,7 +3,6 @@
 
 #include <QCoreApplication>
 #include <QFuture>
-#include <QMessageBox>
 #include <QString>
 #include <QStringList>
 #include <QUnhandledException>
@@ -11,7 +10,6 @@
 #include <kfr/all.hpp>
 #include <memory>
 #include <variant>
-class QStackedWidget;
 
 namespace utils {
 QString getDescFileNameFrom(const QString &WAVFileName);
@@ -71,18 +69,6 @@ inline QString exceptionToString(std::exception_ptr eptr)
         return QString::fromUtf8(e.what());
     } catch (...) {
         return QCoreApplication::translate("Utils", "Unknown error occurred.");
-    }
-}
-
-template <typename T> bool checkFutureExceptionAndWarn(QFuture<T> future)
-{
-    try {
-        future.waitForFinished();
-        return true;
-    } catch (...) {
-        auto msg = exceptionToString(std::current_exception());
-        QMessageBox::critical(nullptr, {}, msg);
-        return false;
     }
 }
 

@@ -22,10 +22,11 @@ using namespace utils;
 
 namespace AudioExtract {
 
-CheckResult preCheck(QString srcWAVFileName, QString dstDirName)
+CheckResult preCheck(QString srcWAVFileName, QString dstDirName, QString descFileName)
 {
     // Check Desc file
-    auto descFileName = getDescFileNameFrom(srcWAVFileName);
+    if (descFileName.isEmpty())
+        descFileName = getDescFileNameFrom(srcWAVFileName);
     QFile descFile(descFileName);
 
     if (!descFile.exists()) {

@@ -314,7 +314,8 @@ struct CombineToken
 // --- runCombinePipeline ---
 
 QJsonObject runCombinePipeline(const CombineLayout &layout, std::atomic<int> &progress,
-                               oneapi::tbb::task_group_context &ctx)
+                               oneapi::tbb::task_group_context &ctx,
+                               std::optional<QString> descFileOverride)
 {
     // Open all volume writers (non-copyable, so use vector of unique_ptr)
     std::vector<std::unique_ptr<AudioIO::StreamingAudioWriter>> writers;
@@ -537,24 +538,26 @@ QJsonObject runCombinePipeline(const CombineLayout &layout, std::atomic<int> &pr
         descObj.insert("descriptions", descriptionsArray);
     }
 
-    // Write description JSON file
-    QString descFileName;
-    if (layout.volumes.size() == 1) {
-        descFileName = getDescFileNameFrom(layout.volumes[0].outputFilePath);
-    } else {
-        // For multi-volume, the desc file is named after the base filename (volume 0)
-        descFileName = getDescFileNameFrom(layout.volumes[0].outputFilePath);
-    }
+    // Write description JSON file (unless overridden with empty string to skip)
+    bool skipDescWrite = descFileOverride.has_value() && descFileOverride->isEmpty();
+    if (!skipDescWrite) {
+        QString descFileName;
+        if (descFileOverride.has_value() && !descFileOverride->isEmpty()) {
+            descFileName = *descFileOverride;
+        } else {
+            descFileName = getDescFileNameFrom(layout.volumes[0].outputFilePath);
+        }
 
-    QFile descFile(descFileName);
-    if (!descFile.open(QIODevice::WriteOnly)) {
-        throw std::runtime_error(QCoreApplication::translate("WAVCombine", "Failed to write description file: %1")
-                                     .arg(descFileName)
-                                     .toStdString());
+        QFile descFile(descFileName);
+        if (!descFile.open(QIODevice::WriteOnly)) {
+            throw std::runtime_error(QCoreApplication::translate("WAVCombine", "Failed to write description file: %1")
+                                         .arg(descFileName)
+                                         .toStdString());
+        }
+        QJsonDocument doc(descObj);
+        descFile.write(doc.toJson());
+        descFile.close();
     }
-    QJsonDocument doc(descObj);
-    descFile.write(doc.toJson());
-    descFile.close();
 
     return descObj;
 }

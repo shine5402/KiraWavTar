@@ -5,6 +5,7 @@
 #include <QJsonObject>
 #include <QObject>
 #include <atomic>
+#include <optional>
 #include <kfr/all.hpp>
 
 #include "AudioIO.h"
@@ -66,10 +67,12 @@ CombineLayout computeLayout(const QStringList &wavFileNames, const QString &root
 // progress: atomic counter incremented after each entry is written.
 // ctx: TBB task group context for cancellation from another thread.
 // Returns the description JSON object on success, throws on failure.
+// descFileOverride: nullopt = default path, empty string = skip writing, non-empty = custom path
 QJsonObject runCombinePipeline(
     const CombineLayout &layout,
     std::atomic<int> &progress,
-    oneapi::tbb::task_group_context &ctx);
+    oneapi::tbb::task_group_context &ctx,
+    std::optional<QString> descFileOverride = std::nullopt);
 
 }; // namespace AudioCombine
 

@@ -22,6 +22,8 @@ private slots:
     void combine_formatConversion();
     void combine_createsDescriptionFile();
     void combine_descriptionContainsMetadata();
+    void combine_descFileOverride_skip();
+    void combine_descFileOverride_customPath();
 
 private:
     QString fixturesDir() const { return QString::fromUtf8(TEST_FIXTURES_DIR); }
@@ -201,6 +203,63 @@ void TestCombine::combine_descriptionContainsMetadata()
         QVERIFY(obj.contains("sample_rate"));
         QVERIFY(obj.contains("sample_type"));
     }
+}
+
+void TestCombine::combine_descFileOverride_skip()
+{
+    QString inputDir = fixturesDir();
+    QString outputFile = m_tempDir.path() + "/combined_nodesc.wav";
+
+    AudioIO::AudioFormat targetFormat;
+    targetFormat.kfr_format.samplerate = 22050.0;
+    targetFormat.kfr_format.channels = 1;
+    targetFormat.kfr_format.type = kfr::audio_sample_type::i16;
+    targetFormat.container = AudioIO::AudioFormat::Container::RIFF;
+
+    auto checkResult = AudioCombine::preCheck(inputDir, outputFile, false, targetFormat);
+    QStringList filesToCombine = checkResult.wavFileNames.mid(0, 2);
+
+    utils::VolumeConfig volumeConfig;
+    auto layout = AudioCombine::computeLayout(filesToCombine, inputDir, outputFile, targetFormat, 0, volumeConfig);
+
+    std::atomic<int> progress{0};
+    oneapi::tbb::task_group_context ctx;
+    // Pass empty string to skip desc file writing
+    AudioCombine::runCombinePipeline(layout, progress, ctx, QString());
+
+    QVERIFY(QFile::exists(outputFile));
+
+    QString descFile = utils::getDescFileNameFrom(outputFile);
+    QVERIFY2(!QFile::exists(descFile), "Description file should NOT be created when override is empty string");
+}
+
+void TestCombine::combine_descFileOverride_customPath()
+{
+    QString inputDir = fixturesDir();
+    QString outputFile = m_tempDir.path() + "/combined_customdesc.wav";
+    QString customDescPath = m_tempDir.path() + "/my-custom-desc.json";
+
+    AudioIO::AudioFormat targetFormat;
+    targetFormat.kfr_format.samplerate = 22050.0;
+    targetFormat.kfr_format.channels = 1;
+    targetFormat.kfr_format.type = kfr::audio_sample_type::i16;
+    targetFormat.container = AudioIO::AudioFormat::Container::RIFF;
+
+    auto checkResult = AudioCombine::preCheck(inputDir, outputFile, false, targetFormat);
+    QStringList filesToCombine = checkResult.wavFileNames.mid(0, 2);
+
+    utils::VolumeConfig volumeConfig;
+    auto layout = AudioCombine::computeLayout(filesToCombine, inputDir, outputFile, targetFormat, 0, volumeConfig);
+
+    std::atomic<int> progress{0};
+    oneapi::tbb::task_group_context ctx;
+    AudioCombine::runCombinePipeline(layout, progress, ctx, customDescPath);
+
+    QVERIFY(QFile::exists(outputFile));
+    QVERIFY2(QFile::exists(customDescPath), "Description file should be at custom path");
+
+    QString defaultDescFile = utils::getDescFileNameFrom(outputFile);
+    QVERIFY2(!QFile::exists(defaultDescFile), "Description file should NOT be at default path");
 }
 
 QTEST_MAIN(TestCombine)

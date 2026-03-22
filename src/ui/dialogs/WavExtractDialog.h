@@ -7,7 +7,7 @@
 #include <memory>
 #include <optional>
 
-#include "utils/Utils.h"
+#include "utils/GuiUtils.h"
 #include "worker/AudioIO.h"
 #include "worker/AudioExtract.h"
 

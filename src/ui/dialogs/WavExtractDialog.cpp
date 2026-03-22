@@ -49,7 +49,7 @@ using PreCheckFutureWatcher = QFutureWatcher<decltype(std::function(preCheck))::
 
 void WavExtractDialog::startWork()
 {
-    auto nextFuture = QtConcurrent::run(preCheck, m_srcWAVFileName, m_dstDirName);
+    auto nextFuture = QtConcurrent::run(preCheck, m_srcWAVFileName, m_dstDirName, QString{});
     m_label->setText(tr("Some preparing work..."));
     // This will make progress bar show as busy indicator
     m_progressBar->setMaximum(0);

@@ -1,8 +1,7 @@
 #include "Utils.h"
 
 #include <QDir>
-#include <QStack>
-#include <QStackedWidget>
+#include <QFileInfo>
 #include <QThread>
 #include <atomic>
 #include <exception>

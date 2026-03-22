@@ -20,6 +20,7 @@ private slots:
     void extract_basic();
     void extract_preservesContent();
     void extract_withResample();
+    void extract_customDescFile();
 
 private:
     QString fixturesDir() const { return QString::fromUtf8(TEST_FIXTURES_DIR); }
@@ -203,6 +204,42 @@ void TestExtract::extract_withResample()
         auto extractedFormat = AudioIO::readAudioFormat(extractedPath);
         QCOMPARE(extractedFormat.kfr_format.samplerate, 44100.0);
     }
+}
+
+void TestExtract::extract_customDescFile()
+{
+    QString inputDir = fixturesDir();
+    QString combinedFile = m_tempDir.path() + "/customdesc_test.wav";
+    QString customDescPath = m_tempDir.path() + "/custom-extract-desc.json";
+    QString outputDir = m_tempDir.path() + "/customdesc_extracted";
+
+    AudioIO::AudioFormat targetFormat;
+    targetFormat.kfr_format.samplerate = 22050.0;
+    targetFormat.kfr_format.channels = 1;
+    targetFormat.kfr_format.type = kfr::audio_sample_type::i16;
+    targetFormat.container = AudioIO::AudioFormat::Container::RIFF;
+
+    auto checkResult = AudioCombine::preCheck(inputDir, combinedFile, false, targetFormat);
+    QStringList filesToCombine = checkResult.wavFileNames.mid(0, 2);
+
+    utils::VolumeConfig volumeConfig;
+    auto layout = AudioCombine::computeLayout(filesToCombine, inputDir, combinedFile, targetFormat, 0, volumeConfig);
+
+    std::atomic<int> combineProgress{0};
+    oneapi::tbb::task_group_context combineCtx;
+    // Write desc file to custom path
+    AudioCombine::runCombinePipeline(layout, combineProgress, combineCtx, customDescPath);
+
+    QVERIFY(QFile::exists(combinedFile));
+    QVERIFY(QFile::exists(customDescPath));
+
+    // preCheck with custom desc path should succeed
+    auto extractCheck = AudioExtract::preCheck(combinedFile, outputDir, customDescPath);
+    QCOMPARE(extractCheck.pass, AudioExtract::CheckPassType::OK);
+    QVERIFY(extractCheck.descRoot.contains("descriptions"));
+
+    auto descArray = extractCheck.descRoot["descriptions"].toArray();
+    QCOMPARE(descArray.size(), filesToCombine.size());
 }
 
 QTEST_MAIN(TestExtract)

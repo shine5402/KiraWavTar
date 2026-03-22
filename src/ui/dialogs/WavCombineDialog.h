@@ -4,7 +4,7 @@
 #include <QDialog>
 #include <kfr/all.hpp>
 
-#include "utils/Utils.h"
+#include "utils/GuiUtils.h"
 #include "worker/AudioIO.h"
 
 // TBB's profiling.h has void emit() which conflicts with Qt's 'emit' macro
