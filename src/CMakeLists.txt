@@ -96,9 +96,15 @@ if(KIRAWAVTAR_INSTALL)
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
 
-    install(TARGETS kirawavtar-cli
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    )
+    if(APPLE)
+        install(TARGETS kirawavtar-cli
+            RUNTIME DESTINATION KiraWAVTar.app/Contents/MacOS
+        )
+    else()
+        install(TARGETS kirawavtar-cli
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        )
+    endif()
 
     # oneTBB is built as a shared library; deploy it alongside the executable.
     if(APPLE)
