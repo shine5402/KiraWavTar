@@ -43,13 +43,12 @@ jobs:
         if: runner.os == 'Windows'
         run: choco install ninja
 
-      - name: Install Ninja and GCC 13 (Linux)
+      - name: Install Ninja and select GCC 14 (Linux)
         if: runner.os == 'Linux'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ninja-build gcc-13 g++-13
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100
-          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100
+          sudo apt-get update && sudo apt-get install -y ninja-build
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 100
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 100
 
       - name: Setup MSVC (Windows)
         if: runner.os == 'Windows'
