@@ -14,6 +14,7 @@
 #include "utils/KfrHelper.h"
 #include "utils/TranslationManager.h"
 #include "utils/UpdateChecker.h"
+#include "utils/CliInstaller.h"
 #include "utils/Utils.h"
 #include "widgets/WavFormatChooserWidget.h"
 #include "worker/AudioIO.h"
@@ -43,6 +44,19 @@ QMenu *MainWindow::createHelpMenu()
     helpMenu->addAction(UpdateChecker::createAutoCheckAction());
     auto checkUpdateAction = helpMenu->addAction(tr("Check update now"));
     connect(checkUpdateAction, &QAction::triggered, this, [this]() { UpdateChecker::checkManually(m_updateChecker); });
+
+    helpMenu->addSeparator();
+    auto cliAction = helpMenu->addAction(
+        utils::CliInstaller::isInstalled() ? tr("Uninstall CLI Tool") : tr("Install CLI Tool"));
+    connect(cliAction, &QAction::triggered, this, [this, cliAction]() {
+        if (utils::CliInstaller::isInstalled()) {
+            if (utils::CliInstaller::uninstall(this))
+                cliAction->setText(tr("Install CLI Tool"));
+        } else {
+            if (utils::CliInstaller::install(this))
+                cliAction->setText(tr("Uninstall CLI Tool"));
+        }
+    });
 
     return helpMenu;
 }

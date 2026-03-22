@@ -15,4 +15,5 @@ target_link_libraries(kirawavtar-cli PRIVATE kirawavtar_core)
 set_target_properties(kirawavtar-cli PROPERTIES
     WIN32_EXECUTABLE OFF
     MACOSX_BUNDLE OFF
+    INSTALL_RPATH "@executable_path/../Frameworks"
 )

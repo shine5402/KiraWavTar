@@ -27,6 +27,8 @@ add_subdirectory(ui)
 
 # GUI-only utility sources (depend on Qt Widgets / Network)
 target_sources(KiraWAVTar PRIVATE
+    utils/CliInstaller.cpp
+    utils/CliInstaller.h
     utils/GuiUtils.h
     utils/TranslationManager.cpp
     utils/TranslationManager.h
