@@ -2,16 +2,20 @@
 
 #include <QCoreApplication>
 #include <QDir>
-#include <QEventLoop>
 #include <QFile>
 #include <QFileInfo>
-#include <QMessageBox>
 #include <QProcess>
 #include <QRegularExpression>
 #include <QStandardPaths>
 #include <QTemporaryFile>
 
 namespace utils {
+
+static void setError(QString *errorMessage, const QString &msg)
+{
+    if (errorMessage)
+        *errorMessage = msg;
+}
 
 QString CliInstaller::cliBinaryPath()
 {
@@ -39,24 +43,11 @@ bool CliInstaller::isInstalled()
     return QFileInfo::exists(wrapperPath());
 }
 
-// Run a QProcess without blocking the GUI event loop.
-// Returns the exit code, or -1 if the process failed to start.
-static int runProcessNonBlocking(QProcess &proc)
-{
-    QEventLoop loop;
-    QObject::connect(&proc, &QProcess::finished, &loop, &QEventLoop::quit);
-    QObject::connect(&proc, &QProcess::errorOccurred, &loop, &QEventLoop::quit);
-    if (proc.state() == QProcess::NotRunning)
-        return -1;
-    loop.exec();
-    return proc.exitStatus() == QProcess::NormalExit ? proc.exitCode() : -1;
-}
-
 #ifdef Q_OS_MACOS
 
 // Run a shell command with admin privileges via osascript.
 // Returns true on success, false on failure or user cancellation.
-static bool runWithAdminPrivileges(const QString &shellCmd, QWidget *parent, const QString &errorContext)
+static bool runWithAdminPrivileges(const QString &shellCmd, QString *errorMessage, const QString &errorContext)
 {
     // Escape for AppleScript double-quoted string
     QString escaped = shellCmd;
@@ -66,28 +57,28 @@ static bool runWithAdminPrivileges(const QString &shellCmd, QWidget *parent, con
     QProcess proc;
     proc.start("osascript",
                {"-e", QString("do shell script \"%1\" with administrator privileges").arg(escaped)});
-    int exitCode = runProcessNonBlocking(proc);
+    proc.waitForFinished(-1);
 
-    if (exitCode != 0) {
-        // AppleScript "User canceled" is error -128; osascript writes it to stderr as "(-128)"
+    if (proc.exitStatus() != QProcess::NormalExit || proc.exitCode() != 0) {
         auto stderrOutput = proc.readAllStandardError();
+        // AppleScript "User canceled" is error -128; osascript writes it to stderr as "(-128)"
         if (!stderrOutput.contains("(-128)")) {
-            QMessageBox::critical(parent, {},
-                                  QObject::tr("Failed to %1:\n%2").arg(errorContext, stderrOutput));
+            setError(errorMessage,
+                     QObject::tr("Failed to %1:\n%2").arg(errorContext, QString::fromUtf8(stderrOutput)));
         }
         return false;
     }
     return true;
 }
 
-bool CliInstaller::install(QWidget *parent)
+bool CliInstaller::install(QString *errorMessage)
 {
     auto binPath = cliBinaryPath();
     if (!QFileInfo::exists(binPath)) {
-        QMessageBox::critical(parent, {},
-                              QObject::tr("CLI binary not found at %1.\n"
-                                          "Make sure kirawavtar-cli is installed inside the app bundle.")
-                                  .arg(binPath));
+        setError(errorMessage,
+                 QObject::tr("CLI binary not found at %1.\n"
+                             "Make sure kirawavtar-cli is installed inside the app bundle.")
+                     .arg(binPath));
         return false;
     }
 
@@ -120,8 +111,7 @@ bool CliInstaller::install(QWidget *parent)
     QTemporaryFile tmpFile;
     tmpFile.setAutoRemove(false);
     if (!tmpFile.open()) {
-        QMessageBox::critical(parent, {},
-                              QObject::tr("Failed to create temporary file for CLI wrapper."));
+        setError(errorMessage, QObject::tr("Failed to create temporary file for CLI wrapper."));
         return false;
     }
     tmpFile.write(script.toUtf8());
@@ -131,7 +121,7 @@ bool CliInstaller::install(QWidget *parent)
     QString shellCmd = QString("mkdir -p '%1' && cp '%2' '%3' && chmod +x '%3' && rm -f '%2'")
                            .arg(wrapperDir, tmpPath, wrapper);
 
-    if (!runWithAdminPrivileges(shellCmd, parent, QObject::tr("install CLI wrapper"))) {
+    if (!runWithAdminPrivileges(shellCmd, errorMessage, QObject::tr("install CLI wrapper"))) {
         QFile::remove(tmpPath);
         return false;
     }
@@ -139,7 +129,7 @@ bool CliInstaller::install(QWidget *parent)
     return true;
 }
 
-bool CliInstaller::uninstall(QWidget *parent)
+bool CliInstaller::uninstall(QString *errorMessage)
 {
     auto wrapper = wrapperPath();
 
@@ -148,7 +138,7 @@ bool CliInstaller::uninstall(QWidget *parent)
 
     // Need admin privileges — wrapperPath() is hardcoded, no injection risk
     QString shellCmd = QString("rm -f '%1'").arg(wrapper);
-    return runWithAdminPrivileges(shellCmd, parent, QObject::tr("uninstall CLI wrapper"));
+    return runWithAdminPrivileges(shellCmd, errorMessage, QObject::tr("uninstall CLI wrapper"));
 }
 
 #elif defined(Q_OS_WIN)
@@ -175,13 +165,11 @@ static QString readUserPathFromRegistry()
     return {};
 }
 
-bool CliInstaller::install(QWidget *parent)
+bool CliInstaller::install(QString *errorMessage)
 {
     auto binPath = cliBinaryPath();
     if (!QFileInfo::exists(binPath)) {
-        QMessageBox::critical(
-            parent, {},
-            QObject::tr("CLI binary not found at %1.").arg(binPath));
+        setError(errorMessage, QObject::tr("CLI binary not found at %1.").arg(binPath));
         return false;
     }
 
@@ -200,8 +188,7 @@ bool CliInstaller::install(QWidget *parent)
 
     QFile wrapperFile(wrapper);
     if (!wrapperFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::critical(parent, {},
-                              QObject::tr("Failed to write CLI wrapper to %1.").arg(wrapper));
+        setError(errorMessage, QObject::tr("Failed to write CLI wrapper to %1.").arg(wrapper));
         return false;
     }
     wrapperFile.write(script.toLocal8Bit());
@@ -230,10 +217,10 @@ bool CliInstaller::install(QWidget *parent)
     regProc.waitForFinished(5000);
 
     if (regProc.exitCode() != 0) {
-        QMessageBox::warning(parent, {},
-                             QObject::tr("CLI wrapper was created but failed to add to PATH.\n"
-                                         "You may need to add %1 to your PATH manually.")
-                                 .arg(nativeWrapperDir));
+        setError(errorMessage,
+                 QObject::tr("CLI wrapper was created but failed to add to PATH.\n"
+                             "You may need to add %1 to your PATH manually.")
+                     .arg(nativeWrapperDir));
         return true; // wrapper was still created
     }
 
@@ -245,8 +232,10 @@ bool CliInstaller::install(QWidget *parent)
     return true;
 }
 
-bool CliInstaller::uninstall(QWidget *parent)
+bool CliInstaller::uninstall(QString *errorMessage)
 {
+    Q_UNUSED(errorMessage);
+
     auto wrapper = wrapperPath();
     auto wrapperDir = QFileInfo(wrapper).absolutePath();
     auto nativeWrapperDir = QDir::toNativeSeparators(wrapperDir);
@@ -281,7 +270,7 @@ bool CliInstaller::uninstall(QWidget *parent)
 
 #else // Linux
 
-bool CliInstaller::install(QWidget *parent)
+bool CliInstaller::install(QString *errorMessage)
 {
     auto wrapper = wrapperPath();
     auto wrapperDir = QFileInfo(wrapper).absolutePath();
@@ -295,8 +284,7 @@ bool CliInstaller::install(QWidget *parent)
 
         QFile wrapperFile(wrapper);
         if (!wrapperFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            QMessageBox::critical(parent, {},
-                                  QObject::tr("Failed to write CLI wrapper to %1.").arg(wrapper));
+            setError(errorMessage, QObject::tr("Failed to write CLI wrapper to %1.").arg(wrapper));
             return false;
         }
         wrapperFile.write(script.toUtf8());
@@ -306,16 +294,14 @@ bool CliInstaller::install(QWidget *parent)
     } else {
         auto binPath = cliBinaryPath();
         if (!QFileInfo::exists(binPath)) {
-            QMessageBox::critical(parent, {},
-                                  QObject::tr("CLI binary not found at %1.").arg(binPath));
+            setError(errorMessage, QObject::tr("CLI binary not found at %1.").arg(binPath));
             return false;
         }
 
         QFile::remove(wrapper);
 
         if (!QFile::link(binPath, wrapper)) {
-            QMessageBox::critical(parent, {},
-                                  QObject::tr("Failed to create symlink at %1.").arg(wrapper));
+            setError(errorMessage, QObject::tr("Failed to create symlink at %1.").arg(wrapper));
             return false;
         }
     }
@@ -323,12 +309,11 @@ bool CliInstaller::install(QWidget *parent)
     return true;
 }
 
-bool CliInstaller::uninstall(QWidget *parent)
+bool CliInstaller::uninstall(QString *errorMessage)
 {
     auto wrapper = wrapperPath();
     if (!QFile::remove(wrapper)) {
-        QMessageBox::critical(parent, {},
-                              QObject::tr("Failed to remove %1.").arg(wrapper));
+        setError(errorMessage, QObject::tr("Failed to remove %1.").arg(wrapper));
         return false;
     }
     return true;

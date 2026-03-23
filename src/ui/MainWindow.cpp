@@ -6,15 +6,17 @@
 #include <QSettings>
 #include <QtConcurrent/QtConcurrent>
 
+#include <QProcess>
+
 #include "dialogs/CommonHtmlDialog.h"
 #include "dialogs/EngineSettingsDialog.h"
 #include "dialogs/WavCombineDialog.h"
 #include "dialogs/WavExtractDialog.h"
+#include "utils/CliInstaller.h"
 #include "utils/Filesystem.h"
 #include "utils/KfrHelper.h"
 #include "utils/TranslationManager.h"
 #include "utils/UpdateChecker.h"
-#include "utils/CliInstaller.h"
 #include "utils/Utils.h"
 #include "widgets/WavFormatChooserWidget.h"
 #include "worker/AudioIO.h"
@@ -49,12 +51,17 @@ QMenu *MainWindow::createHelpMenu()
     auto cliAction = helpMenu->addAction(
         utils::CliInstaller::isInstalled() ? tr("Uninstall CLI Tool") : tr("Install CLI Tool"));
     connect(cliAction, &QAction::triggered, this, [this, cliAction]() {
-        if (utils::CliInstaller::isInstalled()) {
-            if (utils::CliInstaller::uninstall(this))
-                cliAction->setText(tr("Install CLI Tool"));
+        bool installed = utils::CliInstaller::isInstalled();
+        auto cliBin = utils::CliInstaller::cliBinaryPath();
+        QProcess proc;
+        proc.start(cliBin, {installed ? "uninstall-cli" : "install-cli"});
+        proc.waitForFinished(-1);
+        if (proc.exitStatus() == QProcess::NormalExit && proc.exitCode() == 0) {
+            cliAction->setText(installed ? tr("Install CLI Tool") : tr("Uninstall CLI Tool"));
         } else {
-            if (utils::CliInstaller::install(this))
-                cliAction->setText(tr("Uninstall CLI Tool"));
+            auto stderrOutput = QString::fromUtf8(proc.readAllStandardError()).trimmed();
+            if (!stderrOutput.isEmpty())
+                QMessageBox::critical(this, {}, stderrOutput);
         }
     });
 

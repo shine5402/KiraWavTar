@@ -30,3 +30,8 @@ add_subdirectory(test_pipeline_integration)
 add_subdirectory(test_cli_format_parser)
 add_subdirectory(test_cli_utils)
 add_subdirectory(test_cli_commands)
+
+option(KIRAWAVTAR_TEST_CLI_INSTALLER "Build CLI installer integration tests (modifies system state)" OFF)
+if(KIRAWAVTAR_TEST_CLI_INSTALLER)
+    add_subdirectory(test_cli_installer)
+endif()

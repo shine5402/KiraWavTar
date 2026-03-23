@@ -3,19 +3,19 @@
 
 #include <QString>
 
-class QWidget;
-
 namespace utils {
 
 class CliInstaller
 {
 public:
     static bool isInstalled();
-    static bool install(QWidget *parent);
-    static bool uninstall(QWidget *parent);
+    /// Install the CLI wrapper. Returns true on success.
+    /// On failure, writes a diagnostic to errorMessage (if non-null).
+    static bool install(QString *errorMessage = nullptr);
+    /// Uninstall the CLI wrapper. Returns true on success.
+    /// On failure, writes a diagnostic to errorMessage (if non-null).
+    static bool uninstall(QString *errorMessage = nullptr);
     static QString wrapperPath();
-
-private:
     static QString cliBinaryPath();
 };
 

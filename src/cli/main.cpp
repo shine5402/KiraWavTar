@@ -4,6 +4,7 @@
 
 #include "CombineCommand.h"
 #include "ExtractCommand.h"
+#include "utils/CliInstaller.h"
 #include "utils/Utils.h"
 
 #include <csignal>
@@ -31,8 +32,10 @@ static void printHelp()
     std::println("Usage: kirawavtar-cli [global-options] <command> [command-options]");
     std::println("");
     std::println("Commands:");
-    std::println("  combine    Combine multiple audio files into a single file");
-    std::println("  extract    Extract audio files from a combined file");
+    std::println("  combine        Combine multiple audio files into a single file");
+    std::println("  extract        Extract audio files from a combined file");
+    std::println("  install-cli    Install CLI wrapper to PATH");
+    std::println("  uninstall-cli  Uninstall CLI wrapper from PATH");
     std::println("");
     std::println("Global options:");
     std::println("  --src-quality <draft|low|normal|high|perfect>  SRC quality (default: normal)");
@@ -168,6 +171,24 @@ int main(int argc, char *argv[])
         return cli::runCombine(subcommandArgs);
     } else if (subcommand == "extract") {
         return cli::runExtract(subcommandArgs);
+    } else if (subcommand == "install-cli") {
+        QString error;
+        if (!utils::CliInstaller::install(&error)) {
+            if (!error.isEmpty())
+                std::println(stderr, "Error: {}", error.toStdString());
+            return 1;
+        }
+        std::println("CLI wrapper installed to {}", utils::CliInstaller::wrapperPath().toStdString());
+        return 0;
+    } else if (subcommand == "uninstall-cli") {
+        QString error;
+        if (!utils::CliInstaller::uninstall(&error)) {
+            if (!error.isEmpty())
+                std::println(stderr, "Error: {}", error.toStdString());
+            return 1;
+        }
+        std::println("CLI wrapper removed.");
+        return 0;
     } else {
         std::println(stderr, "Error: unknown command '{}'", subcommand.toStdString());
         std::println(stderr, "Run 'kirawavtar-cli --help' for available commands.");

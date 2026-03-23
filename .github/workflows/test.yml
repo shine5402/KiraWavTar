@@ -70,7 +70,7 @@ jobs:
           platform_preset = "${{ matrix.platform-preset }}"
           data = {
               "version": 8,
-              "configurePresets": [{"name": preset, "inherits": platform_preset, "cacheVariables": {"CMAKE_PREFIX_PATH": qt_root}}],
+              "configurePresets": [{"name": preset, "inherits": platform_preset, "cacheVariables": {"CMAKE_PREFIX_PATH": qt_root, "KIRAWAVTAR_TEST_CLI_INSTALLER": "ON"}}],
               "buildPresets": [{"name": preset, "configurePreset": preset}],
               "testPresets": [{"name": preset, "configurePreset": preset}],
           }
