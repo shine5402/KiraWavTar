@@ -104,6 +104,11 @@ if(KIRAWAVTAR_INSTALL)
         install(TARGETS kirawavtar-cli
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         )
+        if(WIN32)
+            install(TARGETS kirawavtar-cli-launcher
+                RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+            )
+        endif()
     endif()
 
     # oneTBB is built as a shared library; deploy it alongside the executable.

@@ -29,6 +29,9 @@ private slots:
 private:
     QString cliBinary() const { return QString::fromUtf8(CLI_BINARY_PATH); }
     QString wrapperPath() const;
+#ifdef Q_OS_WIN
+    QString confPath() const;
+#endif
     int runCli(const QStringList &args, QString *stdoutOutput = nullptr, QString *stderrOutput = nullptr) const;
 
 #ifdef Q_OS_WIN
@@ -38,15 +41,20 @@ private:
 
 QString TestCliInstaller::wrapperPath() const
 {
-#ifdef Q_OS_MACOS
-    return "/usr/local/bin/kirawavtar-cli";
-#elif defined(Q_OS_WIN)
+#ifdef Q_OS_WIN
     return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
-           "/Programs/KiraWavTar/bin/kirawavtar-cli.cmd";
+           "/Programs/KiraWavTar/bin/kirawavtar-cli.exe";
 #else
     return QDir::homePath() + "/.local/bin/kirawavtar-cli";
 #endif
 }
+
+#ifdef Q_OS_WIN
+QString TestCliInstaller::confPath() const
+{
+    return QFileInfo(wrapperPath()).absolutePath() + "/kirawavtar-cli.conf";
+}
+#endif
 
 int TestCliInstaller::runCli(const QStringList &args, QString *stdoutOutput, QString *stderrOutput) const
 {
@@ -86,6 +94,9 @@ void TestCliInstaller::initTestCase()
 
     // Ensure clean state — remove any leftover wrapper from a previous failed run
     QFile::remove(wrapperPath());
+#ifdef Q_OS_WIN
+    QFile::remove(confPath());
+#endif
 }
 
 void TestCliInstaller::cleanupTestCase()
@@ -103,21 +114,28 @@ void TestCliInstaller::install_createsWrapper()
     QVERIFY2(QFileInfo::exists(wrapperPath()),
              qPrintable("Wrapper should exist at: " + wrapperPath()));
 
-    // Verify wrapper content references the CLI binary's directory
+    auto binDir = QFileInfo(cliBinary()).absolutePath();
+#ifdef Q_OS_WIN
+    // On Windows, verify the sidecar config file contains the binary directory
+    QVERIFY2(QFileInfo::exists(confPath()),
+             qPrintable("Config file should exist at: " + confPath()));
+    QFile conf(confPath());
+    QVERIFY(conf.open(QIODevice::ReadOnly));
+    auto confContent = QString::fromUtf8(conf.readAll()).trimmed();
+    binDir = QDir::toNativeSeparators(binDir);
+    QVERIFY2(confContent == binDir,
+             qPrintable("Config should contain binary directory.\nExpected: " + binDir +
+                        "\nActual: " + confContent));
+#else
+    // On macOS/Linux, verify wrapper script references the CLI binary
     QFile wrapper(wrapperPath());
     QVERIFY(wrapper.open(QIODevice::ReadOnly));
     auto content = wrapper.readAll();
-    auto binDir = QFileInfo(cliBinary()).absolutePath();
-#ifdef Q_OS_WIN
-    binDir = QDir::toNativeSeparators(binDir);
-    QVERIFY2(content.contains("kirawavtar-cli.exe"),
-             "Windows wrapper should reference kirawavtar-cli.exe");
-#else
     QVERIFY2(content.contains("kirawavtar-cli"),
              "Wrapper should reference kirawavtar-cli");
-#endif
     QVERIFY2(content.contains(binDir.toUtf8()),
              qPrintable("Wrapper should reference the binary directory: " + binDir));
+#endif
 }
 
 void TestCliInstaller::install_idempotent()
@@ -140,6 +158,10 @@ void TestCliInstaller::uninstall_removesWrapper()
     QCOMPARE(rc, 0);
     QVERIFY2(!QFileInfo::exists(wrapperPath()),
              qPrintable("Wrapper should be removed from: " + wrapperPath()));
+#ifdef Q_OS_WIN
+    QVERIFY2(!QFileInfo::exists(confPath()),
+             qPrintable("Config file should be removed from: " + confPath()));
+#endif
 }
 
 void TestCliInstaller::uninstall_whenNotInstalled()

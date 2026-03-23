@@ -17,3 +17,5 @@ set_target_properties(kirawavtar-cli PROPERTIES
     MACOSX_BUNDLE OFF
     INSTALL_RPATH "@executable_path/../Frameworks"
 )
+
+add_subdirectory(launcher)

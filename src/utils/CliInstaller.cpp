@@ -4,10 +4,11 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#ifdef Q_OS_WIN
 #include <QProcess>
 #include <QRegularExpression>
 #include <QStandardPaths>
-#include <QTemporaryFile>
+#endif
 
 namespace utils {
 
@@ -28,11 +29,9 @@ QString CliInstaller::cliBinaryPath()
 
 QString CliInstaller::wrapperPath()
 {
-#ifdef Q_OS_MACOS
-    return "/usr/local/bin/kirawavtar-cli";
-#elif defined(Q_OS_WIN)
+#ifdef Q_OS_WIN
     return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
-           "/Programs/KiraWavTar/bin/kirawavtar-cli.cmd";
+           "/Programs/KiraWavTar/bin/kirawavtar-cli.exe";
 #else
     return QDir::homePath() + "/.local/bin/kirawavtar-cli";
 #endif
@@ -43,105 +42,7 @@ bool CliInstaller::isInstalled()
     return QFileInfo::exists(wrapperPath());
 }
 
-#ifdef Q_OS_MACOS
-
-// Run a shell command with admin privileges via osascript.
-// Returns true on success, false on failure or user cancellation.
-static bool runWithAdminPrivileges(const QString &shellCmd, QString *errorMessage, const QString &errorContext)
-{
-    // Escape for AppleScript double-quoted string
-    QString escaped = shellCmd;
-    escaped.replace("\\", "\\\\");
-    escaped.replace("\"", "\\\"");
-
-    QProcess proc;
-    proc.start("osascript",
-               {"-e", QString("do shell script \"%1\" with administrator privileges").arg(escaped)});
-    proc.waitForFinished(-1);
-
-    if (proc.exitStatus() != QProcess::NormalExit || proc.exitCode() != 0) {
-        auto stderrOutput = proc.readAllStandardError();
-        // AppleScript "User canceled" is error -128; osascript writes it to stderr as "(-128)"
-        if (!stderrOutput.contains("(-128)")) {
-            setError(errorMessage,
-                     QObject::tr("Failed to %1:\n%2").arg(errorContext, QString::fromUtf8(stderrOutput)));
-        }
-        return false;
-    }
-    return true;
-}
-
-bool CliInstaller::install(QString *errorMessage)
-{
-    auto binPath = cliBinaryPath();
-    if (!QFileInfo::exists(binPath)) {
-        setError(errorMessage,
-                 QObject::tr("CLI binary not found at %1.\n"
-                             "Make sure kirawavtar-cli is installed inside the app bundle.")
-                     .arg(binPath));
-        return false;
-    }
-
-    auto appDir = QCoreApplication::applicationDirPath();
-    auto frameworksDir = QFileInfo(appDir).dir().filePath("Frameworks");
-
-    QString script = QString("#!/bin/bash\n"
-                             "APP_DIR=\"%1\"\n"
-                             "DYLD_FRAMEWORK_PATH=\"%2\" \\\n"
-                             "DYLD_LIBRARY_PATH=\"%2\" \\\n"
-                             "exec \"$APP_DIR/kirawavtar-cli\" \"$@\"\n")
-                         .arg(appDir, frameworksDir);
-
-    auto wrapper = wrapperPath();
-    auto wrapperDir = QFileInfo(wrapper).absolutePath();
-
-    // Try writing directly first (may work if user owns /usr/local/bin)
-    QDir().mkpath(wrapperDir);
-    QFile wrapperFile(wrapper);
-    if (wrapperFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        wrapperFile.write(script.toUtf8());
-        wrapperFile.close();
-        wrapperFile.setPermissions(wrapperFile.permissions() | QFileDevice::ExeOwner | QFileDevice::ExeGroup |
-                                   QFileDevice::ExeOther);
-        return true;
-    }
-
-    // Need admin privileges — write to a temp file first, then copy with elevated privileges.
-    // This avoids embedding script content in a shell string (injection risk).
-    QTemporaryFile tmpFile;
-    tmpFile.setAutoRemove(false);
-    if (!tmpFile.open()) {
-        setError(errorMessage, QObject::tr("Failed to create temporary file for CLI wrapper."));
-        return false;
-    }
-    tmpFile.write(script.toUtf8());
-    tmpFile.close();
-
-    auto tmpPath = tmpFile.fileName();
-    QString shellCmd = QString("mkdir -p '%1' && cp '%2' '%3' && chmod +x '%3' && rm -f '%2'")
-                           .arg(wrapperDir, tmpPath, wrapper);
-
-    if (!runWithAdminPrivileges(shellCmd, errorMessage, QObject::tr("install CLI wrapper"))) {
-        QFile::remove(tmpPath);
-        return false;
-    }
-
-    return true;
-}
-
-bool CliInstaller::uninstall(QString *errorMessage)
-{
-    auto wrapper = wrapperPath();
-
-    if (QFile::remove(wrapper))
-        return true;
-
-    // Need admin privileges — wrapperPath() is hardcoded, no injection risk
-    QString shellCmd = QString("rm -f '%1'").arg(wrapper);
-    return runWithAdminPrivileges(shellCmd, errorMessage, QObject::tr("uninstall CLI wrapper"));
-}
-
-#elif defined(Q_OS_WIN)
+#if defined(Q_OS_WIN)
 
 // Parse the user PATH value from `reg query HKCU\Environment /v Path` output.
 // Returns the PATH string, or a null QString if parsing fails.
@@ -165,11 +66,27 @@ static QString readUserPathFromRegistry()
     return {};
 }
 
+static QString launcherSourcePath()
+{
+    return QCoreApplication::applicationDirPath() + "/kirawavtar-cli-launcher.exe";
+}
+
+static QString wrapperConfPath()
+{
+    return QFileInfo(CliInstaller::wrapperPath()).absolutePath() + "/kirawavtar-cli.conf";
+}
+
 bool CliInstaller::install(QString *errorMessage)
 {
     auto binPath = cliBinaryPath();
     if (!QFileInfo::exists(binPath)) {
         setError(errorMessage, QObject::tr("CLI binary not found at %1.").arg(binPath));
+        return false;
+    }
+
+    auto launcherSrc = launcherSourcePath();
+    if (!QFileInfo::exists(launcherSrc)) {
+        setError(errorMessage, QObject::tr("CLI launcher not found at %1.").arg(launcherSrc));
         return false;
     }
 
@@ -179,20 +96,23 @@ bool CliInstaller::install(QString *errorMessage)
 
     QDir().mkpath(wrapperDir);
 
-    // Write .cmd wrapper
-    QString script = QString("@echo off\r\n"
-                             "set \"KIRAWAVTAR_DIR=%1\"\r\n"
-                             "set \"PATH=%%KIRAWAVTAR_DIR%%;%%PATH%%\"\r\n"
-                             "\"%%KIRAWAVTAR_DIR%%\\kirawavtar-cli.exe\" %%*\r\n")
-                         .arg(QDir::toNativeSeparators(appDir));
-
-    QFile wrapperFile(wrapper);
-    if (!wrapperFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        setError(errorMessage, QObject::tr("Failed to write CLI wrapper to %1.").arg(wrapper));
+    // Copy launcher exe to wrapper directory
+    QFile::remove(wrapper); // remove old copy if exists
+    if (!QFile::copy(launcherSrc, wrapper)) {
+        setError(errorMessage, QObject::tr("Failed to copy CLI launcher to %1.").arg(wrapper));
         return false;
     }
-    wrapperFile.write(script.toLocal8Bit());
-    wrapperFile.close();
+
+    // Write sidecar config with path to real binary directory
+    auto confPath = wrapperConfPath();
+    QFile confFile(confPath);
+    if (!confFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        setError(errorMessage, QObject::tr("Failed to write config file %1.").arg(confPath));
+        QFile::remove(wrapper);
+        return false;
+    }
+    confFile.write(QDir::toNativeSeparators(appDir).toUtf8());
+    confFile.close();
 
     // Add to user PATH via registry
     auto nativeWrapperDir = QDir::toNativeSeparators(wrapperDir);
@@ -241,6 +161,10 @@ bool CliInstaller::uninstall(QString *errorMessage)
     auto nativeWrapperDir = QDir::toNativeSeparators(wrapperDir);
 
     QFile::remove(wrapper);
+    QFile::remove(wrapperConfPath());
+
+    // Remove legacy .cmd wrapper from older installations
+    QFile::remove(QFileInfo(wrapper).absolutePath() + "/kirawavtar-cli.cmd");
 
     // Remove from user PATH
     auto pathValue = readUserPathFromRegistry();
@@ -268,45 +192,61 @@ bool CliInstaller::uninstall(QString *errorMessage)
     return true;
 }
 
-#else // Linux
+#else // macOS and Linux
+
+static bool writeShellWrapper(const QString &wrapper, const QString &script, QString *errorMessage)
+{
+    QFile wrapperFile(wrapper);
+    if (!wrapperFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        setError(errorMessage, QObject::tr("Failed to write CLI wrapper to %1.").arg(wrapper));
+        return false;
+    }
+    wrapperFile.write(script.toUtf8());
+    wrapperFile.close();
+    wrapperFile.setPermissions(wrapperFile.permissions() | QFileDevice::ExeOwner | QFileDevice::ExeGroup |
+                               QFileDevice::ExeOther);
+    return true;
+}
 
 bool CliInstaller::install(QString *errorMessage)
 {
+    auto binPath = cliBinaryPath();
+    if (!QFileInfo::exists(binPath)) {
+        setError(errorMessage, QObject::tr("CLI binary not found at %1.").arg(binPath));
+        return false;
+    }
+
     auto wrapper = wrapperPath();
     auto wrapperDir = QFileInfo(wrapper).absolutePath();
     QDir().mkpath(wrapperDir);
+    QFile::remove(wrapper);
 
+#ifdef Q_OS_MACOS
+    auto appDir = QCoreApplication::applicationDirPath();
+    auto frameworksDir = QFileInfo(appDir).dir().filePath("Frameworks");
+
+    QString script = QString("#!/bin/bash\n"
+                             "APP_DIR=\"%1\"\n"
+                             "DYLD_FRAMEWORK_PATH=\"%2\" \\\n"
+                             "DYLD_LIBRARY_PATH=\"%2\" \\\n"
+                             "exec \"$APP_DIR/kirawavtar-cli\" \"$@\"\n")
+                         .arg(appDir, frameworksDir);
+    return writeShellWrapper(wrapper, script, errorMessage);
+#else // Linux
     bool isFlatpak = QFileInfo::exists("/.flatpak-info") || !qEnvironmentVariable("FLATPAK_ID").isEmpty();
 
     if (isFlatpak) {
         QString script = "#!/bin/bash\n"
                          "exec flatpak run --command=kirawavtar-cli top.shine5402.KiraWavTar \"$@\"\n";
-
-        QFile wrapperFile(wrapper);
-        if (!wrapperFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            setError(errorMessage, QObject::tr("Failed to write CLI wrapper to %1.").arg(wrapper));
-            return false;
-        }
-        wrapperFile.write(script.toUtf8());
-        wrapperFile.close();
-        wrapperFile.setPermissions(wrapperFile.permissions() | QFileDevice::ExeOwner | QFileDevice::ExeGroup |
-                                   QFileDevice::ExeOther);
-    } else {
-        auto binPath = cliBinaryPath();
-        if (!QFileInfo::exists(binPath)) {
-            setError(errorMessage, QObject::tr("CLI binary not found at %1.").arg(binPath));
-            return false;
-        }
-
-        QFile::remove(wrapper);
-
-        if (!QFile::link(binPath, wrapper)) {
-            setError(errorMessage, QObject::tr("Failed to create symlink at %1.").arg(wrapper));
-            return false;
-        }
+        return writeShellWrapper(wrapper, script, errorMessage);
     }
 
+    if (!QFile::link(binPath, wrapper)) {
+        setError(errorMessage, QObject::tr("Failed to create symlink at %1.").arg(wrapper));
+        return false;
+    }
     return true;
+#endif
 }
 
 bool CliInstaller::uninstall(QString *errorMessage)
