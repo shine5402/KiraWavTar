@@ -31,8 +31,8 @@ jobs:
           fi
 
           # Get the commit SHA of the latest nightly tag
-          latest_tag=$(gh release list --limit 20 | \
-            grep '^nightly-' | head -1 | awk '{print $1}')
+          latest_tag=$(gh release list --limit 20 --json tagName \
+            --jq '[.[] | select(.tagName | startswith("nightly-"))][0].tagName // ""')
           last_nightly_sha=""
           if [ -n "$latest_tag" ]; then
             last_nightly_sha=$(gh api repos/${{ github.repository }}/git/ref/tags/"$latest_tag" \
@@ -100,10 +100,8 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           # List all nightly releases sorted by date (newest first), skip first 3, delete the rest
-          gh release list --limit 100 | \
-            grep '^nightly-' | \
-            awk '{print $1}' | \
-            tail -n +4 | \
+          gh release list --limit 100 --json tagName \
+            --jq '[.[] | select(.tagName | startswith("nightly-"))][3:][].tagName' | \
             while read -r tag; do
               echo "Deleting old nightly: $tag"
               gh release delete "$tag" --yes --cleanup-tag
