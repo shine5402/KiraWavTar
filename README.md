@@ -4,18 +4,6 @@ Fast, easy-to-use utility for combining and splitting audio files (WAV and FLAC)
 
 ## Usage
 
-### When to use
-
-Applying consistent effects or fixes to a batch of recordings is a common requirement in audio post-production. For example, if you have multiple tracks sharing the same issues—such as background noise or mouth clicks—they can often be resolved by passing them through a single FX chain. Manually applying the same processing to individual files is time-consuming and tedious.
-
-With KiraWAVTar, you can combine these scattered audio files into a single master file. This allows you to perform your edits in one place, ensuring uniformity across all segments before splitting them back into their original files.
-
-It is also useful if you only need the combined file itself—for instance, when preparing datasets for training RVC, SVS, or other machine learning voice models.
-
-#### But why not use standard batch processing?
-
-Professional software like Adobe Audition or iZotope RX provides built-in batch processing that can achieve similar results. However, these tools usually apply a whole FX chain to all files in one go—a "set-and-forget" approach that lacks interactivity. This makes it difficult to adjust parameters for specific segments or catch issues until the entire process is finished. By working with a single combined file in your familiar DAW, you gain immediate visibility and the ability to fine-tune your processing for every part of the audio dataset.
-
 ### How to use
 
 #### Basic workflow
@@ -32,6 +20,22 @@ KiraWAVTar also suggests a default output path whenever you provide a source pat
 - **Extracting:** the suggested output folder is placed next to the input file, with `_result` appended to its name (e.g., `CombinedAudio.wav` → `CombinedAudio_result/`). The suffix is added to avoid confusion with the original file and to prevent accidental overwriting.
 
 These suggestions can be changed at any time before proceeding.
+
+### When to use
+
+Applying consistent effects or fixes to a batch of recordings is a common requirement in audio post-production. For example, if you have multiple tracks sharing the same issues—such as background noise or mouth clicks—they can often be resolved by passing them through a single FX chain. Manually applying the same processing to individual files is time-consuming and tedious.
+
+With KiraWAVTar, you can combine these scattered audio files into a single master file. This allows you to perform your edits in one place, ensuring uniformity across all segments before splitting them back into their original files.
+
+It is also useful if you only need the combined file itself—for instance, when preparing datasets for training RVC, SVS, or other machine learning voice models.
+
+#### But why not use standard batch processing?
+
+Professional software like Adobe Audition or iZotope RX provides built-in batch processing that can achieve similar results. However, these tools usually apply a whole FX chain to all files in one go—a "set-and-forget" approach that lacks interactivity. This makes it difficult to adjust parameters for specific segments or catch issues until the entire process is finished. By working with a single combined file in your familiar DAW, you gain immediate visibility and the ability to fine-tune your processing for every part of the audio dataset.
+
+### Command-line interface
+
+KiraWAVTar also ships a CLI tool — `kirawavtar-cli` — for scripting and automation. It exposes the same combine and extract functionality as the GUI and can be installed to PATH via its built-in `install-cli` subcommand. See the [CLI documentation](docs/CLI.md) for details.
 
 ### Why KiraWAVTar?
 
