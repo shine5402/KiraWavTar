@@ -73,8 +73,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->setupUi(this);
 
     setFixedSize(sizeHint());
-    setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint |
-                   Qt::WindowCloseButtonHint);
 
     m_updateChecker = new UpdateChecker::GithubReleaseChecker("shine5402", "KiraWAVTar");
     UpdateChecker::triggerScheduledCheck(m_updateChecker);
