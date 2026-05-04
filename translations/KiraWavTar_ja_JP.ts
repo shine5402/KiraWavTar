@@ -60,6 +60,52 @@
     </message>
 </context>
 <context>
+    <name>CliInstaller</name>
+    <message>
+        <location filename="../src/utils/CliInstaller.cpp" line="83"/>
+        <location filename="../src/utils/CliInstaller.cpp" line="215"/>
+        <source>CLI binary not found at %1.</source>
+        <translation>%1 にCLIバイナリが見つかりません。</translation>
+    </message>
+    <message>
+        <location filename="../src/utils/CliInstaller.cpp" line="89"/>
+        <source>CLI launcher not found at %1.</source>
+        <translation>%1 にCLIランチャーが見つかりません。</translation>
+    </message>
+    <message>
+        <location filename="../src/utils/CliInstaller.cpp" line="102"/>
+        <source>Failed to copy CLI launcher to %1.</source>
+        <translation>CLIランチャーを %1 にコピーできませんでした。</translation>
+    </message>
+    <message>
+        <location filename="../src/utils/CliInstaller.cpp" line="110"/>
+        <source>Failed to write config file %1.</source>
+        <translation>設定ファイル %1 を書き込めませんでした。</translation>
+    </message>
+    <message>
+        <location filename="../src/utils/CliInstaller.cpp" line="141"/>
+        <source>CLI wrapper was created but failed to add to PATH.
+You may need to add %1 to your PATH manually.</source>
+        <translation>CLIラッパーは作成されましたが、PATHへの追加に失敗しました。
+手動で %1 をPATHに追加する必要があるかもしれません。</translation>
+    </message>
+    <message>
+        <location filename="../src/utils/CliInstaller.cpp" line="201"/>
+        <source>Failed to write CLI wrapper to %1.</source>
+        <translation>CLIラッパーを %1 に書き込めませんでした。</translation>
+    </message>
+    <message>
+        <location filename="../src/utils/CliInstaller.cpp" line="245"/>
+        <source>Failed to create symlink at %1.</source>
+        <translation>%1 にシンボリックリンクを作成できませんでした。</translation>
+    </message>
+    <message>
+        <location filename="../src/utils/CliInstaller.cpp" line="256"/>
+        <source>Failed to remove %1.</source>
+        <translation>%1 を削除できませんでした。</translation>
+    </message>
+</context>
+<context>
     <name>DirNameEditWithBrowse</name>
     <message>
         <location filename="../src/ui/widgets/DirNameEditWithBrowse.cpp" line="20"/>
@@ -173,7 +219,7 @@ Higher values may improve speed but use more memory.</source>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="20"/>
         <source>KiraWavTar</source>
-        <translation></translation>
+        <translation>KiraWavTar</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="29"/>
@@ -209,7 +255,7 @@ Higher values may improve speed but use more memory.</source>
         <translation type="vanished">最高</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="288"/>
+        <location filename="../src/ui/MainWindow.cpp" line="307"/>
         <source>&lt;p&gt;Version %1, &lt;i&gt;build on %2 %3&lt;/i&gt;&lt;/p&gt;</source>
         <translation>&lt;p&gt;バージョン %1, &lt;i&gt;ビルド日時 %2 %3&lt;/i&gt;&lt;/p&gt;</translation>
     </message>
@@ -611,23 +657,35 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
         <translation>DCオフセットを除去</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="37"/>
-        <location filename="../src/ui/MainWindow.cpp" line="293"/>
+        <location filename="../src/ui/MainWindow.cpp" line="40"/>
+        <location filename="../src/ui/MainWindow.cpp" line="312"/>
         <source>About</source>
         <translation>このソフトについて</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="39"/>
+        <location filename="../src/ui/MainWindow.cpp" line="42"/>
         <source>Project homepage</source>
         <translation>プロジェクトのホームページ</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="44"/>
+        <location filename="../src/ui/MainWindow.cpp" line="47"/>
         <source>Check update now</source>
         <translation>更新を確認</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="294"/>
+        <location filename="../src/ui/MainWindow.cpp" line="52"/>
+        <location filename="../src/ui/MainWindow.cpp" line="60"/>
+        <source>Uninstall CLI Tool</source>
+        <translation>CLIツールをアンインストール</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow.cpp" line="52"/>
+        <location filename="../src/ui/MainWindow.cpp" line="60"/>
+        <source>Install CLI Tool</source>
+        <translation>CLIツールをインストール</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow.cpp" line="313"/>
         <source>&lt;p style=&quot;text-align: left;&quot;&gt;&lt;img src=&quot;:/icon/appIcon&quot; width=&quot;64&quot;/&gt;&lt;/p&gt;
 &lt;h2&gt;KiraWAVTar&lt;/h2&gt;
 &lt;p&gt;Copyright 2021-present shine_5402&lt;/p&gt;
@@ -696,7 +754,7 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
         <translation type="vanished">SRC品質: %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="169"/>
+        <location filename="../src/ui/MainWindow.cpp" line="188"/>
         <source>No WAV files found in the specified folder.</source>
         <translation>指定されたフォルダにWAVファイルが見つかりません。</translation>
     </message>
@@ -720,8 +778,8 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
         <translation>実行</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="157"/>
-        <location filename="../src/ui/MainWindow.cpp" line="241"/>
+        <location filename="../src/ui/MainWindow.cpp" line="176"/>
+        <location filename="../src/ui/MainWindow.cpp" line="260"/>
         <source>Needed paths are empty. Please check your input and try again.</source>
         <translation>必要なパスが指定されていません。入力を確認して再試行してください。</translation>
     </message>
@@ -817,6 +875,43 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
     </message>
 </context>
 <context>
+    <name>QObject</name>
+    <message>
+        <source>CLI binary not found at %1.</source>
+        <translation type="obsolete">%1 にCLIバイナリが見つかりません。</translation>
+    </message>
+    <message>
+        <source>CLI launcher not found at %1.</source>
+        <translation type="obsolete">%1 にCLIランチャーが見つかりません。</translation>
+    </message>
+    <message>
+        <source>Failed to copy CLI launcher to %1.</source>
+        <translation type="obsolete">CLIランチャーを %1 にコピーできませんでした。</translation>
+    </message>
+    <message>
+        <source>Failed to write config file %1.</source>
+        <translation type="obsolete">設定ファイル %1 を書き込めませんでした。</translation>
+    </message>
+    <message>
+        <source>CLI wrapper was created but failed to add to PATH.
+You may need to add %1 to your PATH manually.</source>
+        <translation type="obsolete">CLIラッパーは作成されましたが、PATHへの追加に失敗しました。
+手動で %1 をPATHに追加する必要があるかもしれません。</translation>
+    </message>
+    <message>
+        <source>Failed to write CLI wrapper to %1.</source>
+        <translation type="obsolete">CLIラッパーを %1 に書き込めませんでした。</translation>
+    </message>
+    <message>
+        <source>Failed to create symlink at %1.</source>
+        <translation type="obsolete">%1 にシンボリックリンクを作成できませんでした。</translation>
+    </message>
+    <message>
+        <source>Failed to remove %1.</source>
+        <translation type="obsolete">%1 を削除できませんでした。</translation>
+    </message>
+</context>
+<context>
     <name>UpdateChecker</name>
     <message>
         <location filename="../src/utils/UpdateChecker.cpp" line="42"/>
@@ -854,7 +949,7 @@ Open download page?</source>
 <context>
     <name>Utils</name>
     <message>
-        <location filename="../src/utils/Utils.h" line="55"/>
+        <location filename="../src/utils/Utils.h" line="71"/>
         <source>Unknown error occurred.</source>
         <translation>エラーが発生しました。</translation>
     </message>
@@ -919,7 +1014,22 @@ Open download page?</source>
         <translation>項目「%1」の長さが最大分巻長（%2 秒）を超えています。</translation>
     </message>
     <message>
-        <location filename="../src/worker/AudioCombine.cpp" line="531"/>
+        <location filename="../src/worker/AudioCombine.cpp" line="420"/>
+        <source>Error reading &quot;%1&quot;: %2</source>
+        <translation>「%1」の読み込み中にエラーが発生しました：%2</translation>
+    </message>
+    <message>
+        <location filename="../src/worker/AudioCombine.cpp" line="425"/>
+        <source>Unknown error reading &quot;%1&quot;</source>
+        <translation>「%1」の読み込み中に不明なエラーが発生しました</translation>
+    </message>
+    <message>
+        <location filename="../src/worker/AudioCombine.cpp" line="483"/>
+        <source>Error writing entry &quot;%1&quot;: %2</source>
+        <translation>エントリ「%1」の書き込み中にエラーが発生しました：%2</translation>
+    </message>
+    <message>
+        <location filename="../src/worker/AudioCombine.cpp" line="553"/>
         <source>Failed to write description file: %1</source>
         <translation>記述ファイルの書き込みに失敗しました：%1</translation>
     </message>
@@ -1058,38 +1168,53 @@ Open download page?</source>
         <translation type="vanished">ファイル「%1」が書き込んだバイト数（%2）は予測の（%3）と不一致しています（全てのファイル名が書き込んでいません）。</translation>
     </message>
     <message>
-        <location filename="../src/worker/AudioExtract.cpp" line="33"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="34"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Can not find description file &quot;%1&quot;. If you have renamed the WAV file, please also rename the desc file.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;記述ファイル「%1」が見つかりません。WAVファイルの名前を変更した場合は、記述ファイルも同じ名前に変更してください。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/AudioExtract.cpp" line="42"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="43"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Can not open description file &quot;%1&quot;. Check your permission.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;記述ファイル「%1」を開けません。権限を確認してください。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/AudioExtract.cpp" line="52"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="53"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Failed to parse description file &quot;%1&quot;: %2&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;記述ファイル「%1」の解析に失敗しました: %2&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/AudioExtract.cpp" line="64"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="65"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Description file &quot;%1&quot; is missing version field.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;記述ファイル「%1」にバージョン情報が含まれていません。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/AudioExtract.cpp" line="73"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="74"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Description file &quot;%1&quot; has unsupported version %2. Expected version %3 to %4.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;記述ファイル「%1」のバージョン %2 はサポートされていません。サポートされているバージョンは %3 から %4 までです。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/AudioExtract.cpp" line="346"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="103"/>
+        <source>&lt;p class=&apos;critical&apos;&gt;Description file is internally inconsistent: entries extend beyond total_duration. The file may be corrupted.&lt;/p&gt;</source>
+        <translation>&lt;p class=&apos;critical&apos;&gt;説明ファイルに内部的な不整合があります：項目がtotal_durationを超えています。ファイルが破損している可能性があります。&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <location filename="../src/worker/AudioExtract.cpp" line="143"/>
+        <source>&lt;p class=&apos;critical&apos;&gt;The combined audio file is shorter than what the description file records. The files may be corrupted or mismatched.&lt;/p&gt;</source>
+        <translation>&lt;p class=&apos;critical&apos;&gt;結合された音声ファイルが説明ファイルの記録より短くなっています。ファイルが破損しているか、一致していない可能性があります。&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <location filename="../src/worker/AudioExtract.cpp" line="160"/>
+        <source>&lt;p class=&apos;warning&apos;&gt;The audio file appears shorter than expected. You may have exported the wrong range from your DAW. If you proceed, the following entries will be skipped because their start time is beyond the file end:&lt;/p&gt;&lt;ul&gt;</source>
+        <translation>&lt;p class=&apos;warning&apos;&gt;音声ファイルが想定より短いようです。DAWから誤った範囲を書き出した可能性があります。続行すると、開始位置がファイルの終端を超えているため以下の項目はスキップされます：&lt;/p&gt;&lt;ul&gt;</translation>
+    </message>
+    <message>
+        <location filename="../src/worker/AudioExtract.cpp" line="442"/>
         <source>Failed to seek in source file</source>
         <translation>ソースファイルの読み取り位置を移動できませんでした</translation>
     </message>
     <message>
-        <location filename="../src/worker/AudioExtract.cpp" line="360"/>
-        <location filename="../src/worker/AudioExtract.cpp" line="400"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="456"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="496"/>
         <source>Unknown Error</source>
         <translation>原因不明のエラー</translation>
     </message>
@@ -1098,7 +1223,7 @@ Open download page?</source>
         <translation type="vanished">&lt;p class=&apos;critical&apos;&gt;記述ファイル「%1」のバージョン %2 はサポートされていません。期待されるバージョンは 3, 4, または 5 です。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/AudioExtract.cpp" line="92"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="120"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Missing volume file: &quot;%1&quot;&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;分巻ファイルがありません: 「%1」&lt;/p&gt;</translation>
     </message>

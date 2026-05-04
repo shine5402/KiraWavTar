@@ -80,13 +80,13 @@ bool CliInstaller::install(QString *errorMessage)
 {
     auto binPath = cliBinaryPath();
     if (!QFileInfo::exists(binPath)) {
-        setError(errorMessage, QObject::tr("CLI binary not found at %1.").arg(binPath));
+        setError(errorMessage, QCoreApplication::translate("CliInstaller","CLI binary not found at %1.").arg(binPath));
         return false;
     }
 
     auto launcherSrc = launcherSourcePath();
     if (!QFileInfo::exists(launcherSrc)) {
-        setError(errorMessage, QObject::tr("CLI launcher not found at %1.").arg(launcherSrc));
+        setError(errorMessage, QCoreApplication::translate("CliInstaller","CLI launcher not found at %1.").arg(launcherSrc));
         return false;
     }
 
@@ -99,7 +99,7 @@ bool CliInstaller::install(QString *errorMessage)
     // Copy launcher exe to wrapper directory
     QFile::remove(wrapper); // remove old copy if exists
     if (!QFile::copy(launcherSrc, wrapper)) {
-        setError(errorMessage, QObject::tr("Failed to copy CLI launcher to %1.").arg(wrapper));
+        setError(errorMessage, QCoreApplication::translate("CliInstaller","Failed to copy CLI launcher to %1.").arg(wrapper));
         return false;
     }
 
@@ -107,7 +107,7 @@ bool CliInstaller::install(QString *errorMessage)
     auto confPath = wrapperConfPath();
     QFile confFile(confPath);
     if (!confFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        setError(errorMessage, QObject::tr("Failed to write config file %1.").arg(confPath));
+        setError(errorMessage, QCoreApplication::translate("CliInstaller","Failed to write config file %1.").arg(confPath));
         QFile::remove(wrapper);
         return false;
     }
@@ -138,7 +138,7 @@ bool CliInstaller::install(QString *errorMessage)
 
     if (regProc.exitCode() != 0) {
         setError(errorMessage,
-                 QObject::tr("CLI wrapper was created but failed to add to PATH.\n"
+                 QCoreApplication::translate("CliInstaller","CLI wrapper was created but failed to add to PATH.\n"
                              "You may need to add %1 to your PATH manually.")
                      .arg(nativeWrapperDir));
         return true; // wrapper was still created
@@ -198,7 +198,7 @@ static bool writeShellWrapper(const QString &wrapper, const QString &script, QSt
 {
     QFile wrapperFile(wrapper);
     if (!wrapperFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        setError(errorMessage, QObject::tr("Failed to write CLI wrapper to %1.").arg(wrapper));
+        setError(errorMessage, QCoreApplication::translate("CliInstaller","Failed to write CLI wrapper to %1.").arg(wrapper));
         return false;
     }
     wrapperFile.write(script.toUtf8());
@@ -212,7 +212,7 @@ bool CliInstaller::install(QString *errorMessage)
 {
     auto binPath = cliBinaryPath();
     if (!QFileInfo::exists(binPath)) {
-        setError(errorMessage, QObject::tr("CLI binary not found at %1.").arg(binPath));
+        setError(errorMessage, QCoreApplication::translate("CliInstaller","CLI binary not found at %1.").arg(binPath));
         return false;
     }
 
@@ -242,7 +242,7 @@ bool CliInstaller::install(QString *errorMessage)
     }
 
     if (!QFile::link(binPath, wrapper)) {
-        setError(errorMessage, QObject::tr("Failed to create symlink at %1.").arg(wrapper));
+        setError(errorMessage, QCoreApplication::translate("CliInstaller","Failed to create symlink at %1.").arg(wrapper));
         return false;
     }
     return true;
@@ -253,7 +253,7 @@ bool CliInstaller::uninstall(QString *errorMessage)
 {
     auto wrapper = wrapperPath();
     if (!QFile::remove(wrapper)) {
-        setError(errorMessage, QObject::tr("Failed to remove %1.").arg(wrapper));
+        setError(errorMessage, QCoreApplication::translate("CliInstaller","Failed to remove %1.").arg(wrapper));
         return false;
     }
     return true;

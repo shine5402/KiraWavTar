@@ -60,6 +60,52 @@
     </message>
 </context>
 <context>
+    <name>CliInstaller</name>
+    <message>
+        <location filename="../src/utils/CliInstaller.cpp" line="83"/>
+        <location filename="../src/utils/CliInstaller.cpp" line="215"/>
+        <source>CLI binary not found at %1.</source>
+        <translation>在 %1 找不到 CLI 二進位檔案。</translation>
+    </message>
+    <message>
+        <location filename="../src/utils/CliInstaller.cpp" line="89"/>
+        <source>CLI launcher not found at %1.</source>
+        <translation>在 %1 找不到 CLI 啟動器。</translation>
+    </message>
+    <message>
+        <location filename="../src/utils/CliInstaller.cpp" line="102"/>
+        <source>Failed to copy CLI launcher to %1.</source>
+        <translation>無法複製 CLI 啟動器到 %1。</translation>
+    </message>
+    <message>
+        <location filename="../src/utils/CliInstaller.cpp" line="110"/>
+        <source>Failed to write config file %1.</source>
+        <translation>無法寫入設定檔 %1。</translation>
+    </message>
+    <message>
+        <location filename="../src/utils/CliInstaller.cpp" line="141"/>
+        <source>CLI wrapper was created but failed to add to PATH.
+You may need to add %1 to your PATH manually.</source>
+        <translation>CLI 包裝器已建立但無法新增到 PATH。
+您可能需要手動將 %1 新增到 PATH。</translation>
+    </message>
+    <message>
+        <location filename="../src/utils/CliInstaller.cpp" line="201"/>
+        <source>Failed to write CLI wrapper to %1.</source>
+        <translation>無法寫入 CLI 包裝器到 %1。</translation>
+    </message>
+    <message>
+        <location filename="../src/utils/CliInstaller.cpp" line="245"/>
+        <source>Failed to create symlink at %1.</source>
+        <translation>無法在 %1 建立符號連結。</translation>
+    </message>
+    <message>
+        <location filename="../src/utils/CliInstaller.cpp" line="256"/>
+        <source>Failed to remove %1.</source>
+        <translation>無法刪除 %1。</translation>
+    </message>
+</context>
+<context>
     <name>DirNameEditWithBrowse</name>
     <message>
         <location filename="../src/ui/widgets/DirNameEditWithBrowse.cpp" line="20"/>
@@ -165,7 +211,7 @@ Higher values may improve speed but use more memory.</source>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="20"/>
         <source>KiraWavTar</source>
-        <translation></translation>
+        <translation>KiraWavTar</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.ui" line="29"/>
@@ -311,23 +357,35 @@ Higher values may improve speed but use more memory.</source>
         <translation>執行</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="37"/>
-        <location filename="../src/ui/MainWindow.cpp" line="293"/>
+        <location filename="../src/ui/MainWindow.cpp" line="40"/>
+        <location filename="../src/ui/MainWindow.cpp" line="312"/>
         <source>About</source>
         <translation>關於</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="39"/>
+        <location filename="../src/ui/MainWindow.cpp" line="42"/>
         <source>Project homepage</source>
         <translation>專案主頁</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="44"/>
+        <location filename="../src/ui/MainWindow.cpp" line="47"/>
         <source>Check update now</source>
         <translation>立即檢查更新</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="294"/>
+        <location filename="../src/ui/MainWindow.cpp" line="52"/>
+        <location filename="../src/ui/MainWindow.cpp" line="60"/>
+        <source>Uninstall CLI Tool</source>
+        <translation>解除安裝 CLI 工具</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow.cpp" line="52"/>
+        <location filename="../src/ui/MainWindow.cpp" line="60"/>
+        <source>Install CLI Tool</source>
+        <translation>安裝 CLI 工具</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow.cpp" line="313"/>
         <source>&lt;p style=&quot;text-align: left;&quot;&gt;&lt;img src=&quot;:/icon/appIcon&quot; width=&quot;64&quot;/&gt;&lt;/p&gt;
 &lt;h2&gt;KiraWAVTar&lt;/h2&gt;
 &lt;p&gt;Copyright 2021-present shine_5402&lt;/p&gt;
@@ -416,18 +474,18 @@ along with this program.  If not, see &lt;a href=&quot;https://www.gnu.org/licen
         <translation type="vanished">重新采樣質量：%1</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="157"/>
-        <location filename="../src/ui/MainWindow.cpp" line="241"/>
+        <location filename="../src/ui/MainWindow.cpp" line="176"/>
+        <location filename="../src/ui/MainWindow.cpp" line="260"/>
         <source>Needed paths are empty. Please check your input and try again.</source>
         <translation>沒有提供所有需要的路徑。請檢查輸入之後重試。</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="169"/>
+        <location filename="../src/ui/MainWindow.cpp" line="188"/>
         <source>No WAV files found in the specified folder.</source>
         <translation>在指定資料夾中未找到任何 WAV 檔案。</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="288"/>
+        <location filename="../src/ui/MainWindow.cpp" line="307"/>
         <source>&lt;p&gt;Version %1, &lt;i&gt;build on %2 %3&lt;/i&gt;&lt;/p&gt;</source>
         <translation>&lt;p&gt;版本 %1, &lt;i&gt;構建於 %2 %3&lt;/i&gt;&lt;/p&gt;</translation>
     </message>
@@ -550,6 +608,43 @@ Thanks for their contribution!&lt;/p&gt;
     </message>
 </context>
 <context>
+    <name>QObject</name>
+    <message>
+        <source>CLI binary not found at %1.</source>
+        <translation type="obsolete">在 %1 找不到 CLI 二進位檔案。</translation>
+    </message>
+    <message>
+        <source>CLI launcher not found at %1.</source>
+        <translation type="obsolete">在 %1 找不到 CLI 啟動器。</translation>
+    </message>
+    <message>
+        <source>Failed to copy CLI launcher to %1.</source>
+        <translation type="obsolete">無法複製 CLI 啟動器到 %1。</translation>
+    </message>
+    <message>
+        <source>Failed to write config file %1.</source>
+        <translation type="obsolete">無法寫入設定檔 %1。</translation>
+    </message>
+    <message>
+        <source>CLI wrapper was created but failed to add to PATH.
+You may need to add %1 to your PATH manually.</source>
+        <translation type="obsolete">CLI 包裝器已建立但無法新增到 PATH。
+您可能需要手動將 %1 新增到 PATH。</translation>
+    </message>
+    <message>
+        <source>Failed to write CLI wrapper to %1.</source>
+        <translation type="obsolete">無法寫入 CLI 包裝器到 %1。</translation>
+    </message>
+    <message>
+        <source>Failed to create symlink at %1.</source>
+        <translation type="obsolete">無法在 %1 建立符號連結。</translation>
+    </message>
+    <message>
+        <source>Failed to remove %1.</source>
+        <translation type="obsolete">無法刪除 %1。</translation>
+    </message>
+</context>
+<context>
     <name>UpdateChecker</name>
     <message>
         <location filename="../src/utils/UpdateChecker.cpp" line="42"/>
@@ -587,7 +682,7 @@ Open download page?</source>
 <context>
     <name>Utils</name>
     <message>
-        <location filename="../src/utils/Utils.h" line="55"/>
+        <location filename="../src/utils/Utils.h" line="71"/>
         <source>Unknown error occurred.</source>
         <translation>發生了未知錯誤。</translation>
     </message>
@@ -644,7 +739,22 @@ Open download page?</source>
         <translation>項目「%1」的長度超過了最大的分卷長度 (%2 秒)。</translation>
     </message>
     <message>
-        <location filename="../src/worker/AudioCombine.cpp" line="531"/>
+        <location filename="../src/worker/AudioCombine.cpp" line="420"/>
+        <source>Error reading &quot;%1&quot;: %2</source>
+        <translation>讀取「%1」時出錯：%2</translation>
+    </message>
+    <message>
+        <location filename="../src/worker/AudioCombine.cpp" line="425"/>
+        <source>Unknown error reading &quot;%1&quot;</source>
+        <translation>讀取「%1」時發生未知錯誤</translation>
+    </message>
+    <message>
+        <location filename="../src/worker/AudioCombine.cpp" line="483"/>
+        <source>Error writing entry &quot;%1&quot;: %2</source>
+        <translation>寫入項目「%1」時出錯：%2</translation>
+    </message>
+    <message>
+        <location filename="../src/worker/AudioCombine.cpp" line="553"/>
         <source>Failed to write description file: %1</source>
         <translation>無法寫入描述檔案：%1</translation>
     </message>
@@ -656,38 +766,53 @@ Open download page?</source>
 <context>
     <name>WAVExtract</name>
     <message>
-        <location filename="../src/worker/AudioExtract.cpp" line="33"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="34"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Can not find description file &quot;%1&quot;. If you have renamed the WAV file, please also rename the desc file.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;找不到描述檔案「%1」。如果您重命名了 WAV 檔案，請同時也重命名相應的描述檔案。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/AudioExtract.cpp" line="42"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="43"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Can not open description file &quot;%1&quot;. Check your permission.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;無法打開描述檔案「%1」。請檢查權限。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/AudioExtract.cpp" line="52"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="53"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Failed to parse description file &quot;%1&quot;: %2&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;解析描述檔案「%1」失敗：%2&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/AudioExtract.cpp" line="64"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="65"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Description file &quot;%1&quot; is missing version field.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;描述檔案「%1」缺失版本欄位。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/AudioExtract.cpp" line="73"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="74"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Description file &quot;%1&quot; has unsupported version %2. Expected version %3 to %4.&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;描述檔案「%1」的版本號 %2 不受支援。預期版本號為 %3 至 %4。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/AudioExtract.cpp" line="346"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="103"/>
+        <source>&lt;p class=&apos;critical&apos;&gt;Description file is internally inconsistent: entries extend beyond total_duration. The file may be corrupted.&lt;/p&gt;</source>
+        <translation>&lt;p class=&apos;critical&apos;&gt;描述檔案內部不一致：項目超出了 total_duration。該檔案可能已損壞。&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <location filename="../src/worker/AudioExtract.cpp" line="143"/>
+        <source>&lt;p class=&apos;critical&apos;&gt;The combined audio file is shorter than what the description file records. The files may be corrupted or mismatched.&lt;/p&gt;</source>
+        <translation>&lt;p class=&apos;critical&apos;&gt;合併的音訊檔案比描述檔案記錄的要短。檔案可能已損壞或不匹配。&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <location filename="../src/worker/AudioExtract.cpp" line="160"/>
+        <source>&lt;p class=&apos;warning&apos;&gt;The audio file appears shorter than expected. You may have exported the wrong range from your DAW. If you proceed, the following entries will be skipped because their start time is beyond the file end:&lt;/p&gt;&lt;ul&gt;</source>
+        <translation>&lt;p class=&apos;warning&apos;&gt;音訊檔案似乎比預期的要短。您可能從 DAW 匯出了錯誤的範圍。如果繼續，以下項目將被跳過，因為其開始時間超過了檔案末尾：&lt;/p&gt;&lt;ul&gt;</translation>
+    </message>
+    <message>
+        <location filename="../src/worker/AudioExtract.cpp" line="442"/>
         <source>Failed to seek in source file</source>
         <translation>找不到原始檔案</translation>
     </message>
     <message>
-        <location filename="../src/worker/AudioExtract.cpp" line="360"/>
-        <location filename="../src/worker/AudioExtract.cpp" line="400"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="456"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="496"/>
         <source>Unknown Error</source>
         <translation>未知錯誤</translation>
     </message>
@@ -696,7 +821,7 @@ Open download page?</source>
         <translation type="vanished">&lt;p class=&apos;critical&apos;&gt;描述檔案「%1」的版本號 %2 不受支援。預期版本號為 3, 4 或 5。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/worker/AudioExtract.cpp" line="92"/>
+        <location filename="../src/worker/AudioExtract.cpp" line="120"/>
         <source>&lt;p class=&apos;critical&apos;&gt;Missing volume file: &quot;%1&quot;&lt;/p&gt;</source>
         <translation>&lt;p class=&apos;critical&apos;&gt;缺少分卷檔案：「%1」&lt;/p&gt;</translation>
     </message>
